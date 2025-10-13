@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "ES2020",
     "module": "CommonJS",
-    "rootDir": "src",
+    "rootDir": "api.u-homes.com/src",
     "outDir": "dist",
     "esModuleInterop": true,
     "moduleResolution": "node",
@@ -12,6 +12,6 @@
     "forceConsistentCasingInFileNames": true,
     "sourceMap": true
   },
-  "include": ["src"],
+  "include": ["api.u-homes.com/src"],
   "exclude": ["node_modules"]
 }
