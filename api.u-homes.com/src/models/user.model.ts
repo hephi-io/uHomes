@@ -6,6 +6,9 @@ export interface IUser extends Document {
   phoneNumber: string
   password: string
   confirmPassword: string
+  role?: string
+  createdAt: Date
+  updatedAt: Date
 }
 
 const userSchema: Schema<IUser> = new Schema(
@@ -33,23 +36,16 @@ const userSchema: Schema<IUser> = new Schema(
       required: true,
       minlength: 6,
     },
-    confirmPassword: {
+    role:{
       type: String,
-      required: true,
-      minlength: 6,
-    },
+      enum: ['user', 'admin'],
+      default: 'user'
+    }
   },
   { timestamps: true }
  
 )
 
-//  remove confirmPassword before saving to DB
-userSchema.pre("save", function (next) {
-  if (this.password !== this.confirmPassword) {
-    return next(new Error("Passwords do not match"))
-  }
-  next()
-})
 
 const User = mongoose.model<IUser>("User", userSchema)
 
