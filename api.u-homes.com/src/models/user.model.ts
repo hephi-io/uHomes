@@ -1,12 +1,13 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema, Document } from "mongoose"
 
 export interface IUser extends Document {
   fullName: string
   email: string
   phoneNumber: string
   password: string
-  confirmPassword: string
   role?: string
+  isverified: boolean
+  verificationToken?: string 
   createdAt: Date
   updatedAt: Date
 }
@@ -36,17 +37,23 @@ const userSchema: Schema<IUser> = new Schema(
       required: true,
       minlength: 6,
     },
-    role:{
+    role: {
       type: String,
-      enum: ['user', 'admin'],
-      default: 'user'
-    }
+      enum: ["user", "admin"],
+      default: "user",
+    },
+    isverified: {
+      type: Boolean,
+      default: false,
+    },
+    verificationToken: {
+      type: String,
+      default: null,
+    },
   },
   { timestamps: true }
- 
 )
 
+const User = mongoose.model<IUser>("User", userSchema);
 
-const User = mongoose.model<IUser>("User", userSchema)
-
-export default User
+export default User;
