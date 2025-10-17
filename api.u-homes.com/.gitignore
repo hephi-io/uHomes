@@ -1,0 +1,14 @@
+# Node modules
+node_modules/
+
+# Build output
+dist/
+build/
+
+# IDE / Editor settings
+.vscode/
+.idea/
+*.swp
+
+# TypeScript cache
+*.tsbuildinfo
