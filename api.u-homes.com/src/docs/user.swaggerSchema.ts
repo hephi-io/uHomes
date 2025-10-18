@@ -187,3 +187,57 @@
  *           format: date-time
  *           example: "2025-10-17T18:17:45.390Z"
  */
+
+
+/**
+ * @openapi
+ * components:
+ *   schemas:
+ *     User:
+ *       type: object
+ *       properties:
+ *         _id:
+ *           type: string
+ *           example: 652df89ac5aefb6d92123456
+ *         fullName:
+ *           type: string
+ *           example: John Doe
+ *         email:
+ *           type: string
+ *           example: john@example.com
+ *         phoneNumber:
+ *           type: string
+ *           example: "+2348012345678"
+ *         role:
+ *           type: string
+ *           example: user
+ *         isverified:
+ *           type: boolean
+ *           example: true
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ *           example: "2025-10-17T18:16:31.818Z"
+ *         updatedAt:
+ *           type: string
+ *           format: date-time
+ *           example: "2025-10-17T18:17:45.390Z"
+ *     BadRequest:
+ *       type: object
+ *       properties:
+ *         error:
+ *           type: string
+ *           example: Invalid input data
+ *     Unauthorized:
+ *       type: object
+ *       properties:
+ *         error:
+ *           type: string
+ *           example: Unauthorized, token missing
+ *     NotFound:
+ *       type: object
+ *       properties:
+ *         error:
+ *           type: string
+ *           example: User not found
+ */

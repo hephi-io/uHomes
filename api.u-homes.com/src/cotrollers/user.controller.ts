@@ -54,8 +54,13 @@ export class UserController {
     }
   }
 
-  async update(req: Request, res: Response) {
+  async updateUser(req: Request, res: Response) {
     try {
+      
+      const userId = (req as any).user?.id;
+      if (!userId || userId !== req.params.id) {
+        return res.status(403).json({ success: false, message: "Forbidden" });
+      }
       const updatedUser = await this.userService.updateUser(req.params.id, req.body)
       res.json({ success: true, updatedUser })
     } catch (err: any) {
@@ -64,11 +69,27 @@ export class UserController {
   }
 
   async delete(req: Request, res: Response) {
-    try {
-      const result = await this.userService.deleteUser(req.params.id)
-      res.json({ success: true, ...result })
+      try {
+      const deletedUser = await this.userService.deleteUser(req.params.id);
+
+      if (!deletedUser) {
+        return res.status(404).json({ 
+          success: false, 
+          message: "User not found" 
+        });
+      }
+
+      res.status(200).json({
+        success: true,
+        message: "User deleted successfully"
+      });
     } catch (err: any) {
-      res.status(400).json({ success: false, message: err.message })
+      res.status(500).json({ 
+        success: false, 
+        message: "Server error" 
+      });
     }
+
   }
+    
 }

@@ -73,11 +73,31 @@ export class UserService {
     return user;
   }
 
-  async updateUser(id: string, data: Partial<IUser>) {
-    const user = await User.findByIdAndUpdate(id, data, { new: true });
-    if (!user) throw new Error("User not found");
-    return user;
-  }
+ async updateUser(id: string, data: Partial<IUser>) {
+  const user = await User.findByIdAndUpdate(id, data, { new: true });
+  if (!user) throw new Error("User not found");
+
+  // email content
+  const html = `
+    <h3>Account Update Notification</h3>
+    <p>Hi ${user.fullName || "User"},</p>
+    <p>Your account details were recently updated.</p>
+    <p>If you made this change, no action is needed.</p>
+    <p>If you did <b>NOT</b> make this change, please reset your password or contact support immediately.</p>
+    <br>
+    <p>Best regards,<br>UHomes Team</p>
+  `;
+
+  // Send notification email
+  await sendEmail(
+    user.email,
+    "Your UHomes Account Was Updated",
+    html
+  );
+
+  return user;
+}
+
 
   async deleteUser(id: string) {
     const user = await User.findByIdAndDelete(id);

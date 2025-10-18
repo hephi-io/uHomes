@@ -20,12 +20,22 @@ export const getUserByIdSchema = z.object({
   params: z.object({
     id: z.string().min(1, "User ID is required"),
   }),
-});
+})
 
 export const updateUserSchema = z.object({
   body: z.object({
     fullName: z.string().optional(),
+    email: z.string().email().optional(),
     phoneNumber: z.string().optional(),
-    role: z.enum(["user", "admin"]).optional(),
+    password: z.string().min(6).optional(),
   }),
-});
+})
+
+export const deleteUserSchema = z.object({
+  params: z.object({
+    id: z
+      .string()
+      .regex(/^[0-9a-fA-F]{24}$/, "Invalid user ID format"),
+  }),
+})
+
