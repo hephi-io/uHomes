@@ -1,5 +1,5 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import UHome from '@/assets/svgs/uHome.svg?react'
+import UHome from '@/assets/svgs/u-home.svg?react'
 import Signup from "./components/Signup"
 import Login from "./components/Login"
 import Blobs from "@/assets/pngs/Blobs Wrapper.png"
@@ -7,7 +7,7 @@ import Blobs from "@/assets/pngs/Blobs Wrapper.png"
 
 const Index = () => {
     return (
-        <section className="flex min-h-[70vh]  justify-center items-center  font-Bricolage" style={{
+        <section className="flex min-h-[100vh]  justify-center items-center  font-Bricolage" style={{
             backgroundImage: `url(${Blobs})`,
             backgroundSize: "cover",
             backgroundPosition: "center",

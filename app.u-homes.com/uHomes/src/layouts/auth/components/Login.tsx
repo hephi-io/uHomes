@@ -1,9 +1,22 @@
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import EyeOff from "@/assets/svgs/eye-off.svg?react"
 import { Button } from "@/components/ui/button"
+import TextField from "@/components/ui/shared/TextField"
+import { useForm } from "react-hook-form";
+
+
+interface LoginForm {
+  name: string;
+  email: string;
+  password: string;
+  phoneNumber: string;
+  currentPassword: string
+}
 
 const Login = () => {
+  const { control, handleSubmit } = useForm<LoginForm>({
+    defaultValues: { email: "", password: "" },
+  });
+
+  const onSubmit = (data: LoginForm) => console.log(data);
   return (
     <div>
       <div className="text-center">
@@ -14,48 +27,47 @@ const Login = () => {
       </div>
 
       <div className="pt-9">
-        <div className="space-y-6">
-
-          {/* Email */}
-          <div>
-            <Label htmlFor="email" className="font-normal text-sm text-zinc-950 mb-2.5 block">
-              Email address:
-            </Label>
-            <Input
-              id="email"
-              type="email"
-              className="border border-zinc-200 font-normal text-sm placeholder:text-[#71717A]"
-              placeholder="name@example.com"
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className="space-y-6">
+            <TextField
+              name="email"
+              control={control}
+              label="Email"
+              placeholder="Enter your email"
+              rules={{
+                required: "Email is required",
+                pattern: {
+                  value: /^\S+@\S+$/i,
+                  message: "Enter a valid email address",
+                },
+              }}
             />
+
+            <TextField
+              name="password"
+              control={control}
+              label="Password"
+              type="password"
+              placeholder="Enter your password"
+              rules={{
+                required: "Password is required",
+                minLength: {
+                  value: 6,
+                  message: "Password must be at least 6 characters",
+                },
+              }}
+            />
+
+            <Button
+              type="submit"
+              variant="outline"
+              className="bg-[#3E78FF] text-white border border-[#E4E4E4EE] px-4 py-2 w-full font-medium text-sm rounded-md cursor-pointer"
+            >
+              Log In
+            </Button>
           </div>
+        </form>
 
-
-          {/* Password */}
-          <div className="flex flex-col gap-2.5">
-            <Label htmlFor="password" className="font-normal text-sm text-zinc-950">
-              Password
-            </Label>
-            <div className="relative">
-              <Input
-                id="password"
-                type="password"
-                className="w-full border border-zinc-200 font-normal text-sm placeholder:text-[#71717A] rounded-md py-2.5 pl-3 pr-10"
-                placeholder="enter your  password"
-              />
-              <EyeOff className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-400 cursor-pointer" />
-            </div>
-          </div>
-
-
-
-          <Button
-            type="submit"
-            variant="outline"
-            className="bg-[#3E78FF] text-white border border-[#E4E4E4EE] px-4 py-2 w-full font-medium text-sm rounded-md cursor-pointer"
-          >
-            Log In
-          </Button>
-        </div>
 
         {/* Terms */}
         <div className="pt-6 max-w-xs w-full mx-auto">
