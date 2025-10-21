@@ -2,7 +2,7 @@ import express from "express";
 import { UserController } from "../cotrollers/user.controller";
 import { authenticate } from "../middlewares/auth.middleware";
 import { validate } from "../middlewares/validate.middleware";
-import { createUserSchema, loginSchema, getUserByIdSchema, updateUserSchema, deleteUserSchema  } from "../validation/user.validation";
+import { createUserSchema, loginSchema, getUserByIdSchema, updateUserSchema, deleteUserSchema, forgotPasswordSchema, resetPasswordSchema } from "../validation/user.validation";
 
 const router = express.Router();
 const controller = new UserController();
@@ -262,7 +262,80 @@ router.put("/:id", authenticate, validate(updateUserSchema), controller.updateUs
  *                   type: string
  *                   example: Server error
  */
-router.delete( "/:id",authenticate,validate(deleteUserSchema), controller.delete.bind(controller)
-);
+router.delete( "/:id",authenticate,validate(deleteUserSchema), controller.delete.bind(controller))
+
+
+/**
+ * @swagger
+ * /api/users/forgot-password:
+ *   post:
+ *     summary: Send password reset link to user email
+ *     description: Sends an email containing a password reset link to the user's registered email address.
+ *     tags: [Authentication]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: user@example.com
+ *     responses:
+ *       200:
+ *         description: Password reset link sent successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Password reset link sent to your email.
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Internal server error
+ */
+
+router.post("/forgot-password",validate(forgotPasswordSchema),controller.forgotPassword.bind(controller))
+
+
+/**
+ * @swagger
+ * /api/users/reset-password/{token}:
+ *   post:
+ *     summary: Reset user password
+ *     tags: [Authentication]
+ *     parameters:
+ *       - in: path
+ *         name: token
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Password reset token sent to user email
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - newPassword
+ *             properties:
+ *               newPassword:
+ *                 type: string
+ *                 example: newStrongPassword123
+ *     responses:
+ *       200:
+ *         description: Password reset successfully
+ *       400:
+ *         description: Invalid or expired reset token
+ */
+router.post("/reset-password/:token", validate(resetPasswordSchema),controller.resetPassword.bind(controller))
 
 export default router;

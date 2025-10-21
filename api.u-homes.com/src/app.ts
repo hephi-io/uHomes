@@ -1,7 +1,12 @@
 import express, {Express, NextFunction, Request, Response } from 'express';
 import cors from 'cors'
-import userRouter from './routers/user.router'
 import { swaggerDocs } from "./config/swagger";
+import errorMiddleware from './middlewares/error.middlewere'
+import morgan from 'morgan'
+import { stream } from "./utils/logger"
+
+import userRouter from './routers/user.router'
+
 
 
 declare module "express-serve-static-core" {
@@ -14,12 +19,23 @@ declare module "express-serve-static-core" {
 }
 const app = express()
 
+
+const morganFormat =
+  ":method :url :status :res[content-length] - :response-time ms";
+
+// Skip Swagger & favicon routes to avoid clutter
+  const skip = (req: express.Request, res: express.Response) => {
+  return req.originalUrl.startsWith("/api-docs") || req.originalUrl === "/favicon.ico";
+}
+
 app.use(cors({
   origin: "*", // Allow all origins (you can restrict this later)
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   allowedHeaders: ["Content-Type", "Authorization"],
 }));
 app.use(express.json())
+
+app.use(morgan(morganFormat, { stream, skip }))
 
 
 app.get('/', (req:Request, res:Response) => {
@@ -29,6 +45,8 @@ app.get('/', (req:Request, res:Response) => {
 app.use('/api/users', userRouter)
 
 swaggerDocs(app, Number(process.env.PORT) || 7000);
+
+app.use(errorMiddleware)
 
 export default app
 

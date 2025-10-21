@@ -39,3 +39,32 @@ export const deleteUserSchema = z.object({
   }),
 })
 
+
+
+// Forgot Password Schema (older syntax)
+export const forgotPasswordSchema = z.object({
+  body: z.object({
+    email: z
+      .string()
+      .nonempty("Email is required")
+      .email("Please provide a valid email address"),
+  }),
+});
+
+export const resetPasswordSchema = z.object({
+  params: z.object({
+    token: z
+      .string()
+      .nonempty("Reset token is required")
+      .min(10, "Invalid token format"),
+  }),
+  body: z
+    .object({
+      newPassword: z
+        .string()
+        .nonempty("New password is required")
+        .min(6, "Password must be at least 6 characters long"),
+      
+    })
+   
+});

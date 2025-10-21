@@ -241,3 +241,74 @@
  *           type: string
  *           example: User not found
  */
+
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     ForgotPasswordRequest:
+ *       type: object
+ *       required:
+ *         - email
+ *       properties:
+ *         email:
+ *           type: string
+ *           format: email
+ *           example: johndoe@example.com
+ *     ResetPasswordRequest:
+ *       type: object
+ *       required:
+ *         - newPassword
+ *       properties:
+ *         newPassword:
+ *           type: string
+ *           minLength: 6
+ *           example: myNewSecurePassword123
+ *   responses:
+ *     ForgotPasswordSuccess:
+ *       description: Password reset link sent successfully
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               status:
+ *                 type: string
+ *                 example: success
+ *               data:
+ *                 type: object
+ *                 properties:
+ *                   message:
+ *                     type: string
+ *                     example: Password reset link sent to your email.
+ *     ResetPasswordSuccess:
+ *       description: Password reset successfully
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               status:
+ *                 type: string
+ *                 example: success
+ *               data:
+ *                 type: object
+ *                 properties:
+ *                   message:
+ *                     type: string
+ *                     example: Password has been reset successfully.
+ *     ErrorResponse:
+ *       description: Error response
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               status:
+ *                 type: string
+ *                 example: error
+ *               message:
+ *                 type: string
+ *                 example: Invalid or expired token
+ */
