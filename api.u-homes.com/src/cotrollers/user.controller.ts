@@ -1,74 +1,114 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import { UserService } from "../service/user.service"
-
+import { ResponseHelper } from "../utils/response"
 
 export class UserController {
     private userService = new UserService()
     
 
-    register = async (req: Request, res: Response) => {
+    register = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { fullName, email, phoneNumber, password } = req.body;
       const result = await this.userService.register(fullName, email, phoneNumber, password);
-      res.status(201).json(result);
-    } catch (err: any) {
-      res.status(400).json({ error: err.message });
+      return ResponseHelper.created(res, result)
+    } catch (err) {
+      next(err)
     }
   };
 
-  verifyEmail = async (req: Request, res: Response) => {
+  verifyEmail = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { token } = req.params;
       const result = await this.userService.verifyEmail(token);
-      res.status(200).json(result);
+     return ResponseHelper.success(res, result)
     } catch (err: any) {
-      res.status(400).json({ error: err.message });
+      next(err)
     }
   };
 
-  login = async (req: Request, res: Response) => {
+  login = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { email, password } = req.body;
       const result = await this.userService.login(email, password);
-      res.status(200).json(result);
-    } catch (err: any) {
-      res.status(400).json({ error: err.message });
+      return ResponseHelper.success(res, result)
+    } catch (err) {
+      next(err)
     }
   };
 
-  async getAll(req: Request, res: Response) {
+  async getAll(req: Request, res: Response, next: NextFunction) {
     try {
       const users = await this.userService.getAllUsers()
-      res.json({ success: true, users })
-    } catch (err: any) {
-      res.status(500).json({ success: false, message: err.message })
+      return ResponseHelper.success(res, users )
+    } catch (err) {
+      next(err)
     }
   }
 
-  async getById(req: Request, res: Response) {
+  async getById(req: Request, res: Response, next: NextFunction) {
     try {
       const user = await this.userService.getUserById(req.params.id)
-      res.json({ success: true, user })
-    } catch (err: any) {
-      res.status(404).json({ success: false, message: err.message })
+      return ResponseHelper.success(res, user)
+    } catch (err) {
+       next(err)
     }
   }
 
-  async update(req: Request, res: Response) {
+  async updateUser(req: Request, res: Response, next: NextFunction  ) {
     try {
+      
+      const userId = (req as any).user?.id;
+      if (!userId || userId !== req.params.id) {
+        return ResponseHelper.forbidden(res, "forbidden");
+      }
       const updatedUser = await this.userService.updateUser(req.params.id, req.body)
-      res.json({ success: true, updatedUser })
+      return ResponseHelper.success(res, updatedUser)
     } catch (err: any) {
-      res.status(400).json({ success: false, message: err.message })
+       next(err)
     }
   }
 
-  async delete(req: Request, res: Response) {
+  async delete(req: Request, res: Response, next: NextFunction ) {
+      try {
+      const deletedUser = await this.userService.deleteUser(req.params.id);
+
+      return ResponseHelper.success(res, deletedUser)
+    } catch (err) {
+        next(err)
+    }
+
+  }
+
+ 
+  async forgotPassword(req: Request, res: Response, next: NextFunction  ) {
     try {
-      const result = await this.userService.deleteUser(req.params.id)
-      res.json({ success: true, ...result })
-    } catch (err: any) {
-      res.status(400).json({ success: false, message: err.message })
+      const { email } = req.body;
+
+      if (!email) {
+        return ResponseHelper.badRequest(res, { message: "Email is required" });
+      }
+
+      const result = await this.userService.forgotPassword(email);
+      return ResponseHelper.success(res, result)
+    } catch (err) {
+      next(err)
     }
   }
+
+  async resetPassword(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { token } = req.params
+      const { newPassword } = req.body
+
+      if (!token || !newPassword) {
+        return ResponseHelper.badRequest(res, {  message: "Token and new password are required"})
+      }
+
+      const result = await this.userService.resetPassword(token, newPassword)
+      return ResponseHelper.success(res, result)
+    } catch (err) {
+      next(err)
+    }
+  }
+    
 }

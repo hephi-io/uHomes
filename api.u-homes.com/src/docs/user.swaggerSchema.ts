@@ -187,3 +187,128 @@
  *           format: date-time
  *           example: "2025-10-17T18:17:45.390Z"
  */
+
+
+/**
+ * @openapi
+ * components:
+ *   schemas:
+ *     User:
+ *       type: object
+ *       properties:
+ *         _id:
+ *           type: string
+ *           example: 652df89ac5aefb6d92123456
+ *         fullName:
+ *           type: string
+ *           example: John Doe
+ *         email:
+ *           type: string
+ *           example: john@example.com
+ *         phoneNumber:
+ *           type: string
+ *           example: "+2348012345678"
+ *         role:
+ *           type: string
+ *           example: user
+ *         isverified:
+ *           type: boolean
+ *           example: true
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ *           example: "2025-10-17T18:16:31.818Z"
+ *         updatedAt:
+ *           type: string
+ *           format: date-time
+ *           example: "2025-10-17T18:17:45.390Z"
+ *     BadRequest:
+ *       type: object
+ *       properties:
+ *         error:
+ *           type: string
+ *           example: Invalid input data
+ *     Unauthorized:
+ *       type: object
+ *       properties:
+ *         error:
+ *           type: string
+ *           example: Unauthorized, token missing
+ *     NotFound:
+ *       type: object
+ *       properties:
+ *         error:
+ *           type: string
+ *           example: User not found
+ */
+
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     ForgotPasswordRequest:
+ *       type: object
+ *       required:
+ *         - email
+ *       properties:
+ *         email:
+ *           type: string
+ *           format: email
+ *           example: johndoe@example.com
+ *     ResetPasswordRequest:
+ *       type: object
+ *       required:
+ *         - newPassword
+ *       properties:
+ *         newPassword:
+ *           type: string
+ *           minLength: 6
+ *           example: myNewSecurePassword123
+ *   responses:
+ *     ForgotPasswordSuccess:
+ *       description: Password reset link sent successfully
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               status:
+ *                 type: string
+ *                 example: success
+ *               data:
+ *                 type: object
+ *                 properties:
+ *                   message:
+ *                     type: string
+ *                     example: Password reset link sent to your email.
+ *     ResetPasswordSuccess:
+ *       description: Password reset successfully
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               status:
+ *                 type: string
+ *                 example: success
+ *               data:
+ *                 type: object
+ *                 properties:
+ *                   message:
+ *                     type: string
+ *                     example: Password has been reset successfully.
+ *     ErrorResponse:
+ *       description: Error response
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               status:
+ *                 type: string
+ *                 example: error
+ *               message:
+ *                 type: string
+ *                 example: Invalid or expired token
+ */

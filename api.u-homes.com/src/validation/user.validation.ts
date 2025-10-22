@@ -20,12 +20,51 @@ export const getUserByIdSchema = z.object({
   params: z.object({
     id: z.string().min(1, "User ID is required"),
   }),
-});
+})
 
 export const updateUserSchema = z.object({
   body: z.object({
     fullName: z.string().optional(),
+    email: z.string().email().optional(),
     phoneNumber: z.string().optional(),
-    role: z.enum(["user", "admin"]).optional(),
+    password: z.string().min(6).optional(),
   }),
+})
+
+export const deleteUserSchema = z.object({
+  params: z.object({
+    id: z
+      .string()
+      .regex(/^[0-9a-fA-F]{24}$/, "Invalid user ID format"),
+  }),
+})
+
+
+
+// Forgot Password Schema (older syntax)
+export const forgotPasswordSchema = z.object({
+  body: z.object({
+    email: z
+      .string()
+      .nonempty("Email is required")
+      .email("Please provide a valid email address"),
+  }),
+});
+
+export const resetPasswordSchema = z.object({
+  params: z.object({
+    token: z
+      .string()
+      .nonempty("Reset token is required")
+      .min(10, "Invalid token format"),
+  }),
+  body: z
+    .object({
+      newPassword: z
+        .string()
+        .nonempty("New password is required")
+        .min(6, "Password must be at least 6 characters long"),
+      
+    })
+   
 });
