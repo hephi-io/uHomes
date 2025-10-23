@@ -1,4 +1,5 @@
-import 'dotenv/config';
+import dotenv from "dotenv"
+dotenv.config()
 import https from 'https';
 import fs from 'fs';
 import app from './app';
@@ -15,6 +16,18 @@ const httpsServer = https.createServer(
   app
 );
 
+if (process.env.NODE_ENV !== "test") {
+  connectDB()
+    .then(() => {
+      httpsServer.listen(PORT, () => {
+        console.log(`🚀 HTTPS Server running at https://localhost:${PORT}`);
+      });
+    })
+    .catch((error) => {
+      console.error("Failed to connect to the database", error);
+      process.exit(1);
+    })
+}
 
 connectDB()
   .then(() => {
