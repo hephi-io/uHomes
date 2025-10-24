@@ -1,6 +1,7 @@
 # Node modules
 node_modules/
-
+.env
+.env.test
 # Build output
 dist/
 build/
