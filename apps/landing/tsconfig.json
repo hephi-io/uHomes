@@ -1,0 +1,17 @@
+{
+  "extends": "@uhomes/typescript-config/react.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@uhomes/shared": ["../../packages/shared/src"],
+      "@uhomes/ui-kit": ["../../packages/ui-kit/src"]
+    }
+  },
+  "include": ["src"],
+  "references": [
+    {
+      "path": "./tsconfig.node.json"
+    }
+  ]
+}
