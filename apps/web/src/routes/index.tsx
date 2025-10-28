@@ -1,14 +1,21 @@
 import { createBrowserRouter } from "react-router-dom";
-import Hell02 from "../layouts/Hell02";
-import Index from "../layouts/auth/Index";
+import AuthLayout from "../layouts/auth-layout/Index";
+import Auth from "@/pages/auth/auth";
+import ForgotPassword from "@/pages/auth/forgot-password";
+import VerifyAccount from "@/pages/auth/verify-account";
+import ResetPassword from "@/pages/auth/reset-password";
+import ResetPasswordSuccess from "@/pages/auth/reset-password-success";
 const router = createBrowserRouter([
   {
-    path: "/",
-    element: <Hell02 />,
-  },
-  {
     path: "/auth",
-    element: <Index />,
+    element: <AuthLayout />,
+    children: [
+      {index: true, element: <Auth/>},
+      {path:"forgot-password", element: <ForgotPassword/>},
+      {path:"Verify-Account", element: <VerifyAccount/>},
+      {path:"reset-password", element: <ResetPassword/>},
+      {path:"reset-password-success", element: <ResetPasswordSuccess/>},
+    ]
   },
 ]);
 

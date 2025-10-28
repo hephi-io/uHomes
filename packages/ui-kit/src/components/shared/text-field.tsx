@@ -1,15 +1,10 @@
-import { useState } from "react";
-import { useController } from "react-hook-form";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
-import { Eye } from "lucide-react";
+import { useState } from 'react';
+import { useController } from 'react-hook-form';
+import { Input } from '../ui/input';
+import { Label } from '../ui/label';
+import { Eye, EyeClosedIcon } from 'lucide-react';
 
-import type {
-  Control,
-  FieldValues,
-  Path,
-  RegisterOptions,
-} from "react-hook-form";
+import type { Control, FieldValues, Path, RegisterOptions } from 'react-hook-form';
 
 interface TextFieldProps<T extends FieldValues> {
   name: Path<T>;
@@ -24,7 +19,7 @@ const TextField = <T extends FieldValues>({
   name,
   control,
   label,
-  type = "text",
+  type = 'text',
   placeholder,
   rules,
 }: TextFieldProps<T>) => {
@@ -34,25 +29,24 @@ const TextField = <T extends FieldValues>({
   } = useController<T>({ name, control, rules });
 
   const [showPassword, setShowPassword] = useState(false);
-  const isPassword = type === "password";
+  const isPassword = type === 'password';
 
   return (
-    <div className="flex flex-col gap-1.5 relative">
-      <Label
-        htmlFor={name}
-        className="font-normal text-sm text-zinc-950 mb-1.5 block"
-      >
-        {label}
-      </Label>
+    <div className="flex flex-col  relative">
+      {label && (
+        <Label htmlFor={name} className="font-normal text-sm text-zinc-950 mb-2  block">
+          {label}
+        </Label>
+      )}
 
       <div className="relative">
         <Input
           id={name}
           {...field}
-          type={isPassword && showPassword ? "text" : type}
+          type={isPassword && showPassword ? 'text' : type}
           placeholder={placeholder}
           className={`border-zinc-200 font-normal  placeholder:text-[#71717A] w-full border rounded-md px-3 py-2 text-sm outline-none transition pr-10 ${
-            error ? "border-red-500" : "border-gray-300 focus:border-[#4F61E8]"
+            error ? 'border-red-500' : 'border-gray-300 focus:border-[#4F61E8]'
           }`}
         />
 
@@ -64,9 +58,9 @@ const TextField = <T extends FieldValues>({
             tabIndex={-1}
           >
             {showPassword ? (
-              <Eye className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-400 cursor-pointer" />
+              <Eye  size={16} />
             ) : (
-              <Eye size={18} />
+              <EyeClosedIcon size={16} />
             )}
           </button>
         )}
