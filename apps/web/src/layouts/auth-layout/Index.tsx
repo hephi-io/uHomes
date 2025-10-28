@@ -1,5 +1,5 @@
-import Blobs from "@/assets/pngs/Blobs-Wrapper.png";
-import { Outlet } from "react-router-dom";
+import Blobs from '@/assets/pngs/Blobs-Wrapper.png';
+import { Outlet } from 'react-router-dom';
 
 const Index = () => {
   return (
@@ -11,7 +11,7 @@ const Index = () => {
       }}
     >
       <section>
-       <Outlet />
+        <Outlet />
       </section>
     </section>
   );

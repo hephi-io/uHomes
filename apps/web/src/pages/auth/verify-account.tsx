@@ -1,11 +1,10 @@
 import UHome from '@/assets/svgs/u-home.svg?react';
 import { Button } from '@uhomes/ui-kit';
 import { useNavigate } from 'react-router-dom';
-import Refreshcircle from '@/assets/svgs/refresh-circle.svg?react'
-
+import Refreshcircle from '@/assets/svgs/refresh-circle.svg?react';
 
 const VerifyAccount = () => {
-    const navigate = useNavigate()
+  const navigate = useNavigate();
   return (
     <section className="md:w-[494px] w-full flex  my-9 md:my-[108px] justify-center items-center   bg-white  p-4 md:p-10 rounded-none md:rounded-2xl">
       <div className=" w-full md:p-8 mb-9">
@@ -33,12 +32,15 @@ const VerifyAccount = () => {
             </Button>
           </div>
 
-          <div className='flex justify-between items-center'>
-            <Button variant='outline'  className='flex items-center gap-1 rounded-[10000px] bg-[#F4F4F4]  '>
+          <div className="flex justify-between items-center">
+            <Button
+              variant="outline"
+              className="flex items-center gap-1 rounded-[10000px] bg-[#F4F4F4]  "
+            >
               <Refreshcircle />
-              <span className='text-[#26203B] font-normal text-xs'>Resend code</span>
+              <span className="text-[#26203B] font-normal text-xs">Resend code</span>
             </Button>
-            <span className='text-[#FA3507] font-bold text-[13px]'>00.59s</span>
+            <span className="text-[#FA3507] font-bold text-[13px]">00.59s</span>
           </div>
         </div>
       </div>

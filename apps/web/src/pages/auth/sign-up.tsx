@@ -8,9 +8,9 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from "@uhomes/ui-kit";
-import { useForm } from "react-hook-form";
-import UserView from "@/assets/svgs/user-view.svg?react";
+} from '@uhomes/ui-kit';
+import { useForm } from 'react-hook-form';
+import UserView from '@/assets/svgs/user-view.svg?react';
 
 interface SignupForm {
   role: string;
@@ -31,27 +31,25 @@ const Signup = () => {
     formState: { errors },
   } = useForm<SignupForm>({
     defaultValues: {
-      role: "",
-      name: "",
-      email: "",
-      phone: "",
-      password: "",
-      confirmPassword: "",
+      role: '',
+      name: '',
+      email: '',
+      phone: '',
+      password: '',
+      confirmPassword: '',
     },
   });
 
-  const password = watch("password");
+  const password = watch('password');
 
   const onSubmit = (data: SignupForm) => {
-    console.log("Form Data:", data);
+    console.log('Form Data:', data);
   };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <div className="text-center">
-        <h2 className="font-semibold text-2xl text-zinc-950">
-          Create an Account
-        </h2>
+        <h2 className="font-semibold text-2xl text-zinc-950">Create an Account</h2>
         <p className="pt-2 font-normal text-sm text-zinc-500">
           Manage your property listings and bookings
         </p>
@@ -62,34 +60,29 @@ const Signup = () => {
           <label className="font-normal text-sm text-zinc-950 leading-[100%] mb-2.5 block">
             I want to join as:
           </label>
-          <Select
-            onValueChange={(value) => setValue("role", value)}
-            value={watch("role")}
-          >
+          <Select onValueChange={(value) => setValue('role', value)} value={watch('role')}>
             <SelectTrigger className="w-full py-1 px-3 rounded-md border border-zinc-200 flex justify-between items-center bg-white">
-              {" "}
+              {' '}
               <div className="flex gap-2 items-center">
-                {" "}
-                <UserView /> <SelectValue placeholder="Select your role" />{" "}
-              </div>{" "}
-            </SelectTrigger>{" "}
+                {' '}
+                <UserView /> <SelectValue placeholder="Select your role" />{' '}
+              </div>{' '}
+            </SelectTrigger>{' '}
             <SelectContent className="border bg-white border-zinc-200">
-              {" "}
+              {' '}
               <SelectGroup>
-                {" "}
+                {' '}
                 <SelectLabel className="font-normal text-sm text-[#09090B]">
-                  {" "}
-                  Property Owner{" "}
-                </SelectLabel>{" "}
-                <SelectItem value="owner">Property Owner</SelectItem>{" "}
-                <SelectItem value="agent">Agent</SelectItem>{" "}
-                <SelectItem value="tenant">Tenant</SelectItem>{" "}
-              </SelectGroup>{" "}
+                  {' '}
+                  Property Owner{' '}
+                </SelectLabel>{' '}
+                <SelectItem value="owner">Property Owner</SelectItem>{' '}
+                <SelectItem value="agent">Agent</SelectItem>{' '}
+                <SelectItem value="tenant">Tenant</SelectItem>{' '}
+              </SelectGroup>{' '}
             </SelectContent>
           </Select>
-          {errors.role && (
-            <p className="text-xs text-red-500 mt-1">{errors.role.message}</p>
-          )}
+          {errors.role && <p className="text-xs text-red-500 mt-1">{errors.role.message}</p>}
         </div>
         {/* Full Name */}
         <TextField
@@ -97,7 +90,7 @@ const Signup = () => {
           control={control}
           label="Full Name"
           placeholder="Enter your full name"
-          rules={{ required: "Full name is required" }}
+          rules={{ required: 'Full name is required' }}
         />
 
         {/* Email */}
@@ -107,10 +100,10 @@ const Signup = () => {
           label="Email Address"
           placeholder="Enter your email address"
           rules={{
-            required: "Email is required",
+            required: 'Email is required',
             pattern: {
               value: /^\S+@\S+$/i,
-              message: "Enter a valid email address",
+              message: 'Enter a valid email address',
             },
           }}
         />
@@ -122,10 +115,10 @@ const Signup = () => {
           label="Phone Number"
           placeholder="Enter your phone number"
           rules={{
-            required: "Phone number is required",
+            required: 'Phone number is required',
             pattern: {
               value: /^[0-9]{10,}$/,
-              message: "Enter a valid phone number",
+              message: 'Enter a valid phone number',
             },
           }}
         />
@@ -138,10 +131,10 @@ const Signup = () => {
           type="password"
           placeholder="Create a password"
           rules={{
-            required: "Password is required",
+            required: 'Password is required',
             minLength: {
               value: 6,
-              message: "Password must be at least 6 characters",
+              message: 'Password must be at least 6 characters',
             },
           }}
         />
@@ -154,8 +147,8 @@ const Signup = () => {
           type="password"
           placeholder="Confirm your password"
           rules={{
-            required: "Please confirm your password",
-            validate: (value) => value === password || "Passwords do not match",
+            required: 'Please confirm your password',
+            validate: (value) => value === password || 'Passwords do not match',
           }}
         />
 
@@ -170,8 +163,8 @@ const Signup = () => {
         {/* Terms */}
         <div className="pt-6 max-w-xs w-full mx-auto">
           <p className="font-normal text-sm text-zinc-400 text-center">
-            By clicking continue, you agree to our{" "}
-            <span className="underline">Terms of Service</span> and{" "}
+            By clicking continue, you agree to our{' '}
+            <span className="underline">Terms of Service</span> and{' '}
             <span className="underline">Privacy Policy</span>.
           </p>
         </div>
