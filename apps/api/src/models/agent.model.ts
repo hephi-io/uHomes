@@ -1,20 +1,17 @@
 import mongoose, { Schema, Document } from "mongoose"
 
-export interface IUser extends Document {
+export interface IAgent extends Document {
   fullName: string
   email: string
   phoneNumber: string
   password: string
   role?: string
-  isverified: boolean
-  verificationToken?: string 
-  resetPasswordToken?: String
-  resetPasswordExpires?: Number 
+  isVerified: boolean 
   createdAt: Date
   updatedAt: Date
 }
 
-const userSchema: Schema<IUser> = new Schema(
+const agentSchema: Schema<IAgent> = new Schema(
   {
     fullName: {
       type: String,
@@ -41,27 +38,17 @@ const userSchema: Schema<IUser> = new Schema(
     },
     role: {
       type: String,
-      enum: ["user", "admin"],
-      default: "user",
+      enum: ["Agent","Student","Admin"],
+      default: "Agent",
     },
-    isverified: {
+    isVerified: {
       type: Boolean,
       default: false,
     },
-    verificationToken: {
-      type: String,
-      default: null,
-    },
-    resetPasswordToken: {
-       type: String 
-      },
-  resetPasswordExpires: {
-     type: Number 
-    }
   },
   { timestamps: true }
 )
 
-const User = mongoose.model<IUser>("User", userSchema);
+const User = mongoose.model<IAgent>("Agent", agentSchema);
 
 export default User;

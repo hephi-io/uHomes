@@ -19,7 +19,7 @@ const httpsServer = https.createServer(
 connectDB()
   .then(() => {
     httpsServer.listen(PORT, () => {
-      console.log(`🚀 HTTPS Server running at https://localhost:${PORT}`);
+      console.log(` HTTPS Server running at https://localhost:${PORT}`);
     });
   })
   .catch((error) => {
