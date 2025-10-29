@@ -1,5 +1,5 @@
 import { createBrowserRouter } from 'react-router-dom';
-import AuthLayout from '../layouts/auth-layout/Index';
+import AuthLayout from '../layouts/auth/Index';
 import Auth from '@/pages/auth/auth';
 import ForgotPassword from '@/pages/auth/forgot-password';
 import VerifyAccount from '@/pages/auth/verify-account';
