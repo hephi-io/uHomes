@@ -1,7 +1,7 @@
-@import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&display=swap');
 
-@import "tailwindcss";
-@import "tw-animate-css";
+@import 'tailwindcss';
+@import 'tw-animate-css';
 
 @source '../node_modules/@uhomes/ui-kit/src';
 
@@ -125,7 +125,7 @@
 }
 
 @theme {
-  --font-Bricolage: "Bricolage Grotesque";
+  --font-Bricolage: 'Bricolage Grotesque';
 }
 
 .bricolage-grotesque,
@@ -141,5 +141,5 @@ h4,
 h5,
 h6,
 span {
-  font-family: "Bricolage Grotesque";
+  font-family: 'Bricolage Grotesque';
 }

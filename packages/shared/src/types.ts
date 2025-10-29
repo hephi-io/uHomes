@@ -46,15 +46,15 @@ export interface PaginatedResponse<T> {
 // API endpoints
 export const API_ENDPOINTS = {
   AUTH: {
-    LOGIN: "/auth/login",
-    REGISTER: "/auth/register",
-    REFRESH: "/auth/refresh",
-    LOGOUT: "/auth/logout",
-    VERIFY_EMAIL: "/auth/verify-email",
+    LOGIN: '/auth/login',
+    REGISTER: '/auth/register',
+    REFRESH: '/auth/refresh',
+    LOGOUT: '/auth/logout',
+    VERIFY_EMAIL: '/auth/verify-email',
   },
   USER: {
-    PROFILE: "/user/profile",
-    UPDATE: "/user/update",
-    DELETE: "/user/delete",
+    PROFILE: '/user/profile',
+    UPDATE: '/user/update',
+    DELETE: '/user/delete',
   },
 } as const;
