@@ -49,6 +49,6 @@ const agentSchema: Schema<IAgent> = new Schema(
   { timestamps: true }
 )
 
-const User = mongoose.model<IAgent>("Agent", agentSchema);
+const Agent = mongoose.model<IAgent>("Agent", agentSchema);
 
-export default User;
+export default Agent;
