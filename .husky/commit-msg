@@ -1,4 +1,17 @@
-#!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
+#!/bin/sh
+# 🪝 Husky v9 pre-commit hook
 
-npx --no -- commitlint --edit ${1}
+# Load NVM only if available (safe for all environments)
+if [ -s "$HOME/.nvm/nvm.sh" ]; then
+  export NVM_DIR="$HOME/.nvm"
+  . "$NVM_DIR/nvm.sh"
+fi
+
+# Run lint-staged using the local package manager
+if command -v pnpm >/dev/null 2>&1; then
+  pnpm exec --no -- commitlint --edit ${1}
+elif command -v yarn >/dev/null 2>&1; then
+  yarn --no -- commitlint --edit ${1}
+else
+  npm exec --no -- commitlint --edit ${1}
+fi
