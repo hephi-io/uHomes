@@ -5,6 +5,8 @@ import ForgotPassword from '@/pages/auth/forgot-password';
 import VerifyAccount from '@/pages/auth/verify-account';
 import ResetPassword from '@/pages/auth/reset-password';
 import ResetPasswordSuccess from '@/pages/auth/reset-password-success';
+import AgentLayout from '@/layouts/agent/Index';
+import Dashboard from '@/pages/Agent/dashboard';
 const router = createBrowserRouter([
   {
     path: '/',
@@ -19,6 +21,17 @@ const router = createBrowserRouter([
       { path: 'Verify-Account', element: <VerifyAccount /> },
       { path: 'reset-password', element: <ResetPassword /> },
       { path: 'reset-password-success', element: <ResetPasswordSuccess /> },
+    ],
+  },
+
+  {
+    path: '/agent-dashboard',
+    element: <AgentLayout />,
+    children: [
+      {
+        index: true,
+        element: <Dashboard />,
+      },
     ],
   },
 ]);

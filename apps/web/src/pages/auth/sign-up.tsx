@@ -10,7 +10,7 @@ import {
   SelectValue,
 } from '@uhomes/ui-kit';
 import { useForm } from 'react-hook-form';
-import UserView from '@/assets/svgs/user-view.svg?react';
+import { SVGs } from '@/assets/svgs/Index';
 
 interface SignupForm {
   role: string;
@@ -65,7 +65,7 @@ const Signup = () => {
               {' '}
               <div className="flex gap-2 items-center">
                 {' '}
-                <UserView /> <SelectValue placeholder="Select your role" />{' '}
+                <SVGs.UserView /> <SelectValue placeholder="Select your role" />{' '}
               </div>{' '}
             </SelectTrigger>{' '}
             <SelectContent className="border bg-white border-zinc-200">
