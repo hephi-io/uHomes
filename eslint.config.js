@@ -1,3 +1,3 @@
-import eslintConfig from '@uhomes/eslint-config';
+const eslintConfig = require('@uhomes/eslint-config');
 
-export default eslintConfig;
+module.exports = eslintConfig;
