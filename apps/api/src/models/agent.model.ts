@@ -6,6 +6,8 @@ export interface IAgent extends Document {
   phoneNumber: string
   password: string
   role?: string
+  properties: mongoose.Types.ObjectId[]
+  totalRevenue?: number
   isVerified: boolean 
   createdAt: Date
   updatedAt: Date
@@ -41,6 +43,9 @@ const agentSchema: Schema<IAgent> = new Schema(
       enum: ["Agent","Student","Admin"],
       default: "Agent",
     },
+     properties: [
+      { type: Schema.Types.ObjectId, ref: "Property" }
+    ],
     isVerified: {
       type: Boolean,
       default: false,

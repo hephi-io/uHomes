@@ -4,9 +4,9 @@ import { swaggerDocs } from "./config/swagger";
 import errorMiddleware from './middlewares/error.middlewere'
 import morgan from 'morgan'
 import { stream } from "./utils/logger"
-
 import agentRouter from './routers/agent.router'
 import studentRouter from './routers/student.router'
+import propertyRouter from './routers/property.route';
 
 
 
@@ -45,6 +45,7 @@ app.get('/', (req:Request, res:Response) => {
 
 app.use('/api/agent', agentRouter)
 app.use('/api/student', studentRouter)
+app.use('/api/property', propertyRouter)
 
 swaggerDocs(app, Number(process.env.PORT) || 7000);
 
