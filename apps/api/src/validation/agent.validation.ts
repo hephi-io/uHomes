@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const createUserSchema = z.object({
+export const createAgentSchema = z.object({
   body: z.object({
     fullName: z.string().min(2, "Full name is required"),
     email: z.string().email("Invalid email"),
@@ -16,13 +16,13 @@ export const loginSchema = z.object({
   }),
 });
 
-export const getUserByIdSchema = z.object({
+export const getAgentByIdSchema = z.object({
   params: z.object({
     id: z.string().min(1, "User ID is required"),
   }),
 })
 
-export const updateUserSchema = z.object({
+export const updateAgentSchema = z.object({
   body: z.object({
     fullName: z.string().optional(),
     email: z.string().email().optional(),
@@ -31,7 +31,7 @@ export const updateUserSchema = z.object({
   }),
 })
 
-export const deleteUserSchema = z.object({
+export const deleteAgentSchema = z.object({
   params: z.object({
     id: z
       .string()

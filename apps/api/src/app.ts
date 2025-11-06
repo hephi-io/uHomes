@@ -5,7 +5,8 @@ import errorMiddleware from './middlewares/error.middlewere'
 import morgan from 'morgan'
 import { stream } from "./utils/logger"
 
-import userRouter from './routers/user.router'
+import agentRouter from './routers/agent.router'
+import studentRouter from './routers/student.router'
 
 
 
@@ -29,7 +30,7 @@ const morganFormat =
 }
 
 app.use(cors({
-  origin: "*", // Allow all origins (you can restrict this later)
+  origin: '*', // Allow all origins (you can restrict this later)
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   allowedHeaders: ["Content-Type", "Authorization"],
 }));
@@ -42,7 +43,8 @@ app.get('/', (req:Request, res:Response) => {
     res.send('welcome to U-Homes API')
 })
 
-app.use('/api/users', userRouter)
+app.use('/api/agent', agentRouter)
+app.use('/api/students', studentRouter)
 
 swaggerDocs(app, Number(process.env.PORT) || 7000);
 
