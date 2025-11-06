@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node dist/server.js",
     "dev": "nodemon src/server.ts",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "cross-env NODE_ENV=test jest --runInBand --detectOpenHandles"
   },
   "keywords": [],
   "author": "",
@@ -34,14 +34,21 @@
   "devDependencies": {
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
+    "@types/jest": "30.0.0",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/morgan": "^1.9.10",
     "@types/node": "^24.7.2",
     "@types/nodemailer": "^7.0.2",
+    "@types/supertest": "6.0.3",
     "@types/swagger-jsdoc": "^6.0.4",
     "@types/swagger-ui-express": "^4.1.8",
     "@uhomes/typescript-config": "workspace:*",
+    "cross-env": "10.1.0",
+    "jest": "30.2.0",
+    "mongodb-memory-server": "10.2.3",
     "nodemon": "^3.1.10",
+    "supertest": "7.1.4",
+    "ts-jest": "29.4.5",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
   }

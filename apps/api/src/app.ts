@@ -44,7 +44,7 @@ app.get('/', (req:Request, res:Response) => {
 })
 
 app.use('/api/agent', agentRouter)
-app.use('/api/students', studentRouter)
+app.use('/api/student', studentRouter)
 
 swaggerDocs(app, Number(process.env.PORT) || 7000);
 

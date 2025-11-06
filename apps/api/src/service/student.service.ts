@@ -204,7 +204,7 @@ export class StudentService {
     console.log("Reset Token Received:", tokenString) // Debug
 
     // Find the token and fetch the student if token exists
-    const student = await Token.findOne({token: tokenString, typeOff: "resetPassword",expiresAt: { $gt: new Date() },}).then(t => t ? Student.findById(t.userId) : null)
+    const student = await Token.findOne({token: tokenString, typeOf: "resetPassword",expiresAt: { $gt: new Date() },}).then(t => t ? Student.findById(t.userId) : null)
     console.log("Student Found for Reset:", student) // Debug
 
     if (!student) throw new BadRequestError("Invalid or expired reset token")
@@ -230,6 +230,7 @@ export class StudentService {
 
   async resendResetToken(email: string) {
     const student = await Student.findOne({ email })
+    console.log("Controller received email:", email)  
     if (!student) throw new NotFoundError("Student not found")
 
     await Token.deleteMany({ userId: student._id, typeOf: "resetPassword" })
