@@ -12,84 +12,118 @@ import {
 
 export class StudentService {
   
-  async register(fullName: string,email: string,phoneNumber: string,university: string,yearOfStudy: string,password: string) {
-    const existingUser = await Student.findOne({ email })
-    if (existingUser) throw new Error("Email already in use")
+  async register(fullName: string, email: string, phoneNumber: string, university: string, yearOfStudy: string, password: string) {
+  const existingUser = await Student.findOne({ email })
+  if (existingUser) throw new Error("Email already in use")
 
-    const hashedPassword = await bcrypt.hash(password, 10)
+  const hashedPassword = await bcrypt.hash(password, 10)
 
-    const student = new Student({
-      fullName,
-      email,
-      phoneNumber,
-      university,
-      yearOfStudy,
-      password: hashedPassword,
-    })
-    await student.save()
+  const student = new Student({
+    fullName,
+    email,
+    phoneNumber,
+    university,
+    yearOfStudy,
+    password: hashedPassword,
+  })
+  await student.save()
 
-    // Generate token for email verification
-    const verificationToken = randomBytes(32).toString("hex")
+  // Generate a 6-digit OTP
+  const otp = Math.floor(100000 + Math.random() * 900000).toString()
 
-    await Token.create({
-      userId: student._id,
-      role: "Student",
-      typeOf: "emailVerification",
-      token: verificationToken,
-      expiresAt: new Date(Date.now() + 60 * 60 * 1000), // 1 hour expiry
-    })
+  await Token.create({
+    userId: student._id,
+    role: "Student",
+    typeOf: "emailVerification",
+    token: otp,
+    expiresAt: new Date(Date.now() + 10 * 60 * 1000), // OTP valid for 10 minutes
+  })
 
-    // Send verification email
-    const verifyLink = `${process.env.BASE_URL}/api/students/verify-email/${verificationToken}`
-    const html = `
-      <h3>Welcome to U-Homes!</h3>
-      <p>Please verify your email by clicking the link below:</p>
-      <a href="${verifyLink}">Verify Email</a>
-    `
-    await sendEmail(email, "Verify Your Email", html)
+  // Send OTP via email
+  const html = `
+    <h3>Welcome to U-Homes!</h3>
+    <p>Your verification OTP is:</p>
+    <h2>${otp}</h2>
+    <p>It will expire in 10 minutes.</p>
+  `
+  await sendEmail(email, "Verify Your Email", html)
 
-    return { message: "Verification email sent. Please check your inbox." }
-  }
+  return { message: "Verification OTP sent. Please check your inbox." }
+}
 
-  async verifyEmail(tokenString: string) {
-      const student = await Token.findOne({
-        token: tokenString,
-        typeOf: "emailVerification",}).then(t => t ? Student.findById(t.userId) : null)
 
-      if (!student) throw new BadRequestError("Invalid or expired verification token")
+  async verifyEmail(otp: string) {
+     
+     const tokenDoc = await Token.findOne({
+       token: otp, typeOf: "emailVerification", expiresAt: { $gt: new Date() }
+     })
+     if (!tokenDoc) throw new BadRequestError("Invalid or expired verification code")
+ 
+     const attempts = await Token.countDocuments({
+       userId: tokenDoc.userId,
+       typeOf: "emailVerification"
+     })
+     if (attempts > 5) throw new BadRequestError("Too many verification attempts. Please request a new code.")
+ 
+     const student = await Student.findById(tokenDoc.userId)
+     if (!student) throw new NotFoundError("Student not found")
+ 
+     student.isVerified = true
+     await student.save()
+ 
+   
+     await tokenDoc.deleteOne()
+ 
+     return { message: "Email verified successfully" }
+   }
 
-      student.isVerified = true
-      await student.save()
 
-      // delete the token after verification
-      await Token.deleteOne({ token: tokenString})
+  async resendVerification(email: string) {
+  const student = await Student.findOne({ email })
+  if (!student) throw new NotFoundError("Student not found")
 
-      return { message: "Email verified successfully" }
-    }
+  if (student.isVerified)
+    throw new BadRequestError("Email already verified")
 
-    async resendVerification(email: string) {
-    const student = await Student.findOne({ email })
-    if (!student) throw new NotFoundError("Student not found")
-    if (student.isVerified) throw new BadRequestError("Email already verified")
+  // Limit how many OTPs can be requested before expiry
+  const attempts = await Token.countDocuments({
+    userId: student._id,
+    typeOf: "emailVerification",
+    expiresAt: { $gt: new Date() }
+  })
+  if (attempts >= 5)
+    throw new BadRequestError("Too many OTP requests. Please try again later.")
 
-    const verificationToken = randomBytes(32).toString("hex")
-    await Token.create({
-      userId: student._id,
-      role: "Student",
-      typeOf: "emailVerification",
-      token: verificationToken,
-      expiresAt: new Date(Date.now() + 60 * 60 * 1000),
-    })
+  // Clear previous OTPs
+  await Token.deleteMany({
+    userId: student._id,
+    typeOf: "emailVerification"
+  })
 
-    const verifyLink = `${process.env.BASE_URL}/api/students/verify-email/${verificationToken}`
-    const html = `
-      <h3>Welcome back to U-Homes!</h3>
-      <p>Please verify your email by clicking the link below:</p>
-      <a href="${verifyLink}">Verify Email</a>
-    `
-    await sendEmail(student.email, "Verify Your Email", html)
-    return { message: "Verification email resent successfully." }
-  }
+  // Generate new OTP (6 digits)
+  const otp = Math.floor(100000 + Math.random() * 900000).toString()
+
+  await Token.create({
+    userId: student._id,
+    role: "Student",
+    typeOf: "emailVerification",
+    token: otp,
+    expiresAt: new Date(Date.now() + 10 * 60 * 1000) // 10 minutes expiry
+  })
+
+  // Send OTP via email
+  const html = `
+    <h3>Welcome to U-Homes!</h3>
+    <p>Your verification code is:</p>
+    <h2>${otp}</h2>
+    <p>This code will expire in 10 minutes.</p>
+  `
+  await sendEmail(email, "Your U-Homes Verification Code", html)
+
+  return { message: "Verification code sent successfully." }
+}
+
+
 
   async login(email: string, password: string) {
     const student = await Student.findOne({ email })

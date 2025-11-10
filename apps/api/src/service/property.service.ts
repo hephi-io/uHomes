@@ -31,7 +31,7 @@ export class PropertyService {
     const newProperty = await Property.create({
       ...data,
       images: uploadedImages,
-      agentId: [agentId]
+      agentId
     })
 
     await Agent.findByIdAndUpdate(agentId, {
@@ -113,12 +113,19 @@ export class PropertyService {
   }
 
   async deleteSingleImage(propertyId: string, cloudinaryId: string): Promise<IProperty> {
-    const property = await Property.findById(propertyId)
-    if (!property) throw new NotFoundError("Property not found")
+    // Validate property exists
+    const property = await Property.findById(propertyId);
+    if (!property) throw new NotFoundError("Property not found");
 
-    await cloudinary.uploader.destroy(cloudinaryId)
-    property.images = property.images.filter(img => img.cloudinary_id !== cloudinaryId)
-    await property.save()
-    return property
+    // Delete from Cloudinary
+    await cloudinary.uploader.destroy(cloudinaryId);
+
+    // Remove the image from property.images array
+    property.images = property.images.filter(img => img.cloudinary_id !== cloudinaryId);
+
+    // Save the property
+    await property.save();
+
+    return property;
   }
 }

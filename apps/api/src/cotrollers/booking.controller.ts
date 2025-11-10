@@ -26,16 +26,22 @@ export class BookingController {
   }
 
   getAgentBookings = async (req: Request, res: Response, next: NextFunction) => {
-    const user = req.user as { id: string } | undefined
-    try {
-      const bookings = await this.bookingService.getBookingsByAgent(req.params.agentId, user?.id as string)
-      return ResponseHelper.success(res, bookings)
-    } catch (err) {
-      next(err)
-    }
-  }
+  try {
+    const user = req.user
+    const { agentId } = req.params
 
-   getAllBookings = async (req: Request, res: Response, next: NextFunction) => {
+     if (!user) {
+     return ResponseHelper.fail(res, 'Unauthorized: no user found', 401)
+    }
+    const bookings = await this.bookingService.getBookingsByAgent(agentId, user.id)
+    return ResponseHelper.success(res, bookings)
+  } catch (err) {
+    next(err)
+  }
+ }
+
+
+  getAllBookings = async (req: Request, res: Response, next: NextFunction) => {
     const user = req.user as { id: string; role: string }
     try {
       const bookings = await this.bookingService.getAllBookings(user)

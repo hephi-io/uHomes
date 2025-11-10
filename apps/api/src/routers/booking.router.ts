@@ -9,7 +9,7 @@ const bookingController = new BookingController()
 
 /**
  * @swagger
- * /api/booking:
+ * /api/booking/createBooking:
  *   post:
  *     summary: Create a new booking
  *     tags: [Booking]
@@ -26,12 +26,29 @@ const bookingController = new BookingController()
  *         description: Booking created successfully
  *         content:
  *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Booking'
+ *             example:
+ *               success: true
+ *               message: Booking created successfully
+ *               data:
+ *                 _id: 67312ef4d47ab3e5f02a9c51
+ *                 property: 6720f1a96b4d3e12b8c4f412
+ *                 tenantName: John Doe
+ *                 tenantEmail: johndoe@example.com
+ *                 tenantPhone: +2348091234567
+ *                 moveInDate: 2025-12-01
+ *                 moveOutDate: 2026-06-01
+ *                 duration: 6 months
+ *                 amount: 250000
+ *                 status: pending
+ *                 paymentStatus: pending
+ *                 notes: Tenant requested early move-in if possible
  *       400:
  *         description: Bad request (missing or invalid fields)
+ *       401:
+ *         description: Unauthorized
  */
-router.post('/',authenticate,validate(bookingSchema),bookingController.createBooking)
+router.post('/createBooking',authenticate,validate(bookingSchema),bookingController.createBooking)
+
 
 /**
  * @swagger
@@ -53,14 +70,29 @@ router.post('/',authenticate,validate(bookingSchema),bookingController.createBoo
  *         description: Booking retrieved successfully
  *         content:
  *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Booking'
+ *             example:
+ *               success: true
+ *               data:
+ *                 _id: 67312ef4d47ab3e5f02a9c51
+ *                 property:
+ *                   _id: 6720f1a96b4d3e12b8c4f412
+ *                   title: Cozy Apartment
+ *                   location: Lekki Phase 1, Lagos
+ *                   price: 250000
+ *                 tenant:
+ *                   _id: 671fea7a8e2b5c63d4a90a23
+ *                   fullName: John Doe
+ *                   email: johndoe@example.com
+ *                   phoneNumber: +2348091234567
+ *                 status: pending
+ *                 duration: 6 months
+ *                 amount: 250000
  *       400:
  *         description: Invalid booking ID
  *       404:
  *         description: Booking not found
  *       401:
- *         description: Unauthorized access
+ *         description: Unauthorized
  */
 router.get('/:id',authenticate, bookingController.getBooking)
 
@@ -81,31 +113,50 @@ router.get('/:id',authenticate, bookingController.getBooking)
  *           type: string
  *     responses:
  *       200:
- *         description: List of agent bookings
+ *         description: Bookings fetched successfully
  *         content:
  *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Booking'
- *       400:
- *         description: Invalid agent ID
+ *             example:
+ *               success: true
+ *               data:
+ *                 - _id: 67312ef4d47ab3e5f02a9c51
+ *                   property:
+ *                     title: "Luxury Apartment"
+ *                     location: "Ikeja, Lagos"
+ *                     price: 250000
+ *                   tenant:
+ *                     fullName: "John Doe"
+ *                     email: "johndoe@example.com"
+ *                     phone: "+2348091234567"
+ *                   status: confirmed
+ *                   amount: 250000
+ *                 - _id: 67312ef4d47ab3e5f02a9c52
+ *                   property:
+ *                     title: "Cozy Studio"
+ *                     location: "Lekki, Lagos"
+ *                     price: 180000
+ *                   tenant:
+ *                     fullName: "Mary Johnson"
+ *                     email: "maryj@example.com"
+ *                     phone: "+2348023456789"
+ *                   status: pending
+ *                   amount: 180000
  *       401:
- *         description: Unauthorized access
+ *         description: Unauthorized
  */
 router.get('/agent/:agentId',authenticate,bookingController.getAgentBookings)
 
 /**
  * @swagger
- * /api/bookings:
+ * /api/booking:
  *   get:
  *     summary: Get all bookings
- *     description: 
+ *     description: >
  *       Retrieve all bookings based on the user's role.  
- *       - **Admin:** Can view all bookings.  
- *       - **Agent:** Can view only their assigned bookings.  
- *       - **Student:** Can view only their own bookings.
- *     tags: [Bookings]
+ *       - **Admin:** Can view all bookings  
+ *       - **Agent:** Can view only their assigned bookings  
+ *       - **Student:** Can view only their own bookings
+ *     tags: [Booking]
  *     security:
  *       - bearerAuth: []
  *     responses:
@@ -171,17 +222,22 @@ router.get('/', authenticate, bookingController.getAllBookings)
  *               status:
  *                 type: string
  *                 enum: [pending, confirmed, cancelled, completed]
+ *                 example: confirmed
  *     responses:
  *       200:
  *         description: Booking status updated successfully
  *         content:
  *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Booking'
+ *             example:
+ *               success: true
+ *               message: Booking status updated
+ *               data:
+ *                 _id: 67312ef4d47ab3e5f02a9c51
+ *                 status: confirmed
  *       400:
  *         description: Invalid booking ID or status
  *       401:
- *         description: Unauthorized access
+ *         description: Unauthorized
  *       404:
  *         description: Booking not found
  */
@@ -192,12 +248,7 @@ router.patch('/:id/status',authenticate,validate(updateBookingStatusSchema),book
  * /api/booking/{id}:
  *   delete:
  *     summary: Delete a booking
- *     description: 
- *       Delete a specific booking by ID.  
- *       - **Admin:** Can delete any booking.  
- *       - **Agent:** Can delete only their assigned bookings.  
- *       - **Student:** Can delete only their own bookings.
- *     tags: [Bookings]
+ *     tags: [Booking]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -218,29 +269,11 @@ router.patch('/:id/status',authenticate,validate(updateBookingStatusSchema),book
  *               message: Booking deleted successfully
  *               data:
  *                 _id: 67312ef4d47ab3e5f02a9c51
- *                 property:
- *                   _id: 6720f1a96b4d3e12b8c4f412
- *                   title: Cozy Apartment
- *                   location: Lekki Phase 1, Lagos
- *                   price: 250000
- *                 tenant:
- *                   _id: 671fea7a8e2b5c63d4a90a23
- *                   fullName: John Doe
- *                   email: johndoe@example.com
- *                 agent:
- *                   _id: 671ff8d56c3a4b21b9f72e99
- *                   fullName: Agent Mike
- *                   email: agentmike@example.com
- *                 moveInDate: 2025-12-01
- *                 duration: 6 months
- *                 amount: 250000
  *                 status: confirmed
- *                 paymentStatus: paid
- *                 notes: Tenant requested early move-in if possible
  *       400:
  *         description: Invalid booking ID
  *       401:
- *         description: Unauthorized - You do not have permission to delete this booking
+ *         description: Unauthorized
  *       404:
  *         description: Booking not found
  */

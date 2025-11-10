@@ -1,6 +1,7 @@
-import { Request, Response, NextFunction } from "express";
+import type { Request, Response, NextFunction } from "express";
 import { AgentService } from "../service/agent.service"
 import { ResponseHelper } from "../utils/response"
+import mongoose from "mongoose"
 
 export class AgentController {
   private agentService = new AgentService()
@@ -18,8 +19,8 @@ export class AgentController {
 
   async verifyEmail (req: Request, res: Response, next: NextFunction) {
     try {
-      const { token } = req.params;
-      const result = await this.agentService.verifyEmail(token)
+      const { otp } = req.params;
+      const result = await this.agentService.verifyEmail(otp)
 
       if (!result) {
       return ResponseHelper.fail(res, { message: "Email verification failed" }, 400)
@@ -46,10 +47,11 @@ export class AgentController {
   async login (req: Request, res: Response, next: NextFunction) {
     try {
       const { email, password } = req.body;
-      const result = await this.agentService.login(email, password);
-      if(!result){
-        return ResponseHelper.fail(res, { message: "Login failed" }, 404)
+      
+      if (!email || !password) {
+        return ResponseHelper.badRequest(res, { message: "Email and password are required" })
       }
+      const result = await this.agentService.login(email, password);
       return ResponseHelper.success(res, result)
     } catch (err) {
       next(err)
@@ -66,17 +68,27 @@ export class AgentController {
   }
 
   async getById(req: Request, res: Response, next: NextFunction) {
-    try {
-      const agent = await this.agentService.getAgentById(req.params.id)
-      if (!agent) {
-        return ResponseHelper.fail(res, "Agent not found", 404)
-      }
-      return ResponseHelper.success(res, agent)
-    } catch (err) {
-       next(err)
-    }
-  }
+  try {
+    const { id } = req.params
+    console.log("getById hit:", id)
 
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return ResponseHelper.fail(res, "Invalid ID format", 400)
+    }
+
+    const agent = await this.agentService.getAgentById(id)
+      console.log("Agent found:", agent)
+    if (!agent) {
+      return ResponseHelper.fail(res, "Agent not found", 404)
+    }
+
+    return ResponseHelper.success(res, agent)
+  } catch (err) {
+    console.error("Controller error:", err)
+    next(err)
+  }
+ }
+ 
   async updateAgent(req: Request, res: Response, next: NextFunction  ) {
     try {
       
@@ -93,21 +105,32 @@ export class AgentController {
     }
   }
 
-  async delete(req: Request, res: Response, next: NextFunction ) {
-      try {
-      const deletedAgent = await this.agentService.deleteAgent(req.params.id);
-      
+  async delete(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params
+
+      console.log("delete hit:", id)
+
+      // Validate ObjectId
+      if (!mongoose.Types.ObjectId.isValid(id)) {
+        return ResponseHelper.fail(res, "Invalid ID format", 400)
+      }
+
+      const deletedAgent = await this.agentService.deleteAgent(id)
+
+      console.log("Deleted agent:", deletedAgent)
+
       if (!deletedAgent) {
         return ResponseHelper.fail(res, "Agent not found", 404)
       }
 
       return ResponseHelper.success(res, deletedAgent)
     } catch (err) {
-        next(err)
+      console.error("delete error:", err)
+      next(err)
     }
-
-  }
-
+   }
+  
  
   async forgotPassword(req: Request, res: Response, next: NextFunction  ) {
     try {

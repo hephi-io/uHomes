@@ -6,7 +6,8 @@ import morgan from 'morgan'
 import { stream } from "./utils/logger"
 import agentRouter from './routers/agent.router'
 import studentRouter from './routers/student.router'
-import propertyRouter from './routers/property.route';
+import propertyRouter from './routers/property.route'
+import bookingRouter from './routers/booking.router'
 
 
 
@@ -35,7 +36,7 @@ app.use(cors({
   allowedHeaders: ["Content-Type", "Authorization"],
 }));
 app.use(express.json())
-
+app.use(express.urlencoded({ extended: true }))
 app.use(morgan(morganFormat, { stream, skip }))
 
 
@@ -46,6 +47,7 @@ app.get('/', (req:Request, res:Response) => {
 app.use('/api/agent', agentRouter)
 app.use('/api/student', studentRouter)
 app.use('/api/property', propertyRouter)
+app.use('/api/booking', bookingRouter)
 
 swaggerDocs(app, Number(process.env.PORT) || 7000);
 

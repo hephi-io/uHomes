@@ -104,7 +104,11 @@ export class PropertyController {
   async deleteSingleImage(req: Request, res: Response){
     try {
       const { id } = req.params
-      const { cloudinaryId } = req.body
+      const { cloudinaryId } = req.body || {}
+
+      if (!cloudinaryId) {
+      return res.status(400).json({ message: "cloudinaryId is required" })
+    }
 
       await this.propertyService.deleteSingleImage(id, cloudinaryId)
 

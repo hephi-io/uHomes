@@ -17,7 +17,7 @@ const Controller = new StudentController()
 
 /**
  * @openapi
- * /api/students/register:
+ * /api/student/register:
  *   post:
  *     summary: Register a new student
  *     tags: [Students]
@@ -36,28 +36,33 @@ const Controller = new StudentController()
 router.post("/register", validate(createStudentSchema), Controller.register.bind(Controller))
 
 /**
- * @openapi
- * /api/students/verify-email/{token}:
- *   get:
- *     summary: Verify student email
- *     tags: [Students]
- *     parameters:
- *       - name: token
- *         in: path
- *         required: true
- *         schema:
- *           type: string
+ * @swagger
+ * /students/verify-email:
+ *   post:
+ *     summary: Verify a student's email using OTP
+ *     tags:
+ *       - Students
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/VerifyEmailInput'
  *     responses:
  *       200:
- *         description: Email verified successfully
+ *         $ref: '#/components/responses/EmailVerifiedSuccess'
  *       400:
- *         $ref: '#/components/responses/BadRequestError'
+ *         oneOf:
+ *           - $ref: '#/components/responses/VerificationCodeError'
+ *           - $ref: '#/components/responses/TooManyAttemptsError'
+ *       404:
+ *         $ref: '#/components/responses/NotFoundError'
  */
-router.get("/verify-email/:token", Controller.verifyEmail.bind(Controller))
+router.get("/verify-email", Controller.verifyEmail.bind(Controller))
 
 /**
  * @openapi
- * /api/students/resend-verification:
+ * /api/student/resend-verification:
  *   post:
  *     summary: Resend email verification link
  *     tags: [Authentication]
@@ -82,7 +87,7 @@ router.post("/resend-verification", Controller.resendVerification.bind(Controlle
 
 /**
  * @openapi
- * /api/students/login:
+ * /api/student/login:
  *   post:
  *     summary: Login as a student
  *     tags: [Students]
@@ -104,7 +109,7 @@ router.post("/login", validate(loginSchema), Controller.login.bind(Controller))
 
 /**
  * @openapi
- * /api/students:
+ * /api/student:
  *   get:
  *     summary: Get all students
  *     tags: [Students]
@@ -116,16 +121,19 @@ router.get("/", authenticate, Controller.getAll.bind(Controller))
 
 /**
  * @openapi
- * /api/students/{id}:
+ * /api/student/{id}:
  *   get:
- *     summary: Get a single student by ID
+ *     summary: Get a student by ID
  *     tags: [Students]
+ *     security:
+ *       - BearerAuth: []
  *     parameters:
  *       - name: id
  *         in: path
  *         required: true
  *         schema:
  *           type: string
+ *         description: Student ID
  *     responses:
  *       200:
  *         description: Student details retrieved successfully
@@ -136,7 +144,7 @@ router.get("/:id", authenticate, validate(getStudentByIdSchema), Controller.getB
 
 /**
  * @openapi
- * /api/students/{id}:
+ * /api/student/{id}:
  *   put:
  *     summary: Update student details
  *     tags: [Students]
@@ -162,7 +170,7 @@ router.put("/:id", authenticate, validate(updateStudentSchema), Controller.updat
 
 /**
  * @openapi
- * /api/students/{id}:
+ * /api/student/{id}:
  *   delete:
  *     summary: Delete a student by ID
  *     tags: [Students]
@@ -182,7 +190,7 @@ router.delete("/:id", authenticate, validate(deleteStudentSchema), Controller.de
 
 /**
  * @openapi
- * /api/students/forgot-password:
+ * /api/student/forgot-password:
  *   post:
  *     summary: Send password reset link to student email
  *     tags: [Authentication]
@@ -204,7 +212,7 @@ router.post("/forgot-password", validate(forgotPasswordSchema), Controller.forgo
 
 /**
  * @openapi
- * /api/students/reset-password/{token}:
+ * /api/student/reset-password/{token}:
  *   post:
  *     summary: Reset student password using token
  *     tags: [Authentication]
@@ -232,7 +240,7 @@ router.post("/reset-password/:token", validate(resetPasswordSchema), Controller.
 
 /**
  * @openapi
- * /api/students/resend-reset-token:
+ * /api/student/resend-reset-token:
  *   post:
  *     summary: Resend password reset token
  *     tags: [Authentication]
