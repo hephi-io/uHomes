@@ -3,8 +3,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import MagnifyingGlass from '@/assets/svgs/magnifying-glass.svg?react';
 import Funnel from '@/assets/svgs/funnel-free.svg?react';
 import HostelImage from '@/assets/pngs/hostel-image.jpg';
-import StarHalf from '@/assets/svgs/star-half.svg?react';
-import Location from '@/assets/svgs/location.svg?react';
+import StarHalf from '@/assets/svgs/students/star-half.svg?react';
+import Location from '@/assets/svgs/students/location.svg?react';
 import Wifi from '@/assets/svgs/wifi.svg?react';
 import Security from '@/assets/svgs/security.svg?react';
 import Car from '@/assets/svgs/car.svg?react';

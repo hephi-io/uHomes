@@ -3,7 +3,7 @@ import MenuIcon from '@/layouts/students/components/menu-icon';
 import UHome from '@/assets/svgs/u-home.svg?react';
 import CaretDown from '@/assets/svgs/caret-down.svg?react';
 import ProfilePicSmall from '@/assets/svgs/profile-pic-small.svg?react';
-import Notification from '@/assets/svgs/notification.svg?react';
+import Notification from '@/assets/svgs/students/notification.svg?react';
 
 const Index = () => {
   const navButtons = [
