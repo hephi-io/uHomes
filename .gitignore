@@ -90,3 +90,6 @@ Thumbs.db
 
 # Turborepo
 .turbo
+iykeevans-hephi.pem
+global-bundle.pem
+pnpm-lock.yaml
