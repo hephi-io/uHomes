@@ -2,7 +2,7 @@ import express from "express"
 import { AgentController } from "../cotrollers/agent.controller"
 import { authenticate } from "../middlewares/auth.middleware"
 import { validate } from "../middlewares/validate.middleware"
-import { createAgentSchema, loginSchema, getAgentByIdSchema, updateAgentSchema, deleteAgentSchema, forgotPasswordSchema, resetPasswordSchema } from "../validation/agent.validation"
+import { createAgentSchema,verifyEmailSchema, loginSchema, getAgentByIdSchema, updateAgentSchema, deleteAgentSchema, forgotPasswordSchema, resetPasswordSchema } from "../validation/agent.validation"
 
 const router = express.Router()
 const controller = new AgentController()
@@ -33,17 +33,17 @@ router.post("/register", validate(createAgentSchema), controller.register.bind(c
 
 /**
  * @openapi
- * /api/agent/verify-email/{token}:
+ * /api/agent/verify-email/{otp}:
  *   get:
  *     summary: Verify an agent's email using the token sent via email
  *     tags: [Agent]
  *     parameters:
  *       - in: path
- *         name: token
+ *         name: otp
  *         required: true
  *         schema:
  *           type: string
- *         description: Email verification token
+ *         description: OTP sent via email for verification
  *     responses:
  *       200:
  *         description: Email verified successfully
@@ -64,13 +64,13 @@ router.post("/register", validate(createAgentSchema), controller.register.bind(c
  *       500:
  *         $ref: '#/components/responses/ServerError'
  */
-router.get("/verify-email/:token", controller.verifyEmail.bind(controller))
+router.get("/verify-email/:otp", validate(verifyEmailSchema), controller.verifyEmail.bind(controller))
 
 /**
  * @openapi
  * /api/agent/resend-verification:
  *   post:
- *     summary: Resend email verification link
+ *     summary: Resend email verification code
  *     tags: [Authentication]
  *     requestBody:
  *       required: true
@@ -159,16 +159,6 @@ router.get("/", authenticate, controller.getAll.bind(controller))
  *     responses:
  *       200:
  *         description: Agent retrieved successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 user:
- *                   $ref: '#/components/schemas/Agent'
  *       401:
  *         $ref: '#/components/responses/Unauthorized'
  *       404:

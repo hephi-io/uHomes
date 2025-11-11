@@ -5,7 +5,6 @@ interface JwtPayload {
   id: string;
   role: string;
 }
-
 export const authenticate = (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
 

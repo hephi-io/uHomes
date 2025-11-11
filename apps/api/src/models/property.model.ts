@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document, model } from "mongoose"
+import mongoose, { Schema, Document, Types } from "mongoose"
 
 export interface IProperty extends Document {
   title: string
@@ -12,7 +12,7 @@ export interface IProperty extends Document {
   amenities: string[]
   rating?: number
   isAvailable: boolean
-  agentId: mongoose.Types.ObjectId[]
+  agentId: Types.ObjectId
 }
 
 const propertySchema = new Schema<IProperty>(
@@ -30,11 +30,11 @@ const propertySchema = new Schema<IProperty>(
     amenities: [{ type: String }],
     rating: { type: Number, default: 0 },
     isAvailable: { type: Boolean, default: true },
-    agentId: [{ type: Schema.Types.ObjectId, ref: "Agent", required: true }]
+    agentId: { type: Schema.Types.ObjectId, ref: "Agent", required: true }
   },
   { timestamps: true }
 )
 
-const property = mongoose.model<IProperty>("Property", propertySchema)
+const Property = mongoose.model<IProperty>("Property", propertySchema)
  
-export default property
+export default Property

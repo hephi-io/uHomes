@@ -48,6 +48,7 @@ export class BookingService {
       .populate('property', 'title location price')
       .populate('tenant', 'fullName email phoneNumber')
       .populate('agent', 'fullName email phoneNumber')
+      
 
     if (!booking) throw new NotFoundError('Booking not found')
 
@@ -82,6 +83,7 @@ export class BookingService {
       .populate('tenant', 'fullName email phoneNumber')
       .populate('agent', 'fullName email phoneNumber')
       .sort({ createdAt: -1 })
+      
   }
 
   async updateBookingStatus(bookingId: string, status: BookingStatus, userId: string): Promise<IBooking> {

@@ -7,6 +7,7 @@ import { stream } from './utils/logger';
 import agentRouter from './routers/agent.router';
 import studentRouter from './routers/student.router';
 import propertyRouter from './routers/property.route';
+import bookingRouter from './routers/booking.router';
 
 declare module 'express-serve-static-core' {
   interface Request {
@@ -33,8 +34,12 @@ app.use(
   })
 );
 app.use(express.json());
-
+app.use(express.urlencoded({ extended: true }));
 app.use(morgan(morganFormat, { stream, skip }));
+
+app.get('/', (_, res: Response) => {
+  res.send('welcome to U-Homes API');
+});
 
 app.get('/', (_, res: Response) => {
   res.send('welcome to U-Homes API');
@@ -43,6 +48,7 @@ app.get('/', (_, res: Response) => {
 app.use('/api/agent', agentRouter);
 app.use('/api/student', studentRouter);
 app.use('/api/property', propertyRouter);
+app.use('/api/booking', bookingRouter);
 
 swaggerDocs(app, Number(process.env.PORT) || 7000);
 

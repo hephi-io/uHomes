@@ -1,5 +1,7 @@
 import Agent, { IAgent } from "../models/agent.model"
+import Booking from "../models/booking.model"
 import Token, {IToken} from "../models/token.model"
+import mongoose from "mongoose"
 import {randomBytes} from "crypto"
 import { sendEmail } from "../utils/sendEmail"
 import bcrypt from "bcryptjs"
@@ -7,11 +9,12 @@ import jwt from "jsonwebtoken"
 import { BadRequestError, NotFoundError, UnauthorizedError } from "../middlewares/error.middlewere"
 
 
+
 export class AgentService {
   
     async register(fullName: string, email: string, phoneNumber: string, password: string) {
     const existingUser = await Agent.findOne({ email });
-    if (existingUser) throw new Error("Email already in use")
+    if (existingUser) throw new BadRequestError("Email already in use")
 
     const hashedPassword = await bcrypt.hash(password, 10)
 
@@ -24,34 +27,39 @@ export class AgentService {
 
     await agent.save()
 
-    const verificationToken = randomBytes(32).toString("hex");
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
     await Token.create({
       userId: agent._id,
       role: "Agent",
       typeOf: "emailVerification",
-      token: verificationToken,
-      expiresAt: new Date(Date.now() + 60 * 60 * 1000), // 1 hour expiry
+      token: otp,
+      expiresAt: new Date(Date.now() + 60 * 60 * 1000)
     })
-
-    const verifyLink = `${process.env.BASE_URL}/api/agent/verify-email/${verificationToken}`;
     const html = `
       <h3>Welcome to U-Homes!</h3>
-      <p>Please verify your email by clicking the link below:</p>
-      <a href="${verifyLink}">Verify Email</a>
-    `;
+      <p>Your verification code is:</p>
+      <h2>${otp}</h2>
+      <p>It will expire in 10 minutes.</p>
+    `
 
     await sendEmail(email, "Verify Your Email", html);  
 
-    return { message: "Verification email sent. Please check your inbox." };
+    return { message: "Verification code sent. Please check your inbox." };
   }
 
-  async verifyEmail(tokenString: string) {
+  async verifyEmail(otp: string) {
     
-    const tokenDoc = await Token.findOne({token: tokenString, typeOf: "emailVerification", expiresAt: { $gt: new Date() }
+    const tokenDoc = await Token.findOne({
+      token: otp, typeOf: "emailVerification", expiresAt: { $gt: new Date() }
     })
-    if (!tokenDoc) throw new BadRequestError("Invalid or expired verification token")
+    if (!tokenDoc) throw new BadRequestError("Invalid or expired verification code")
 
-    
+    const attempts = await Token.countDocuments({
+      userId: tokenDoc.userId,
+      typeOf: "emailVerification"
+    })
+    if (attempts > 5) throw new BadRequestError("Too many verification attempts. Please request a new code.")
+
     const agent = await Agent.findById(tokenDoc.userId)
     if (!agent) throw new NotFoundError("Agent not found")
 
@@ -70,26 +78,39 @@ export class AgentService {
 
   if (agent.isVerified) throw new BadRequestError("Email already verified")
 
-  // Generate a new verification token
-  const verificationToken = randomBytes(32).toString("hex")
+  const attempts = await Token.countDocuments({
+    userId: agent._id,
+    typeOf: "emailVerification",
+    expiresAt: { $gt: new Date() }
+  })
+  if (attempts >= 5)
+    throw new BadRequestError("Too many OTP requests. Please try again later.")
+
+  // Remove any old tokens for this user
+  await Token.deleteMany({ userId: agent._id, typeOf: "emailVerification" })
+
+
+  // Generate new OTP
+  const otp = Math.floor(100000 + Math.random() * 900000).toString()
+
+  
   await Token.create({
     userId: agent._id,
     role: "Agent",
     typeOf: "emailVerification",
-    token: verificationToken,
-    expiresAt: new Date(Date.now() + 60 * 60 * 1000) // 1 hour
+    token: otp,
+    expiresAt: new Date(Date.now() + 10 * 60 * 1000) // 1 hour
   })
-
-  const verifyLink = `${process.env.BASE_URL}/api/agent/verify-email/${verificationToken}`
   const html = `
     <h3>Welcome back to U-Homes!</h3>
-    <p>Please verify your email by clicking the link below:</p>
-    <a href="${verifyLink}">Verify Email</a>
+    <p>Your new verification code is:</p>
+    <h2>${otp}</h2>
+    <p>It will expire in 10 minutes.</p>
   `
 
   await sendEmail(agent.email, "Verify Your Email", html)
 
-  return { message: "Verification email resent successfully." }
+  return { message: "New verification code sent to your email." }
 }
 
 
@@ -111,12 +132,33 @@ export class AgentService {
     return await Agent.find();
   }
 
+  
   async getAgentById(id: string) {
-    const agent = await Agent.findById(id);
-    if (!agent) throw new NotFoundError("Agent not found");
-    return agent;
+    if (!mongoose.Types.ObjectId.isValid(id)) return null
+
+    const agent = await Agent.findById(id).select('-password')
+    if (!agent) return null
+
+    const bookings = await Booking.find({ agent: id })
+      .populate({
+        path: 'property',
+        select: 'title address price images description'
+      })
+      .populate({
+        path: 'tenant',
+        select: 'fullName email phoneNumber'
+      })
+      .sort({ createdAt: -1 })
+
+    return {
+      ...agent.toObject(),
+      bookings
+    }
   }
 
+
+
+ 
  async updateAgent(id: string, data: Partial<IAgent>) {
   const agent = await Agent.findByIdAndUpdate(id, data, { new: true });
   if (!agent) throw new NotFoundError("Agent not found");
@@ -166,8 +208,6 @@ export class AgentService {
     token: resetToken,
     expiresAt,
   })
-
-  console.log("Reset Token:", resetToken) // Debug
   const resetLink = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`
 
   const html = `

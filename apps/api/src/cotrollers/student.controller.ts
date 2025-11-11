@@ -27,14 +27,15 @@ export class StudentController {
 
   async verifyEmail(req: Request, res: Response, next: NextFunction) {
     try {
-      const { token } = req.params
-      const result = await this.studentService.verifyEmail(token)
+      const { otp } = req.params
+      const result = await this.studentService.verifyEmail(otp)
 
       return ResponseHelper.success(res, result)
     } catch (error) {
       next(error)
     }
   }
+
   async resendVerification(req: Request, res: Response, next: NextFunction) {
     try {
       const { email } = req.body
@@ -46,16 +47,21 @@ export class StudentController {
     }
 }
 
-  async login(req: Request, res: Response, next: NextFunction) {
-    try {
-      const { email, password } = req.body
-      const result = await this.studentService.login(email, password)
+ async login(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { email, password } = req.body
 
-      return ResponseHelper.success(res, result)
-    } catch (error) {
-      next(error)
+    if (!email || !password) {
+      return ResponseHelper.badRequest(res, { message: "Email and password are required" })
     }
+
+    const result = await this.studentService.login(email, password)
+    return ResponseHelper.success(res, result)
+  } catch (error) {
+    next(error)
   }
+}
+
 
   async getAll(req: Request, res: Response, next: NextFunction) {
     try {

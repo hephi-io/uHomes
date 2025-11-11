@@ -255,8 +255,6 @@ router.delete("/:id", authenticate, controller.deleteProperty.bind(controller))
  *   delete:
  *     summary: Delete a single image from a property
  *     tags: [Properties]
- *     security:
- *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -264,13 +262,39 @@ router.delete("/:id", authenticate, controller.deleteProperty.bind(controller))
  *         schema:
  *           type: string
  *         description: Property ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - cloudinaryId
+ *             properties:
+ *               cloudinaryId:
+ *                 type: string
+ *                 description: Cloudinary ID of the image to delete
+ *                 example: sample123
  *     responses:
  *       200:
  *         description: Image deleted successfully
- *       401:
- *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 message:
+ *                   type: string
+ *                   example: Image deleted successfully
+ *       400:
+ *         $ref: '#/components/responses/BadRequest'
  *       404:
- *         description: Property or image not found
+ *         $ref: '#/components/responses/NotFound'
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
  */
 router.delete("/:id/image",authenticate,controller.deleteSingleImage.bind(controller))
 

@@ -9,6 +9,15 @@ export const createAgentSchema = z.object({
   }),
 });
 
+export const verifyEmailSchema = z.object({
+  params: z.object({
+    otp: z
+      .string()
+      .nonempty("OTP is required")
+      .length(6, "OTP must be 6 digits"),
+  })
+});
+
 export const loginSchema = z.object({
   body: z.object({
     email: z.string().email("Email is required"),
@@ -17,9 +26,7 @@ export const loginSchema = z.object({
 });
 
 export const getAgentByIdSchema = z.object({
-  params: z.object({
-    id: z.string().min(1, "User ID is required"),
-  }),
+  id: z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid ID format"),
 })
 
 export const updateAgentSchema = z.object({
