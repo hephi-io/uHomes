@@ -109,47 +109,53 @@ export class AgentController {
   }
 
  
-  async forgotPassword(req: Request, res: Response, next: NextFunction  ) {
-    try {
-      const { email } = req.body;
+  async forgotPassword(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { email } = req.body
 
-      if (!email) {
-        return ResponseHelper.badRequest(res, { message: "Email is required" });
-      }
-
-      const result = await this.agentService.forgotPassword(email);
-      return ResponseHelper.success(res, result)
-    } catch (err) {
-      next(err)
+    if (!email) {
+      return ResponseHelper.badRequest(res, { message: "Email is required" })
     }
-  }
 
-  async resetPassword(req: Request, res: Response, next: NextFunction) {
-    try {
-      const { token } = req.params
-      const { newPassword } = req.body
-
-      if (!token || !newPassword) {
-        return ResponseHelper.badRequest(res, {  message: "Token and new password are required"})
-      }
-
-      const result = await this.agentService.resetPassword(token, newPassword)
-      return ResponseHelper.success(res, result)
-    } catch (err) {
-      next(err)
-    }
-  }
-
-  async resendResetToken(req: Request, res: Response, next: NextFunction) {
-    try {
-      const { email } = req.body
-      const result = await this.agentService.resendResetToken(email)
-    if(!result){
-      return ResponseHelper.fail(res, { message:"Token and a new password are required" })
-    }
+    const result = await this.agentService.forgotPassword(email)
     return ResponseHelper.success(res, result)
-    } catch (err: any) {
-      next(err)
+  } catch (err) {
+    next(err)
+  }
+}
+
+async resetPassword(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { otp } = req.params    
+    const { newPassword, confirmPassword } = req.body
+
+      if (!otp || !newPassword || !confirmPassword) {
+        return ResponseHelper.badRequest(res, {  message: "OTP, new password, and confirm password are all required"})
+      }
+
+    const result = await this.agentService.resetPassword( otp, newPassword, confirmPassword)
+    return ResponseHelper.success(res, result)
+  } catch (err) {
+    next(err)
+  }
+}
+
+
+async resendResetToken(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { email } = req.body
+    const result = await this.agentService.resendResetOtp(email)
+
+    if (!result) {
+      return ResponseHelper.fail(res, { message: "Failed to resend token" })
     }
-  }  
+
+    return ResponseHelper.success(res, result)
+  } catch (err) {
+    next(err)
+  }
+}
+
+
+ 
 }

@@ -17,7 +17,16 @@ export const createStudentSchema = z.object({
   }),
 });
 
-// 🔐 Login Schema
+export const verifyEmailSchema = z.object({
+  params: z.object({
+    otp: z
+      .string()
+      .nonempty("OTP is required")
+      .length(6, "OTP must be 6 digits"),
+  })
+});
+
+// Login Schema
 export const loginSchema = z.object({
   body: z.object({
     email: z.string().email("Valid email is required"),
@@ -67,15 +76,11 @@ export const forgotPasswordSchema = z.object({
 // 🔑 Reset Password Schema
 export const resetPasswordSchema = z.object({
   params: z.object({
-    token: z
-      .string()
-      .min(10, "Invalid token format")
-      .nonempty("Reset token is required"),
+    otp: z.string().length(6, "OTP must be 6 digits")
   }),
   body: z.object({
-    newPassword: z
-      .string()
-      .min(6, "Password must be at least 6 characters long")
-      .nonempty("New password is required"),
-  }),
-});
+    newPassword: z.string().min(6, "Password must be at least 6 characters"),
+    confirmPassword: z.string().min(6, "Password must be at least 6 characters")
+  })
+})
+
