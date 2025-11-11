@@ -22,7 +22,7 @@
  *         password:
  *           type: string
  *           example: Password123!
- * 
+ *
  *     ResendVerificationRequest:
  *       type: object
  *       required:
@@ -31,7 +31,7 @@
  *         email:
  *           type: string
  *           format: email
- *           example: agent@example.com   
+ *           example: agent@example.com
  *
  *     LoginAgentRequest:
  *       type: object
@@ -97,11 +97,17 @@
  *       type: object
  *       required:
  *         - newPassword
+ *         - confirmPassword
  *       properties:
  *         newPassword:
  *           type: string
- *           minLength: 6
+ *           minLength: 8
  *           example: myNewSecurePassword123
+ *         confirmPassword:
+ *           type: string
+ *           minLength: 8
+ *           example: myNewSecurePassword123
+ *
  *     ResendResetTokenRequest:
  *       type: object
  *       required:

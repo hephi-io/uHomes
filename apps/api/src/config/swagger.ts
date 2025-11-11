@@ -35,18 +35,6 @@ const options: swaggerJsdoc.Options = {
           name: "Students",
           description: "Endpoints related to student registration, login, and profile management",
        },
-      {
-          name: "Agents",
-          description: "Endpoints related to agent registration, login, and dashboard access",
-      },
-      {
-          name: "Admins",
-          description: "Endpoints for admin management, user oversight, and system control",
-      },
-      {
-          name: "Authentication",
-          description: "Shared authentication routes for password reset, email verification, etc.",
-      },
     ],
 
   },
