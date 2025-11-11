@@ -1,5 +1,4 @@
 import { Outlet } from 'react-router-dom';
-import MenuIcon from '@/layouts/students/components/menu-icon';
 import { SVGs } from '@/assets/svgs/Index';
 
 const Index = () => {
@@ -14,7 +13,7 @@ const Index = () => {
       <div className="flex justify-between items-center rounded-lg border border-[#E4E9EE] bg-white md:rounded-xl md:border-[#F2F2F2] lg:rounded-none lg:border-x-0 lg:border-[#E4E4E4] p-3 md:p-4 lg:px-8 lg:py-4">
         <div className="md:flex md:gap-x-6 md:items-center lg:gap-x-38">
           <div className="hidden w-10 h-10 justify-center items-center rounded-lg bg-[#F8F8F8] hover:cursor-pointer md:flex lg:hidden">
-            <MenuIcon />
+            <SVGs.MenuIcon />
           </div>
           <div className="flex gap-x-2 items-center">
             <SVGs.UHome />
@@ -34,7 +33,7 @@ const Index = () => {
           </div>
         </div>
         <div className="w-10 h-10 flex justify-center items-center rounded-lg bg-[#F8F8F8] hover:cursor-pointer md:hidden">
-          <MenuIcon />
+          <SVGs.MenuIcon />
         </div>
         <div className="hidden md:block lg:flex lg:gap-x-8 lg:items-center">
           <div className="hidden w-10 h-10 justify-center items-center rounded-full border border-[#00000033] bg-[#F8F8F8] lg:flex">

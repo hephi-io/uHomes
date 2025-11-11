@@ -38,6 +38,7 @@ import Zap from './zap.svg?react';
 import CheckmarkBadge from './checkmark-badge.svg?react';
 import SecurityOne from './security-one.svg?react';
 import Favorite from './favorite.svg?react';
+import MenuIcon from './menu-icon';
 
 export const SVGs = {
   AddProperty,
@@ -80,4 +81,5 @@ export const SVGs = {
   CheckmarkBadge,
   SecurityOne,
   Favorite,
+  MenuIcon,
 };
