@@ -5,12 +5,15 @@ import {
   SelectContent,
   SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from '@uhomes/ui-kit';
 import { useForm } from 'react-hook-form';
 import { SVGs } from '@/assets/svgs/Index';
+import { useState } from 'react';
+import { Loader2 } from 'lucide-react';
+import { agentSignup } from '@/services/auth';
+import { AxiosError } from 'axios';
 
 interface SignupForm {
   role: string;
@@ -22,6 +25,7 @@ interface SignupForm {
 }
 
 const Signup = () => {
+  const [loading, setLoading] = useState(false);
   const {
     control,
     handleSubmit,
@@ -42,8 +46,26 @@ const Signup = () => {
 
   const password = watch('password');
 
-  const onSubmit = (data: SignupForm) => {
-    console.log('Form Data:', data);
+  const onSubmit = async (Iuser: SignupForm) => {
+    const { name, email, phone, password } = Iuser;
+    const payload = { fullName: name, email, phoneNumber: phone, password };
+
+    console.log(payload);
+    try {
+      setLoading(true);
+      const { data } = await agentSignup(payload);
+      console.log('successful:', data);
+    } catch (error) {
+      setLoading(false);
+      if (error instanceof AxiosError) {
+        console.error('Uh oh! Something went wrong:', error.response?.data?.error || error.message);
+      } else {
+        console.error('Unexpected error:', error);
+      }
+      return;
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -72,10 +94,6 @@ const Signup = () => {
               {' '}
               <SelectGroup>
                 {' '}
-                <SelectLabel className="font-normal text-sm text-[#09090B]">
-                  {' '}
-                  Property Owner{' '}
-                </SelectLabel>{' '}
                 <SelectItem value="owner">Property Owner</SelectItem>{' '}
                 <SelectItem value="agent">Agent</SelectItem>{' '}
                 <SelectItem value="tenant">Tenant</SelectItem>{' '}
@@ -157,7 +175,11 @@ const Signup = () => {
           variant="outline"
           className="bg-[#3E78FF] text-white border border-[#E4E4E4EE] px-4 py-2 w-full font-medium text-sm rounded-md cursor-pointer"
         >
-          Create Account
+          {loading ? (
+            <Loader2 className="size-5 mr-2 animate-spin text-white" />
+          ) : (
+            <span>Create Account</span>
+          )}
         </Button>
 
         {/* Terms */}
