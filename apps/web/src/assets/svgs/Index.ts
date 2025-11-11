@@ -18,6 +18,26 @@ import Location from './location.svg?react';
 import HalfStar from './star-half.svg?react';
 import Pencil from './pencil.svg?react';
 import Trash from './trash.svg?react';
+import CaretDown from './caret-down.svg?react';
+import ProfilePicSmall from './profile-pic-small.svg?react';
+import ProfilePic from './profile-pic.svg?react';
+import View from './view.svg?react';
+import Download from './download.svg?react';
+import Contact from './contact.svg?react';
+import FunnelSimpleTwo from './students/funnel-simple.svg?react';
+import Funnel from './funnel.svg?react';
+import Building from './building.svg?react';
+import MagnifyingGlass from './magnifying-glass.svg?react';
+import FunnelFree from './funnel-free.svg?react';
+import StarHalf from './students/star-half.svg?react';
+import Wifi from './wifi.svg?react';
+import Security from './security.svg?react';
+import Car from './car.svg?react';
+import Droplet from './droplet.svg?react';
+import Zap from './zap.svg?react';
+import CheckmarkBadge from './checkmark-badge.svg?react';
+import SecurityOne from './security-one.svg?react';
+import Favorite from './favorite.svg?react';
 
 export const SVGs = {
   AddProperty,
@@ -40,4 +60,24 @@ export const SVGs = {
   HalfStar,
   Pencil,
   Trash,
+  CaretDown,
+  ProfilePicSmall,
+  ProfilePic,
+  View,
+  Download,
+  Contact,
+  FunnelSimpleTwo,
+  Funnel,
+  Building,
+  MagnifyingGlass,
+  FunnelFree,
+  StarHalf,
+  Wifi,
+  Security,
+  Car,
+  Droplet,
+  Zap,
+  CheckmarkBadge,
+  SecurityOne,
+  Favorite,
 };

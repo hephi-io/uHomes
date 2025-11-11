@@ -1,19 +1,7 @@
 import { Button, Input } from '@uhomes/ui-kit';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@uhomes/ui-kit';
-import MagnifyingGlass from '@/assets/svgs/magnifying-glass.svg?react';
-import Funnel from '@/assets/svgs/funnel-free.svg?react';
+import { SVGs } from '@/assets/svgs/Index';
 import HostelImage from '@/assets/pngs/hostel-image.jpg';
-import StarHalf from '@/assets/svgs/students/star-half.svg?react';
-import Location from '@/assets/svgs/students/location.svg?react';
-import Wifi from '@/assets/svgs/wifi.svg?react';
-import Security from '@/assets/svgs/security.svg?react';
-import Car from '@/assets/svgs/car.svg?react';
-import Droplet from '@/assets/svgs/droplet.svg?react';
-import Zap from '@/assets/svgs/zap.svg?react';
-import View from '@/assets/svgs/view.svg?react';
-import CheckmarkBadge from '@/assets/svgs/checkmark-badge.svg?react';
-import SecurityOne from '@/assets/svgs/security-one.svg?react';
-import Favorite from '@/assets/svgs/favorite.svg?react';
 
 export default function FindHostels() {
   return (
@@ -36,7 +24,7 @@ export default function FindHostels() {
                 placeholder="Search hostels"
                 className="rounded-[5px] border border-[#E1E1E1] text-sm leading-[150%] tracking-[0%] text-[#09090B] pl-11 pr-3 py-2.5"
               />
-              <MagnifyingGlass className="absolute left-3 top-0 bottom-0 my-auto" />
+              <SVGs.MagnifyingGlass className="absolute left-3 top-0 bottom-0 my-auto" />
             </div>
             <Select>
               <SelectTrigger className="w-full rounded-[5px] border border-[#E1E1E1] text-sm leading-[100%] tracking-[0%] text-[#09090B] md:w-full px-3 py-2.5 mt-2.5 md:mt-0">
@@ -71,7 +59,7 @@ export default function FindHostels() {
               </SelectContent>
             </Select>
             <Button className="w-[39.11%] gap-x-2 items-center rounded-[5px] border border-[#E4E4E4EE] bg-[#3E78FF] md:w-fit px-4 py-2">
-              <Funnel className="text-white" />
+              <SVGs.FunnelFree className="text-white" />
               <span className="font-medium text-sm leading-[150%] tracking-[0%] text-white">
                 Apply Filters
               </span>
@@ -119,16 +107,16 @@ function Badge({ Icon, text }: { Icon: any; text: string }) {
 
 export function HostelCard() {
   const badges = [
-    { id: 1, Icon: Wifi, text: 'WiFi' },
-    { id: 2, Icon: Security, text: 'Security' },
-    { id: 3, Icon: Car, text: 'Parking' },
-    { id: 4, Icon: Droplet, text: 'Water' },
-    { id: 5, Icon: Zap, text: 'Power' },
+    { id: 1, Icon: SVGs.Wifi, text: 'WiFi' },
+    { id: 2, Icon: SVGs.Security, text: 'Security' },
+    { id: 3, Icon: SVGs.Car, text: 'Parking' },
+    { id: 4, Icon: SVGs.Droplet, text: 'Water' },
+    { id: 5, Icon: SVGs.Zap, text: 'Power' },
   ];
 
   const topBadges = [
-    { id: 1, Icon: CheckmarkBadge, text: 'Available' },
-    { id: 2, Icon: SecurityOne, text: 'Verified' },
+    { id: 1, Icon: SVGs.CheckmarkBadge, text: 'Available' },
+    { id: 2, Icon: SVGs.SecurityOne, text: 'Verified' },
   ];
 
   return (
@@ -145,7 +133,7 @@ export function HostelCard() {
             variant="outline"
             className="hidden lg:flex lg:w-7 lg:h-7 rounded-md border border-[#CECECE] bg-white"
           >
-            <Favorite />
+            <SVGs.Favorite />
           </Button>
         </div>
       </div>
@@ -155,7 +143,7 @@ export function HostelCard() {
             Premium Student Lodge
           </h1>
           <div className="flex gap-x-1 items-center">
-            <StarHalf />
+            <SVGs.HalfStar />
             <div className="font-semibold text-sm leading-[100%] tracking-[0%] align-middle text-black">
               4.5 <span className="font-normal">(24)</span>
             </div>
@@ -163,7 +151,7 @@ export function HostelCard() {
         </div>
         <div className="flex justify-between items-center mt-3">
           <div className="flex gap-x-1.5 items-center">
-            <Location />
+            <SVGs.Location />
             <span className="text-xs leading-[100%] tracking-[0%] align-middle text-[#09090B]">
               5 mins from UNIZIK
             </span>
@@ -191,7 +179,7 @@ export function HostelCard() {
             </span>
           </Button>
           <Button variant="outline" className="rounded-md border border-[#E4E4E4] px-4 py-2">
-            <View />
+            <SVGs.View />
           </Button>
         </div>
       </div>

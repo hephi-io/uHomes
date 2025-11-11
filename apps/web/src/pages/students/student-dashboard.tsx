@@ -1,20 +1,11 @@
 import { Button } from '@uhomes/ui-kit';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@uhomes/ui-kit';
 import { HostelCard } from '@/pages/students/find-hostels';
-import Notification from '@/assets/svgs/students/notification.svg?react';
-import ProfilePic from '@/assets/svgs/profile-pic.svg?react';
-import Note from '@/assets/svgs/students/note.svg?react';
-import MoneyBag from '@/assets/svgs/students/money-bag.svg?react';
-import Building from '@/assets/svgs/building.svg?react';
-import FunnelSimple from '@/assets/svgs/students/funnel-simple.svg?react';
-import Funnel from '@/assets/svgs/funnel.svg?react';
+import { SVGs } from '@/assets/svgs/Index';
+import { hostelDetails } from '@/pages/students/constants';
 import NoBookings from '@/assets/pngs/no-bookings.png';
 import HostelImageTwo from '@/assets/pngs/hostel-image-2.png';
 import HostelImage from '@/assets/pngs/hostel-image.jpg';
-import Location from '@/assets/svgs/students/location.svg?react';
-import View from '@/assets/svgs/view.svg?react';
-import Download from '@/assets/svgs/download.svg?react';
-import Contact from '@/assets/svgs/contact.svg?react';
 
 export default function StudentDashboard() {
   const cards = [
@@ -22,7 +13,7 @@ export default function StudentDashboard() {
       id: 1,
       cardStyle: 'border-[#BFF0FC] from-[#D8F6FF] mt-6 md:mt-0',
       headingTwo: 'Active Bookings',
-      Icon: Note,
+      Icon: SVGs.Note,
       number: '4',
       headingThree: 'Awaiting review',
     },
@@ -30,7 +21,7 @@ export default function StudentDashboard() {
       id: 2,
       cardStyle: 'border-[#BCF5D5] from-[#C8FFDC] mt-4 md:mt-0',
       headingTwo: 'Total Spent',
-      Icon: MoneyBag,
+      Icon: SVGs.MoneyBag,
       number: '₦500,000',
       headingThree: 'Paid bookings',
     },
@@ -44,12 +35,12 @@ export default function StudentDashboard() {
   const funnelIcons = [
     {
       id: 1,
-      Icon: FunnelSimple,
+      Icon: SVGs.FunnelSimpleTwo,
       label: 'Sort By',
     },
     {
       id: 2,
-      Icon: Funnel,
+      Icon: SVGs.Funnel,
       label: 'Filter',
     },
   ];
@@ -63,7 +54,7 @@ export default function StudentDashboard() {
       <div className="lg:p-8 lg:pt-11">
         <div className="flex justify-between items-center">
           <div className="flex gap-x-4 items-center">
-            <ProfilePic />
+            <SVGs.ProfilePic />
             <div>
               <h1 className="font-semibold text-xl leading-[120%] tracking-[0%] text-[#000000] md:text-[22px]">
                 Hi, Tony 👋🏽
@@ -74,7 +65,7 @@ export default function StudentDashboard() {
             </div>
           </div>
           <div className="w-10 h-10 flex justify-center items-center rounded-full border border-[#00000033] bg-[#F8F8F8] lg:hidden">
-            <Notification />
+            <SVGs.Notification />
           </div>
         </div>
         <div className="hidden lg:block lg:border-t lg:border-[#E4E4E4] lg:mt-8"></div>
@@ -149,7 +140,7 @@ export default function StudentDashboard() {
             </div>
             <div className="hidden lg:block lg:border-t lg:border-t-[#E4E7EC] lg:mt-4"></div>
             <TabsContent value="My Bookings">
-              <div className="px-4 pb-4 lg:pt-4">
+              <div className="hidden px-4 pb-4 lg:pt-4">
                 <div className="rounded border border-[#F4F4F4] bg-[#FDFDFD] md:h-[475px] md:flex md:flex-col md:items-center md:justify-center lg:h-[390px] p-6 mt-4 lg:m-0">
                   <img
                     src={NoBookings}
@@ -164,10 +155,10 @@ export default function StudentDashboard() {
                   </div>
                 </div>
               </div>
-              <div className="hidden overflow-x-scroll lg:overflow-hidden px-4 pb-4 lg:pt-4">
+              <div className="overflow-x-scroll lg:overflow-hidden px-4 pb-4 lg:pt-4">
                 <div className="w-[1337px] grid grid-cols-1 gap-4 rounded border border-[#F4F4F4] bg-[#FDFDFD] lg:w-full p-4 mt-4 lg:mt-0">
                   {[...Array(3)].map((_, i) => (
-                    <HostelDetail key={i} />
+                    <HostelDetail key={i} hostelDetails={hostelDetails} />
                   ))}
                 </div>
               </div>
@@ -189,7 +180,7 @@ export default function StudentDashboard() {
 function FindHostels() {
   return (
     <Button className="h-[37px] gap-x-2 rounded-[5px] border border-[#E4E4E4EE] bg-[#3E78FF] px-4">
-      <Building />
+      <SVGs.Building />
       <span className="font-medium text-sm leading-[150%] tracking-[0%] text-white">
         Find Hostels
       </span>
@@ -197,49 +188,15 @@ function FindHostels() {
   );
 }
 
-function HostelDetail() {
-  const hostelDetails = [
-    {
-      id: 1,
-      label: 'Booking ID',
-      text: 'UH-2024-001',
-    },
-    {
-      id: 2,
-      label: 'Apartment',
-      text: 'Modern 2-Bedroom Hostel Near UNIZIK',
-    },
-    {
-      id: 3,
-      label: 'Designated Agent',
-      text: 'Chidi Okafor',
-    },
-    {
-      id: 4,
-      label: 'Location',
-      text: 'Awka, Anambra',
-    },
-    {
-      id: 5,
-      label: 'Duration',
-      text: '12 months',
-    },
-    {
-      id: 6,
-      label: 'Move-Out Date',
-      text: '2024-01-15',
-    },
-    {
-      id: 7,
-      label: 'Move-in Date',
-      text: '2024-02-01',
-    },
-  ];
-
+function HostelDetail({
+  hostelDetails,
+}: {
+  hostelDetails: { id: number; label: string; text: string }[];
+}) {
   const hostelDetailButtons = [
-    { id: 1, Icon: View, text: 'View Property' },
-    { id: 2, Icon: Download, text: 'Download Receipt' },
-    { id: 3, Icon: Contact, text: 'Contact Agent' },
+    { id: 1, Icon: SVGs.View, text: 'View Property' },
+    { id: 2, Icon: SVGs.Download, text: 'Download Receipt' },
+    { id: 3, Icon: SVGs.Contact, text: 'Contact Agent' },
   ];
 
   return (
@@ -275,7 +232,7 @@ function HostelDetail() {
                 {hostelDetail.label}
               </span>
               <div className="flex gap-x-1.5 items-center mt-1">
-                <Location className={hostelDetail.id === 4 ? '' : 'hidden'} />
+                <SVGs.Location className={hostelDetail.id === 4 ? '' : 'hidden'} />
                 <h1 className="font-semibold text-sm leading-[100%] tracking-[0%] align-middle text-[#09090B]">
                   {hostelDetail.text}
                 </h1>

@@ -1,9 +1,6 @@
 import { Outlet } from 'react-router-dom';
 import MenuIcon from '@/layouts/students/components/menu-icon';
-import UHome from '@/assets/svgs/u-home.svg?react';
-import CaretDown from '@/assets/svgs/caret-down.svg?react';
-import ProfilePicSmall from '@/assets/svgs/profile-pic-small.svg?react';
-import Notification from '@/assets/svgs/students/notification.svg?react';
+import { SVGs } from '@/assets/svgs/Index';
 
 const Index = () => {
   const navButtons = [
@@ -20,7 +17,7 @@ const Index = () => {
             <MenuIcon />
           </div>
           <div className="flex gap-x-2 items-center">
-            <UHome />
+            <SVGs.UHome />
             <h1 className="font-bold text-lg leading-6 tracking-normal align-middle text-[#1F1E1E]">
               HOMES
             </h1>
@@ -41,14 +38,14 @@ const Index = () => {
         </div>
         <div className="hidden md:block lg:flex lg:gap-x-8 lg:items-center">
           <div className="hidden w-10 h-10 justify-center items-center rounded-full border border-[#00000033] bg-[#F8F8F8] lg:flex">
-            <Notification />
+            <SVGs.Notification />
           </div>
           <div className="hidden md:flex md:gap-x-3 md:items-center hover:cursor-pointer">
-            <ProfilePicSmall />
+            <SVGs.ProfilePicSmall />
             <span className="font-medium text-sm leading-[150%] tracking-[0%] text-center text-[#000000]">
               Brian F.
             </span>
-            <CaretDown />
+            <SVGs.CaretDown />
           </div>
         </div>
       </div>
