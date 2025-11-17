@@ -41,8 +41,12 @@ describe('PropertyService', () => {
       amenities: ['pool', 'gym'],
       isAvailable: true,
     };
-    const files: any = [{ path: 'path/to/file.jpg' }];
-    const property = await propertyService.createProperty(agentId, data, files);
+    const files = [{ path: 'path/to/file.jpg' }];
+    const property = await propertyService.createProperty(
+      agentId,
+      data,
+      files as unknown as Express.Multer.File[]
+    );
     expect(property.title).toBe('Test Property');
     expect(property.images).toHaveLength(1);
     expect(cloudinary.uploader.upload).toHaveBeenCalled();

@@ -29,6 +29,10 @@ export class StudentController {
       const { token } = req.params;
       const result = await this.studentService.verifyEmail(token);
 
+      if (!result) {
+        return ResponseHelper.fail(res, { message: 'Email verification failed' }, 400);
+      }
+
       return ResponseHelper.success(res, result);
     } catch (error) {
       next(error);
@@ -86,54 +90,51 @@ export class StudentController {
     }
   }
 
-  async delete(req: Request, res: Response, next: NextFunction) {
-    try {
-      const deletedStudent = await this.studentService.deleteStudent(req.params.id);
-
-      return ResponseHelper.success(res, deletedStudent);
-    } catch (err) {
-      next(err);
-    }
-  }
-
   async forgotPassword(req: Request, res: Response, next: NextFunction) {
     try {
       const { email } = req.body;
-
       if (!email) {
         return ResponseHelper.badRequest(res, { message: 'Email is required' });
       }
 
       const result = await this.studentService.forgotPassword(email);
       return ResponseHelper.success(res, result);
-    } catch (error) {
-      next(error);
+    } catch (err) {
+      next(err);
     }
   }
 
+  // Reset password using OTP
   async resetPassword(req: Request, res: Response, next: NextFunction) {
     try {
-      const { token } = req.params;
-      const { newPassword } = req.body;
+      const { otp } = req.params;
+      const { newPassword, confirmPassword } = req.body;
 
-      if (!token || !newPassword) {
-        return ResponseHelper.badRequest(res, { message: 'Token and new password are required' });
+      if (!otp || !newPassword || !confirmPassword) {
+        return ResponseHelper.badRequest(res, {
+          message: 'Email, OTP, new password, and confirm password are all required',
+        });
       }
 
-      const result = await this.studentService.resetPassword(token, newPassword);
+      const result = await this.studentService.resetPassword(otp, newPassword, confirmPassword);
       return ResponseHelper.success(res, result);
-    } catch (error) {
-      next(error);
+    } catch (err) {
+      next(err);
     }
   }
 
+  // Resend OTP
   async resendResetToken(req: Request, res: Response, next: NextFunction) {
     try {
       const { email } = req.body;
+      if (!email) {
+        return ResponseHelper.badRequest(res, { message: 'Email is required' });
+      }
+
       const result = await this.studentService.resendResetToken(email);
       return ResponseHelper.success(res, result);
-    } catch (error) {
-      next(error);
+    } catch (err) {
+      next(err);
     }
   }
 }

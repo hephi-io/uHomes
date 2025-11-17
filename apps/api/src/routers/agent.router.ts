@@ -78,8 +78,8 @@ router.get('/verify-email/:token', controller.verifyEmail.bind(controller));
  * @openapi
  * /api/agent/resend-verification:
  *   post:
- *     summary: Resend email verification link
- *     tags: [Authentication]
+ *     summary: Resend email verification code
+ *     tags: [Agent]
  *     requestBody:
  *       required: true
  *       content:
@@ -99,7 +99,7 @@ router.get('/verify-email/:token', controller.verifyEmail.bind(controller));
 router.post('/resend-verification', controller.resendVerification.bind(controller));
 
 /**
- * @openapi
+ * @swagger
  * /api/agent/login:
  *   post:
  *     summary: Login an agent
@@ -109,18 +109,37 @@ router.post('/resend-verification', controller.resendVerification.bind(controlle
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/LoginAgentRequest'
+ *             type: object
+ *             required:
+ *               - email
+ *               - password
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: "agent@example.com"
+ *               password:
+ *                 type: string
+ *                 example: "MyPassword123"
  *     responses:
  *       200:
- *         $ref: '#/components/responses/LoginAgentResponse'
+ *         description: Login successful, JWT token returned
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 token:
+ *                   type: string
+ *                   example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+ *                 agent:
+ *                   $ref: '#/components/schemas/Agent'
  *       400:
- *         $ref: '#/components/responses/BadRequest'
+ *         description: Bad request / validation failed
  *       401:
- *         $ref: '#/components/responses/Unauthorized'
- *       403:
- *         $ref: '#/components/responses/Forbidden'
- *       500:
- *         $ref: '#/components/responses/ServerError'
+ *         description: Incorrect email or password
+ *       404:
+ *         description: agent not found
  */
 router.post('/login', validate(loginSchema), controller.login.bind(controller));
 
@@ -292,7 +311,7 @@ router.delete(
  * /api/agent/forgot-password:
  *   post:
  *     summary: Send password reset link to agent email
- *     tags: [Authentication]
+ *     tags: [Agent]
  *     requestBody:
  *       required: true
  *       content:
@@ -314,32 +333,42 @@ router.post(
 );
 
 /**
- * @openapi
- * /api/agent/reset-password/{token}:
+ * @swagger
+ * /api/agent/reset-password/{otp}:
  *   post:
- *     summary: Reset agent password
- *     tags: [Authentication]
+ *     summary: Reset password using OTP
+ *     tags: [Agent]
  *     parameters:
  *       - in: path
- *         name: token
+ *         name: otp
  *         required: true
  *         schema:
  *           type: string
- *         description: Password reset token sent to user email
+ *           example: "123456"
+ *         description: OTP received by email
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/ResetPasswordRequest'
+ *             type: object
+ *             properties:
+ *               newPassword:
+ *                 type: string
+ *                 example: NewPassword123
+ *               confirmPassword:
+ *                 type: string
+ *                 example: NewPassword123
  *     responses:
  *       200:
- *         $ref: '#/components/responses/ResetPasswordSuccess'
+ *         description: Password reset successfully
  *       400:
- *         $ref: '#/components/responses/BadRequest'
+ *         description: Bad request or invalid OTP
+ *       404:
+ *         description: User not found
  */
 router.post(
-  '/reset-password/:token',
+  '/reset-password/:otp',
   validate(resetPasswordSchema),
   controller.resetPassword.bind(controller)
 );
@@ -349,7 +378,7 @@ router.post(
  * /api/agent/resend-reset-token:
  *   post:
  *     summary: Resend password reset token
- *     tags: [Authentication]
+ *     tags: [Agent]
  *     requestBody:
  *       required: true
  *       content:

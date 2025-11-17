@@ -37,30 +37,45 @@ router.post('/register', validate(createStudentSchema), Controller.register.bind
 
 /**
  * @openapi
- * /api/students/verify-email/{token}:
+ * /api/student/verify-email/{otp}:
  *   get:
- *     summary: Verify student email
+ *     summary: Verify a student email using the OTP sent via email
  *     tags: [Students]
  *     parameters:
- *       - name: token
- *         in: path
+ *       - in: path
+ *         name: otp
  *         required: true
  *         schema:
  *           type: string
+ *         description: OTP sent via email for verification
  *     responses:
  *       200:
  *         description: Email verified successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Email verified successfully
  *       400:
- *         $ref: '#/components/responses/BadRequestError'
+ *         $ref: '#/components/responses/BadRequest'
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ *       500:
+ *         $ref: '#/components/responses/ServerError'
  */
-router.get('/verify-email/:token', Controller.verifyEmail.bind(Controller));
+router.get('/verify-email/:otp', Controller.verifyEmail.bind(Controller));
 
 /**
  * @openapi
  * /api/students/resend-verification:
  *   post:
  *     summary: Resend email verification link
- *     tags: [Authentication]
+ *     tags: [Students]
  *     requestBody:
  *       required: true
  *       content:
@@ -80,24 +95,47 @@ router.get('/verify-email/:token', Controller.verifyEmail.bind(Controller));
 router.post('/resend-verification', Controller.resendVerification.bind(Controller));
 
 /**
- * @openapi
- * /api/students/login:
+ * @swagger
+ * /api/student/login:
  *   post:
- *     summary: Login as a student
+ *     summary: Login a student
  *     tags: [Students]
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/LoginInput'
+ *             type: object
+ *             required:
+ *               - email
+ *               - password
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: "student@example.com"
+ *               password:
+ *                 type: string
+ *                 example: "MyPassword123"
  *     responses:
  *       200:
- *         description: Login successful
+ *         description: Login successful, JWT token returned
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 token:
+ *                   type: string
+ *                   example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+ *                 student:
+ *                   $ref: '#/components/schemas/Student'
+ *       400:
+ *         description: Bad request / validation failed
  *       401:
- *         $ref: '#/components/responses/UnauthorizedError'
+ *         description: Incorrect email or password
  *       404:
- *         $ref: '#/components/responses/NotFoundError'
+ *         description: Student not found
  */
 router.post('/login', validate(loginSchema), Controller.login.bind(Controller));
 
@@ -195,24 +233,39 @@ router.delete(
 );
 
 /**
- * @openapi
- * /api/students/forgot-password:
+ * @swagger
+ * /api/student/forgot-password:
  *   post:
- *     summary: Send password reset link to student email
- *     tags: [Authentication]
+ *     summary: Request password reset
+ *     tags: [Students]
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/ForgotPasswordInput'
+ *             type: object
+ *             required:
+ *               - email
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: "student@example.com"
  *     responses:
  *       200:
  *         description: Password reset link sent successfully
- *       404:
- *         $ref: '#/components/responses/NotFoundError'
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Password reset link sent to your email."
  *       400:
- *         $ref: '#/components/responses/BadRequestError'
+ *         description: Bad request / validation failed
+ *       404:
+ *         description: Student not found
  */
 router.post(
   '/forgot-password',
@@ -221,33 +274,42 @@ router.post(
 );
 
 /**
- * @openapi
- * /api/students/reset-password/{token}:
+ * @swagger
+ * /api/student/reset-password/{otp}:
  *   post:
- *     summary: Reset student password using token
- *     tags: [Authentication]
+ *     summary: Reset password using OTP
+ *     tags: [Students]
  *     parameters:
- *       - name: token
- *         in: path
+ *       - in: path
+ *         name: otp
  *         required: true
  *         schema:
  *           type: string
+ *           example: "123456"
+ *         description: OTP received by email
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/ResetPasswordInput'
+ *             type: object
+ *             properties:
+ *               newPassword:
+ *                 type: string
+ *                 example: NewPassword123
+ *               confirmPassword:
+ *                 type: string
+ *                 example: NewPassword123
  *     responses:
  *       200:
- *         description: Password reset successful
+ *         description: Password reset successfully
  *       400:
- *         $ref: '#/components/responses/BadRequestError'
+ *         description: Bad request or invalid OTP
  *       404:
- *         $ref: '#/components/responses/NotFoundError'
+ *         description: User not found
  */
 router.post(
-  '/reset-password/:token',
+  '/reset-password/:otp',
   validate(resetPasswordSchema),
   Controller.resetPassword.bind(Controller)
 );
@@ -257,7 +319,7 @@ router.post(
  * /api/students/resend-reset-token:
  *   post:
  *     summary: Resend password reset token
- *     tags: [Authentication]
+ *     tags: [Students]
  *     requestBody:
  *       required: true
  *       content:

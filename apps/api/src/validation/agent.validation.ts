@@ -46,12 +46,10 @@ export const forgotPasswordSchema = z.object({
 
 export const resetPasswordSchema = z.object({
   params: z.object({
-    token: z.string().nonempty('Reset token is required').min(10, 'Invalid token format'),
+    otp: z.string().length(6, 'OTP must be 6 digits'),
   }),
   body: z.object({
-    newPassword: z
-      .string()
-      .nonempty('New password is required')
-      .min(6, 'Password must be at least 6 characters long'),
+    newPassword: z.string().min(6, 'Password must be at least 6 characters'),
+    confirmPassword: z.string().min(6, 'Password must be at least 6 characters'),
   }),
 });

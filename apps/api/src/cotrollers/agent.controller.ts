@@ -91,20 +91,6 @@ export class AgentController {
     }
   }
 
-  async delete(req: Request, res: Response, next: NextFunction) {
-    try {
-      const deletedAgent = await this.agentService.deleteAgent(req.params.id);
-
-      if (!deletedAgent) {
-        return ResponseHelper.fail(res, 'Agent not found', 404);
-      }
-
-      return ResponseHelper.success(res, deletedAgent);
-    } catch (err) {
-      next(err);
-    }
-  }
-
   async forgotPassword(req: Request, res: Response, next: NextFunction) {
     try {
       const { email } = req.body;
@@ -122,14 +108,16 @@ export class AgentController {
 
   async resetPassword(req: Request, res: Response, next: NextFunction) {
     try {
-      const { token } = req.params;
-      const { newPassword } = req.body;
+      const { otp } = req.params;
+      const { newPassword, confirmPassword } = req.body;
 
-      if (!token || !newPassword) {
-        return ResponseHelper.badRequest(res, { message: 'Token and new password are required' });
+      if (!otp || !newPassword || !confirmPassword) {
+        return ResponseHelper.badRequest(res, {
+          message: 'OTP, new password, and confirm password are all required',
+        });
       }
 
-      const result = await this.agentService.resetPassword(token, newPassword);
+      const result = await this.agentService.resetPassword(otp, newPassword, confirmPassword);
       return ResponseHelper.success(res, result);
     } catch (err) {
       next(err);
@@ -139,11 +127,22 @@ export class AgentController {
   async resendResetToken(req: Request, res: Response, next: NextFunction) {
     try {
       const { email } = req.body;
-      const result = await this.agentService.resendResetToken(email);
+      const result = await this.agentService.resendResetOtp(email);
+
       if (!result) {
-        return ResponseHelper.fail(res, { message: 'Token and a new password are required' });
+        return ResponseHelper.fail(res, { message: 'Failed to resend token' });
       }
+
       return ResponseHelper.success(res, result);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async delete(req: Request, res: Response, next: NextFunction) {
+    try {
+      const deletedAgent = await this.agentService.deleteAgent(req.params.id);
+      return ResponseHelper.success(res, deletedAgent);
     } catch (err) {
       next(err);
     }

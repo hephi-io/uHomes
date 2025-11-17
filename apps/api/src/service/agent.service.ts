@@ -101,7 +101,10 @@ export class AgentService {
     const token = jwt.sign({ id: agent._id, role: agent.role }, process.env.JWT_SECRET!, {
       expiresIn: '1d',
     });
-    return { token, agent };
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password: _, ...agentData } = agent.toObject();
+    return { token, agent: agentData };
   }
 
   async getAllAgents() {
@@ -147,26 +150,23 @@ export class AgentService {
     // Delete old reset tokens for the same user
     await Token.deleteMany({ userId: agent._id, typeOf: 'resetPassword' });
 
-    const resetToken = randomBytes(32).toString('hex');
-    const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
 
     await Token.create({
       userId: agent._id,
       role: agent.role || 'Agent',
       typeOf: 'resetPassword',
-      token: resetToken,
+      token: otp,
       expiresAt,
     });
-
-    console.log('Reset Token:', resetToken); // Debug
-    const resetLink = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
 
     const html = `
     <h3>Password Reset Request</h3>
     <p>Hi ${agent.fullName || 'User'},</p>
-    <p>You requested a password reset. Click the link below to set a new password:</p>
-    <a href="${resetLink}" style="color:#007bff">Reset Your Password</a>
-    <p>This link will expire in 15 minutes.</p>
+    <p>Your OTP for password reset is.:</p>
+     <h2>${otp}</h2>
+    <p>This code will expire in 15 minutes.</p>
     <br>
     <p>If you did not request this, please ignore this email.</p>
     <br>
@@ -177,69 +177,116 @@ export class AgentService {
     return { message: 'Password reset link sent to your email.' };
   }
 
-  async resetPassword(tokenString: string, newPassword: string) {
-    tokenString = tokenString.trim();
-    console.log('Reset Token Received:', tokenString);
+  //   async resetPassword(email: string, otp: string, newPassword: string, confirmPassword: string) {
+  //   email = email.trim()
+  //   otp = otp.trim()
 
-    // Find token document
+  //   const agent = await Agent.findOne({ email })
+  //   if (!agent) throw new NotFoundError("User not found")
+
+  //   if (newPassword !== confirmPassword)
+  //     throw new BadRequestError("Passwords do not match")
+
+  //   if (newPassword.length < 8)
+  //     throw new BadRequestError("Password must be at least 8 characters long")
+
+  //   const tokenDoc = await Token.findOne({
+  //     userId: agent._id,
+  //     typeOf: "resetPassword",
+  //     token: otp,
+  //     expiresAt: { $gt: new Date() }
+  //   })
+  //   if (!tokenDoc) throw new BadRequestError("Invalid or expired OTP")
+
+  //   agent.password = await bcrypt.hash(newPassword, 10)
+  //   await agent.save()
+  //   await tokenDoc.deleteOne()
+
+  //   const html = `
+  //     <h3>Password Reset Successful</h3>
+  //     <p>Hi ${agent.fullName || "Agent"},</p>
+  //     <p>Your password has been successfully reset.</p>
+  //     <p>If you did not perform this action, please contact support immediately.</p>
+  //   `
+  //   await sendEmail(agent.email, "Password Reset Confirmation", html)
+
+  //   return {
+  //     success: true,
+  //     message: "Password reset successfully",
+  //     email: agent.email,
+  //     time: new Date()
+  //   }
+  // }
+
+  async resetPassword(otp: string, newPassword: string, confirmPassword: string) {
+    if (newPassword !== confirmPassword) throw new BadRequestError('Passwords do not match');
+
+    if (newPassword.length < 8)
+      throw new BadRequestError('Password must be at least 8 characters long');
+
+    // Find the token and associated agent
     const tokenDoc = await Token.findOne({
-      token: tokenString,
+      token: otp.trim(),
       typeOf: 'resetPassword',
       expiresAt: { $gt: new Date() },
     });
-    if (!tokenDoc) throw new BadRequestError('Invalid or expired reset token');
 
-    // Find the agent
+    if (!tokenDoc) throw new BadRequestError('Invalid or expired OTP');
+
     const agent = await Agent.findById(tokenDoc.userId);
     if (!agent) throw new NotFoundError('User not found');
 
     // Update password
-    agent.password = await bcrypt.hash(newPassword, 10);
+    agent.password = newPassword;
     await agent.save();
 
-    // Delete token after use
+    // Remove token after use
     await tokenDoc.deleteOne();
 
+    // Send confirmation email
     const html = `
-      <h3>Password Successfully Reset</h3>
-      <p>Hi ${agent.fullName || 'Agent'},</p>
-      <p>Your password was successfully reset. If you did not perform this action, please contact support immediately.</p>
-      <br>
-      <p>Best regards,<br>UHomes Team</p>
-    `;
-    await sendEmail(agent.email, 'Your UHomes Password Was Reset', html);
+    <h3>Password Reset Successful</h3>
+    <p>Hi ${agent.fullName || 'Agent'},</p>
+    <p>Your password has been successfully reset.</p>
+    <p>If you did not perform this action, please contact support immediately.</p>
+  `;
+    await sendEmail(agent.email, 'Password Reset Confirmation', html);
 
-    return { message: 'Password has been reset successfully.' };
+    return {
+      success: true,
+      message: 'Password reset successfully',
+      time: new Date(),
+    };
   }
 
-  async resendResetToken(email: string) {
+  // Step 3: Resend OTP
+  async resendResetOtp(email: string) {
     const agent = await Agent.findOne({ email });
-    if (!agent) throw new NotFoundError('Agent not found');
+    if (!agent) throw new NotFoundError('User not found');
 
-    // Remove old reset tokens
+    // Remove old tokens
     await Token.deleteMany({ userId: agent._id, typeOf: 'resetPassword' });
 
-    // Generate new reset token
-    const resetToken = randomBytes(32).toString('hex');
+    // Generate new OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
+
     await Token.create({
       userId: agent._id,
       role: agent.role || 'Agent',
       typeOf: 'resetPassword',
-      token: resetToken,
-      expiresAt: new Date(Date.now() + 15 * 60 * 1000), // 15 min
+      token: otp,
+      expiresAt,
     });
 
-    const resetLink = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
     const html = `
-      <h3>Password Reset Request</h3>
-      <p>Hi ${agent.fullName || 'Agent'},</p>
-      <p>Click the link below to reset your password:</p>
-      <a href="${resetLink}" style="color:#007bff">Reset Your Password</a>
-      <p>This link will expire in 15 minutes.</p>
-    `;
+    <h3>New Password Reset OTP</h3>
+    <p>Your new OTP is:</p>
+    <h2>${otp}</h2>
+    <p>This code will expire in 15 minutes.</p>
+  `;
+    await sendEmail(agent.email, 'New OTP for Password Reset', html);
 
-    await sendEmail(agent.email, 'UHomes Password Reset', html);
-
-    return { message: 'Password reset token resent successfully.' };
+    return { message: 'New OTP sent to your email.' };
   }
 }
