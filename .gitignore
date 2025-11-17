@@ -8,9 +8,7 @@ build/
 .next/
 .turbo/
 
-# Environment variables
-.env
-.env.local
+
 
 # Logs
 logs/
