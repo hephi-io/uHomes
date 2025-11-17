@@ -1,6 +1,6 @@
-import { Request, Response, NextFunction } from "express";
-import { z } from "zod";
-import logger from "../utils/logger";
+import { Request, Response, NextFunction } from 'express';
+import { ZodError, ZodIssue } from 'zod';
+import logger from '../utils/logger';
 
 export class AppError extends Error {
   statusCode: number;
@@ -8,7 +8,7 @@ export class AppError extends Error {
   constructor(statusCode: number, message: string) {
     super(message);
     this.statusCode = statusCode;
-    this.name = "AppError";
+    this.name = 'AppError';
     Error.captureStackTrace(this, this.constructor);
   }
 }
@@ -16,96 +16,64 @@ export class AppError extends Error {
 export class BadRequestError extends AppError {
   constructor(message: string) {
     super(400, message);
-    this.name = "BadRequestError";
+    this.name = 'BadRequestError';
   }
 }
 
 export class UnauthorizedError extends AppError {
   constructor(message: string) {
     super(401, message);
-    this.name = "UnauthorizedError";
+    this.name = 'UnauthorizedError';
   }
 }
 
 export class ForbiddenError extends AppError {
   constructor(message: string) {
     super(403, message);
-    this.name = "ForbiddenError";
+    this.name = 'ForbiddenError';
   }
 }
 
 export class NotFoundError extends AppError {
   constructor(message: string) {
     super(404, message);
-    this.name = "NotFoundError";
+    this.name = 'NotFoundError';
   }
 }
 
 export class ConflictError extends AppError {
   constructor(message: string) {
     super(409, message);
-    this.name = "ConflictError";
+    this.name = 'ConflictError';
   }
 }
 
 export class InternalServerError extends AppError {
   constructor(message: string) {
     super(500, message);
-    this.name = "InternalServerError";
+    this.name = 'InternalServerError';
   }
 }
 
-export const sendSuccess = (
-  res: Response,
-  data: any,
-  statusCode: number = 200
-) => {
-  return res.status(statusCode).json({
-    status: "success",
-    data,
-  });
-};
+export const sendSuccess = <T>(res: Response, data: T, statusCode = 200) =>
+  res.status(statusCode).json({ status: 'success', data });
 
-export const sendFail = (
-  res: Response,
-  data: any,
-  statusCode: number = 400
-) => {
-  return res.status(statusCode).json({
-    status: "fail",
-    data,
-  });
-};
+export const sendFail = <T>(res: Response, data: T, statusCode = 400) =>
+  res.status(statusCode).json({ status: 'fail', data });
 
-export const sendError = (
-  res: Response,
-  message: string,
-  statusCode: number = 500,
-  code?: string
-) => {
-  const response: any = {
-    status: "error",
+export const sendError = (res: Response, message: string, statusCode = 500, code?: string) => {
+  const response: { status: 'error'; message: string; code?: string } = {
+    status: 'error',
     message,
   };
-
-  if (code) {
-    response.code = code;
-  }
-
+  if (code) response.code = code;
   return res.status(statusCode).json(response);
 };
 
-const errorMiddleware = (
-  err: Error | AppError,
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  // Log the full error with stack trace and request context
-  logger.error("Error handler caught:", {
-    message: err.message,
-    name: err.name,
-    stack: err.stack,
+const errorMiddleware = (err: unknown, req: Request, res: Response, _next: NextFunction) => {
+  // Log full error with stack and request context
+  logger.error('Error handler caught:', {
+    ...(err instanceof Error && { message: err.message, name: err.name, stack: err.stack }),
     ...(err instanceof AppError && { statusCode: err.statusCode }),
     url: req.url,
     method: req.method,
@@ -121,35 +89,21 @@ const errorMiddleware = (
     return sendError(res, err.message, err.statusCode);
   }
 
-  if (err instanceof z.ZodError) {
-    const zodError = err;
-
-    return sendFail(
-      res,
-      {
-        validation_errors:
-          zodError.issues?.map((e: z.ZodIssue) => ({
-            field: e.path?.join("."),
-            message: e.message,
-          })) || [],
-      },
-      400
-    );
+  if (err instanceof ZodError) {
+    const validationErrors = err.issues.map((issue: ZodIssue) => ({
+      field: issue.path.join('.'),
+      message: issue.message,
+    }));
+    return sendFail(res, { validation_errors: validationErrors }, 400);
   }
 
   return sendError(
     res,
-    process.env.NODE_ENV === "development"
-      ? err instanceof Error
-        ? err.message
-        : "Internal server error"
-      : "Internal server error",
+    process.env.NODE_ENV === 'development' && err instanceof Error
+      ? err.message
+      : 'Internal server error',
     500,
-    process.env.NODE_ENV === "development"
-      ? err instanceof Error
-        ? err.name
-        : undefined
-      : undefined
+    process.env.NODE_ENV === 'development' && err instanceof Error ? err.name : undefined
   );
 };
 

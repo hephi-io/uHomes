@@ -1,48 +1,48 @@
-import { Response } from "express";
+import { Response } from 'express';
 
-interface JSendSuccess {
-  status: "success";
-  data: any;
+interface JSendSuccess<T> {
+  status: 'success';
+  data: T;
 }
 
-interface JSendFail {
-  status: "fail";
-  data: any;
+interface JSendFail<T> {
+  status: 'fail';
+  data: T;
 }
 
-interface JSendError {
-  status: "error";
+interface JSendError<T> {
+  status: 'error';
   message: string;
   code?: string;
-  data?: any;
+  data?: T;
 }
 
 export class ResponseHelper {
-  static success(res: Response, data: any, statusCode: number = 200): Response {
-    const response: JSendSuccess = {
-      status: "success",
+  static success<T>(res: Response, data: T, statusCode: number = 200): Response {
+    const response: JSendSuccess<T> = {
+      status: 'success',
       data,
     };
     return res.status(statusCode).json(response);
   }
 
-  static fail(res: Response, data: any, statusCode: number = 400): Response {
-    const response: JSendFail = {
-      status: "fail",
+  static fail<T>(res: Response, data: T, statusCode: number = 400): Response {
+    const response: JSendFail<any> = {
+      status: 'fail',
       data,
     };
     return res.status(statusCode).json(response);
   }
 
-  static error(
+  static error<T = unknown>(
     res: Response,
     message: string,
     statusCode: number = 500,
     code?: string,
-    data?: any
+    data?: T
   ): Response {
-    const response: JSendError = {
-      status: "error",
+    const response: JSendError<T> = {
+      status: 'error',
       message,
     };
 
@@ -52,29 +52,23 @@ export class ResponseHelper {
     return res.status(statusCode).json(response);
   }
 
-  static created(res: Response, data: any): Response {
+  static created<T>(res: Response, data: T): Response {
     return this.success(res, data, 201);
   }
 
-  static badRequest(res: Response, errors: any): Response {
+  static badRequest<T>(res: Response, errors: T): Response {
     return this.fail(res, errors, 400);
   }
 
-  static unauthorized(
-    res: Response,
-    message: string = "Unauthorized"
-  ): Response {
+  static unauthorized(res: Response, message: string = 'Unauthorized'): Response {
     return this.fail(res, { error: message }, 401);
   }
 
-  static forbidden(res: Response, message: string = "Forbidden"): Response {
+  static forbidden(res: Response, message: string = 'Forbidden'): Response {
     return this.fail(res, { error: message }, 403);
   }
 
-  static notFound(
-    res: Response,
-    message: string = "Resource not found"
-  ): Response {
+  static notFound(res: Response, message: string = 'Resource not found'): Response {
     return this.fail(res, { error: message }, 404);
   }
 
@@ -82,12 +76,15 @@ export class ResponseHelper {
     return this.fail(res, { error: message }, 409);
   }
 
-  static validationError(res: Response, errors: any[]): Response {
+  static validationError(
+    res: Response,
+    errors: { path?: string[]; message: string; field?: string }[]
+  ): Response {
     return this.fail(
       res,
       {
         validation_errors: errors.map((err) => ({
-          field: err.path?.join(".") || err.field,
+          field: err.path?.join('.') || err.field,
           message: err.message,
         })),
       },

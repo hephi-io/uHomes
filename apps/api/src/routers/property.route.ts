@@ -1,5 +1,5 @@
 import express from 'express';
-import { PropertyController } from '../cotrollers/property.controller';
+import { PropertyController } from '../controllers/property.controller';
 import multer from 'multer';
 import { authenticate } from '../middlewares/auth.middleware';
 

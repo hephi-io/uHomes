@@ -1,20 +1,23 @@
-import { ZodObject, ZodError } from "zod"
-import { Request, Response, NextFunction } from "express"
+import { ZodObject, ZodRawShape, ZodError } from 'zod';
+import { Request, Response, NextFunction } from 'express';
 
 export const validate =
-  (schema: ZodObject<any>) =>
-  (req: Request, res: Response, next: NextFunction) => {
+  (schema: ZodObject<ZodRawShape>) => (req: Request, res: Response, next: NextFunction) => {
     try {
       schema.parse({
         body: req.body,
         query: req.query,
         params: req.params,
       });
-      next()
-    } catch (err: any) {
+      next();
+    } catch (err) {
       if (err instanceof ZodError) {
-        return res.status(400).json({ error: err.issues });
+        const errors = err.issues.map((issue) => ({
+          field: issue.path.join('.'),
+          message: issue.message,
+        }));
+        return res.status(400).json({ validation_errors: errors });
       }
       next(err);
     }
-  }
+  };

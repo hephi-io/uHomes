@@ -1,5 +1,5 @@
 import express from 'express';
-import { BookingController } from '../cotrollers/booking.controller';
+import { BookingController } from '../controllers/booking.controller';
 import { validate } from '../middlewares/validate.middleware';
 import { authenticate } from '../middlewares/auth.middleware';
 import { bookingSchema, updateBookingStatusSchema } from '../validation/booking.validation';

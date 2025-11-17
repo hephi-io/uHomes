@@ -12,7 +12,7 @@ const options: swaggerJsdoc.Options = {
     },
     servers: [
       {
-        url: process.env.BASE_URL || 'https://localhost:7000',
+        url: process.env.BASE_URL || 'http://localhost:7000',
         description: 'Development Server',
       },
     ],
@@ -28,24 +28,6 @@ const options: swaggerJsdoc.Options = {
     security: [
       {
         bearerAuth: [],
-      },
-    ],
-    tags: [
-      {
-        name: 'Students',
-        description: 'Endpoints related to student registration, login, and profile management',
-      },
-      {
-        name: 'Agents',
-        description: 'Endpoints related to agent registration, login, and dashboard access',
-      },
-      {
-        name: 'Admins',
-        description: 'Endpoints for admin management, user oversight, and system control',
-      },
-      {
-        name: 'Authentication',
-        description: 'Shared authentication routes for password reset, email verification, etc.',
       },
     ],
   },
