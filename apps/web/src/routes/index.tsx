@@ -7,6 +7,10 @@ import ResetPassword from '@/pages/auth/reset-password';
 import ResetPasswordSuccess from '@/pages/auth/reset-password-success';
 import AgentLayout from '@/layouts/agent/Index';
 import Dashboard from '@/pages/Agent/dashboard';
+import StudentDashboardLayout from '@/layouts/students/index';
+import StudentDashboard from '@/pages/students/student-dashboard';
+import FindHostels from '@/pages/students/find-hostels';
+
 const router = createBrowserRouter([
   {
     path: '/',
@@ -23,7 +27,6 @@ const router = createBrowserRouter([
       { path: 'reset-password-success', element: <ResetPasswordSuccess /> },
     ],
   },
-
   {
     path: '/agent-dashboard',
     element: <AgentLayout />,
@@ -32,6 +35,14 @@ const router = createBrowserRouter([
         index: true,
         element: <Dashboard />,
       },
+    ],
+  },
+  {
+    path: '/student-dashboard',
+    element: <StudentDashboardLayout />,
+    children: [
+      { index: true, element: <StudentDashboard /> },
+      { path: 'find-hostels', element: <FindHostels /> },
     ],
   },
 ]);
