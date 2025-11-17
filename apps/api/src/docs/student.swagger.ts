@@ -63,7 +63,7 @@
  *         password:
  *           type: string
  *           example: "StrongPass123"
- * 
+ *
  *     ResendVerificationRequest:
  *       type: object
  *       required:
@@ -123,7 +123,7 @@
  *         newPassword:
  *           type: string
  *           example: "NewSecurePass123"
- * 
+ *
  *     ResendResetTokenRequest:
  *       type: object
  *       required:

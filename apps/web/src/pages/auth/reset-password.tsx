@@ -3,21 +3,42 @@ import { Button, TextField } from '@uhomes/ui-kit';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import Warning from '@/assets/svgs/warning.svg?react';
+import { useState } from 'react';
+import { resentPassword } from '@/services/auth';
+import { AxiosError } from 'axios';
+import { Loader2 } from 'lucide-react';
 
 interface IResetPassword {
   password: string;
   confirmPassword: string;
 }
 const ResetPassword = () => {
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { control, handleSubmit, watch } = useForm<IResetPassword>({
     defaultValues: { password: '', confirmPassword: '' },
   });
   const password = watch('password');
+  const token = 'ttt';
+  const onSubmit = async (data: IResetPassword) => {
+    const { password } = data;
 
-  const onSubmit = (data: IResetPassword) => {
-    navigate('/auth/reset-password-success');
-    console.log(data);
+    const payload = { token, newPassword: password };
+    try {
+      setLoading(true);
+      const response = await resentPassword(payload);
+      console.log('Forgot password response:', response);
+
+      navigate('/auth/reset-password-success');
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        console.error('Uh oh! Something went wrong:', error.response?.data?.error || error.message);
+      } else {
+        console.error('Network error or server not responding');
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -93,7 +114,11 @@ const ResetPassword = () => {
                 variant="outline"
                 className="bg-[#3E78FF] text-white border border-[#E4E4E4EE] px-4 py-2 w-full font-medium text-sm rounded-md cursor-pointer"
               >
-                Complete
+                {loading ? (
+                  <Loader2 className="size-5 mr-2 animate-spin text-white" />
+                ) : (
+                  <span>Complete</span>
+                )}
               </Button>
             </div>
           </form>

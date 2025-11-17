@@ -22,7 +22,7 @@
  *         password:
  *           type: string
  *           example: Password123!
- * 
+ *
  *     ResendVerificationRequest:
  *       type: object
  *       required:
@@ -31,7 +31,7 @@
  *         email:
  *           type: string
  *           format: email
- *           example: agent@example.com   
+ *           example: agent@example.com
  *
  *     LoginAgentRequest:
  *       type: object

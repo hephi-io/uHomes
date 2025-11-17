@@ -1,11 +1,11 @@
-import express from 'express'
-import { BookingController } from '../cotrollers/booking.controller'
-import { validate } from '../middlewares/validate.middleware'
-import { authenticate } from '../middlewares/auth.middleware'
-import { bookingSchema,updateBookingStatusSchema } from '../validation/booking.validation'
+import express from 'express';
+import { BookingController } from '../cotrollers/booking.controller';
+import { validate } from '../middlewares/validate.middleware';
+import { authenticate } from '../middlewares/auth.middleware';
+import { bookingSchema, updateBookingStatusSchema } from '../validation/booking.validation';
 
-const router = express.Router()
-const bookingController = new BookingController()
+const router = express.Router();
+const bookingController = new BookingController();
 
 /**
  * @swagger
@@ -31,7 +31,7 @@ const bookingController = new BookingController()
  *       400:
  *         description: Bad request (missing or invalid fields)
  */
-router.post('/',authenticate,validate(bookingSchema),bookingController.createBooking)
+router.post('/', authenticate, validate(bookingSchema), bookingController.createBooking);
 
 /**
  * @swagger
@@ -62,7 +62,7 @@ router.post('/',authenticate,validate(bookingSchema),bookingController.createBoo
  *       401:
  *         description: Unauthorized access
  */
-router.get('/:id',authenticate, bookingController.getBooking)
+router.get('/:id', authenticate, bookingController.getBooking);
 
 /**
  * @swagger
@@ -93,17 +93,17 @@ router.get('/:id',authenticate, bookingController.getBooking)
  *       401:
  *         description: Unauthorized access
  */
-router.get('/agent/:agentId',authenticate,bookingController.getAgentBookings)
+router.get('/agent/:agentId', authenticate, bookingController.getAgentBookings);
 
 /**
  * @swagger
  * /api/bookings:
  *   get:
  *     summary: Get all bookings
- *     description: 
- *       Retrieve all bookings based on the user's role.  
- *       - **Admin:** Can view all bookings.  
- *       - **Agent:** Can view only their assigned bookings.  
+ *     description:
+ *       Retrieve all bookings based on the user's role.
+ *       - **Admin:** Can view all bookings.
+ *       - **Agent:** Can view only their assigned bookings.
  *       - **Student:** Can view only their own bookings.
  *     tags: [Bookings]
  *     security:
@@ -144,7 +144,7 @@ router.get('/agent/:agentId',authenticate,bookingController.getAgentBookings)
  *       401:
  *         description: Unauthorized - Missing or invalid token
  */
-router.get('/', authenticate, bookingController.getAllBookings)
+router.get('/', authenticate, bookingController.getAllBookings);
 
 /**
  * @swagger
@@ -185,17 +185,22 @@ router.get('/', authenticate, bookingController.getAllBookings)
  *       404:
  *         description: Booking not found
  */
-router.patch('/:id/status',authenticate,validate(updateBookingStatusSchema),bookingController.updateBookingStatus)
+router.patch(
+  '/:id/status',
+  authenticate,
+  validate(updateBookingStatusSchema),
+  bookingController.updateBookingStatus
+);
 
 /**
  * @swagger
  * /api/booking/{id}:
  *   delete:
  *     summary: Delete a booking
- *     description: 
- *       Delete a specific booking by ID.  
- *       - **Admin:** Can delete any booking.  
- *       - **Agent:** Can delete only their assigned bookings.  
+ *     description:
+ *       Delete a specific booking by ID.
+ *       - **Admin:** Can delete any booking.
+ *       - **Agent:** Can delete only their assigned bookings.
  *       - **Student:** Can delete only their own bookings.
  *     tags: [Bookings]
  *     security:
@@ -244,7 +249,6 @@ router.patch('/:id/status',authenticate,validate(updateBookingStatusSchema),book
  *       404:
  *         description: Booking not found
  */
-router.delete('/:id', authenticate, bookingController.deleteBooking)
+router.delete('/:id', authenticate, bookingController.deleteBooking);
 
-
-export default router
+export default router;

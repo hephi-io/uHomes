@@ -1,6 +1,11 @@
+import { agentLogin } from '@/services/auth';
 import { Button, TextField } from '@uhomes/ui-kit';
 import { useForm } from 'react-hook-form';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { AxiosError } from 'axios';
+import { useState } from 'react';
+import { Loader2 } from 'lucide-react';
+import { token } from '@/utils';
 
 interface LoginForm {
   name: string;
@@ -11,11 +16,32 @@ interface LoginForm {
 }
 
 const Login = () => {
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
   const { control, handleSubmit } = useForm<LoginForm>({
     defaultValues: { email: '', password: '' },
   });
 
-  const onSubmit = (data: LoginForm) => console.log(data);
+  const onSubmit = async (payload: LoginForm) => {
+    const { email, password } = payload;
+    console.log(payload);
+    try {
+      setLoading(true);
+      const { data } = await agentLogin({ email, password });
+      token.login(data.data.token);
+      navigate('/agent-dashboard');
+    } catch (error) {
+      setLoading(false);
+      if (error instanceof AxiosError) {
+        console.error('Uh oh! Something went wrong:', error.response?.data?.error || error.message);
+      } else {
+        console.error('Unexpected error:', error);
+      }
+      return;
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div>
@@ -71,7 +97,11 @@ const Login = () => {
               variant="outline"
               className="bg-[#3E78FF] text-white border border-[#E4E4E4EE] px-4 py-2 w-full font-medium text-sm rounded-md cursor-pointer"
             >
-              Log In
+              {loading ? (
+                <Loader2 className="size-5 mr-2 animate-spin text-white" />
+              ) : (
+                <span>Log In</span>
+              )}
             </Button>
           </div>
         </form>

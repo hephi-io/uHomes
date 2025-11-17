@@ -1,20 +1,40 @@
 import UHome from '@/assets/svgs/u-home.svg?react';
+import { forgotPassword } from '@/services/auth';
 import { Button, TextField } from '@uhomes/ui-kit';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
+import { Loader2 } from 'lucide-react';
+import { AxiosError } from 'axios';
+import { useState } from 'react';
 
 interface ForgotPasswordForm {
   email: string;
 }
 const ForgotPassword = () => {
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { control, handleSubmit } = useForm<ForgotPasswordForm>({
     defaultValues: { email: '' },
   });
 
-  const onSubmit = (data: ForgotPasswordForm) => {
-    navigate('/auth/Verify-Account');
-    console.log(data);
+  const onSubmit = async (data: ForgotPasswordForm) => {
+    const { email } = data;
+    try {
+      setLoading(true);
+      const response = await forgotPassword(email);
+      console.log('Forgot password response:', response);
+
+      // If the request is successful
+      navigate('/auth/Verify-Account');
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        console.error('Uh oh! Something went wrong:', error.response?.data?.error || error.message);
+      } else {
+        console.error('Network error or server not responding');
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -56,7 +76,11 @@ const ForgotPassword = () => {
                   variant="outline"
                   className="bg-[#3E78FF] text-white border border-[#E4E4E4EE] px-4 py-2 w-full font-medium text-sm rounded-[5px] cursor-pointer"
                 >
-                  Continue
+                  {loading ? (
+                    <Loader2 className="size-5 mr-2 animate-spin text-white" />
+                  ) : (
+                    <span>Continue</span>
+                  )}
                 </Button>
               </div>
             </form>

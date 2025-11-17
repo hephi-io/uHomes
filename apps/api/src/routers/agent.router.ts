@@ -1,11 +1,19 @@
-import express from "express"
-import { AgentController } from "../cotrollers/agent.controller"
-import { authenticate } from "../middlewares/auth.middleware"
-import { validate } from "../middlewares/validate.middleware"
-import { createAgentSchema, loginSchema, getAgentByIdSchema, updateAgentSchema, deleteAgentSchema, forgotPasswordSchema, resetPasswordSchema } from "../validation/agent.validation"
+import express from 'express';
+import { AgentController } from '../cotrollers/agent.controller';
+import { authenticate } from '../middlewares/auth.middleware';
+import { validate } from '../middlewares/validate.middleware';
+import {
+  createAgentSchema,
+  loginSchema,
+  getAgentByIdSchema,
+  updateAgentSchema,
+  deleteAgentSchema,
+  forgotPasswordSchema,
+  resetPasswordSchema,
+} from '../validation/agent.validation';
 
-const router = express.Router()
-const controller = new AgentController()
+const router = express.Router();
+const controller = new AgentController();
 
 /**
  * @openapi
@@ -29,7 +37,7 @@ const controller = new AgentController()
  *       500:
  *         $ref: '#/components/responses/ServerError'
  */
-router.post("/register", validate(createAgentSchema), controller.register.bind(controller))
+router.post('/register', validate(createAgentSchema), controller.register.bind(controller));
 
 /**
  * @openapi
@@ -64,7 +72,7 @@ router.post("/register", validate(createAgentSchema), controller.register.bind(c
  *       500:
  *         $ref: '#/components/responses/ServerError'
  */
-router.get("/verify-email/:token", controller.verifyEmail.bind(controller))
+router.get('/verify-email/:token', controller.verifyEmail.bind(controller));
 
 /**
  * @openapi
@@ -88,8 +96,7 @@ router.get("/verify-email/:token", controller.verifyEmail.bind(controller))
  *       404:
  *         $ref: '#/components/responses/NotFound'
  */
-router.post("/resend-verification", controller.resendVerification.bind(controller))
-
+router.post('/resend-verification', controller.resendVerification.bind(controller));
 
 /**
  * @openapi
@@ -115,7 +122,7 @@ router.post("/resend-verification", controller.resendVerification.bind(controlle
  *       500:
  *         $ref: '#/components/responses/ServerError'
  */
-router.post("/login", validate(loginSchema), controller.login.bind(controller))
+router.post('/login', validate(loginSchema), controller.login.bind(controller));
 
 /**
  * @openapi
@@ -139,7 +146,7 @@ router.post("/login", validate(loginSchema), controller.login.bind(controller))
  *       500:
  *         $ref: '#/components/responses/ServerError'
  */
-router.get("/", authenticate, controller.getAll.bind(controller))
+router.get('/', authenticate, controller.getAll.bind(controller));
 
 /**
  * @openapi
@@ -174,7 +181,7 @@ router.get("/", authenticate, controller.getAll.bind(controller))
  *       404:
  *         $ref: '#/components/responses/NotFound'
  */
-router.get("/:id", authenticate, validate(getAgentByIdSchema), controller.getById.bind(controller))
+router.get('/:id', authenticate, validate(getAgentByIdSchema), controller.getById.bind(controller));
 
 /**
  * @openapi
@@ -232,7 +239,12 @@ router.get("/:id", authenticate, validate(getAgentByIdSchema), controller.getByI
  *       500:
  *         $ref: '#/components/responses/ServerError'
  */
-router.put("/:id", authenticate, validate(updateAgentSchema), controller.updateAgent.bind(controller))
+router.put(
+  '/:id',
+  authenticate,
+  validate(updateAgentSchema),
+  controller.updateAgent.bind(controller)
+);
 
 /**
  * @openapi
@@ -268,7 +280,12 @@ router.put("/:id", authenticate, validate(updateAgentSchema), controller.updateA
  *       500:
  *         $ref: '#/components/responses/ServerError'
  */
-router.delete("/:id", authenticate, validate(deleteAgentSchema), controller.delete.bind(controller))
+router.delete(
+  '/:id',
+  authenticate,
+  validate(deleteAgentSchema),
+  controller.delete.bind(controller)
+);
 
 /**
  * @openapi
@@ -290,7 +307,11 @@ router.delete("/:id", authenticate, validate(deleteAgentSchema), controller.dele
  *       500:
  *         $ref: '#/components/responses/ServerError'
  */
-router.post("/forgot-password", validate(forgotPasswordSchema), controller.forgotPassword.bind(controller))
+router.post(
+  '/forgot-password',
+  validate(forgotPasswordSchema),
+  controller.forgotPassword.bind(controller)
+);
 
 /**
  * @openapi
@@ -317,8 +338,11 @@ router.post("/forgot-password", validate(forgotPasswordSchema), controller.forgo
  *       400:
  *         $ref: '#/components/responses/BadRequest'
  */
-router.post("/reset-password/:token", validate(resetPasswordSchema), controller.resetPassword.bind(controller))
-
+router.post(
+  '/reset-password/:token',
+  validate(resetPasswordSchema),
+  controller.resetPassword.bind(controller)
+);
 
 /**
  * @openapi
@@ -342,6 +366,10 @@ router.post("/reset-password/:token", validate(resetPasswordSchema), controller.
  *       404:
  *         $ref: '#/components/responses/NotFound'
  */
-router.post("/resend-reset-token",  validate(resetPasswordSchema), controller.resendResetToken.bind(controller))
+router.post(
+  '/resend-reset-token',
+  validate(resetPasswordSchema),
+  controller.resendResetToken.bind(controller)
+);
 
-export default router
+export default router;

@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IStudent extends Document {
   fullName: string;
@@ -41,7 +41,7 @@ const studentSchema: Schema<IStudent> = new Schema(
     yearOfStudy: {
       type: String,
       required: true,
-      enum: ["100", "200", "300", "400", "500"], 
+      enum: ['100', '200', '300', '400', '500'],
     },
     password: {
       type: String,
@@ -50,8 +50,8 @@ const studentSchema: Schema<IStudent> = new Schema(
     },
     role: {
       type: String,
-      enum: ["Student", "Agent", "Admin"],
-      default: "Student",
+      enum: ['Student', 'Agent', 'Admin'],
+      default: 'Student',
     },
     isVerified: {
       type: Boolean,
@@ -61,6 +61,6 @@ const studentSchema: Schema<IStudent> = new Schema(
   { timestamps: true }
 );
 
-const Student = mongoose.model<IStudent>("Student", studentSchema);
+const Student = mongoose.model<IStudent>('Student', studentSchema);
 
 export default Student;
