@@ -1,7 +1,7 @@
-import Express from "express"
-import { StudentController } from "../cotrollers/student.controller"
-import { authenticate } from "../middlewares/auth.middleware"
-import { validate } from "../middlewares/validate.middleware"
+import Express from 'express';
+import { StudentController } from '../cotrollers/student.controller';
+import { authenticate } from '../middlewares/auth.middleware';
+import { validate } from '../middlewares/validate.middleware';
 import {
   createStudentSchema,
   loginSchema,
@@ -9,11 +9,11 @@ import {
   updateStudentSchema,
   deleteStudentSchema,
   forgotPasswordSchema,
-  resetPasswordSchema
-} from "../validation/student.validation"
+  resetPasswordSchema,
+} from '../validation/student.validation';
 
-const router = Express.Router()
-const Controller = new StudentController()
+const router = Express.Router();
+const Controller = new StudentController();
 
 /**
  * @openapi
@@ -33,7 +33,7 @@ const Controller = new StudentController()
  *       400:
  *         $ref: '#/components/responses/BadRequestError'
  */
-router.post("/register", validate(createStudentSchema), Controller.register.bind(Controller))
+router.post('/register', validate(createStudentSchema), Controller.register.bind(Controller));
 
 /**
  * @openapi
@@ -68,7 +68,7 @@ router.post("/register", validate(createStudentSchema), Controller.register.bind
  *       500:
  *         $ref: '#/components/responses/ServerError'
  */
-router.get("/verify-email/:otp", Controller.verifyEmail.bind(Controller))
+router.get('/verify-email/:otp', Controller.verifyEmail.bind(Controller));
 
 /**
  * @openapi
@@ -92,8 +92,7 @@ router.get("/verify-email/:otp", Controller.verifyEmail.bind(Controller))
  *       404:
  *         $ref: '#/components/responses/NotFoundError'
  */
-router.post("/resend-verification", Controller.resendVerification.bind(Controller))
-
+router.post('/resend-verification', Controller.resendVerification.bind(Controller));
 
 /**
  * @swagger
@@ -138,7 +137,7 @@ router.post("/resend-verification", Controller.resendVerification.bind(Controlle
  *       404:
  *         description: Student not found
  */
-router.post("/login", validate(loginSchema), Controller.login.bind(Controller))
+router.post('/login', validate(loginSchema), Controller.login.bind(Controller));
 
 /**
  * @openapi
@@ -150,7 +149,7 @@ router.post("/login", validate(loginSchema), Controller.login.bind(Controller))
  *       200:
  *         description: List of all students
  */
-router.get("/", authenticate, Controller.getAll.bind(Controller))
+router.get('/', authenticate, Controller.getAll.bind(Controller));
 
 /**
  * @openapi
@@ -170,7 +169,12 @@ router.get("/", authenticate, Controller.getAll.bind(Controller))
  *       404:
  *         $ref: '#/components/responses/NotFoundError'
  */
-router.get("/:id", authenticate, validate(getStudentByIdSchema), Controller.getById.bind(Controller))
+router.get(
+  '/:id',
+  authenticate,
+  validate(getStudentByIdSchema),
+  Controller.getById.bind(Controller)
+);
 
 /**
  * @openapi
@@ -196,7 +200,12 @@ router.get("/:id", authenticate, validate(getStudentByIdSchema), Controller.getB
  *       404:
  *         $ref: '#/components/responses/NotFoundError'
  */
-router.put("/:id", authenticate, validate(updateStudentSchema), Controller.updateStudent.bind(Controller))
+router.put(
+  '/:id',
+  authenticate,
+  validate(updateStudentSchema),
+  Controller.updateStudent.bind(Controller)
+);
 
 /**
  * @openapi
@@ -216,7 +225,12 @@ router.put("/:id", authenticate, validate(updateStudentSchema), Controller.updat
  *       404:
  *         $ref: '#/components/responses/NotFoundError'
  */
-router.delete("/:id", authenticate, validate(deleteStudentSchema), Controller.delete.bind(Controller))
+router.delete(
+  '/:id',
+  authenticate,
+  validate(deleteStudentSchema),
+  Controller.delete.bind(Controller)
+);
 
 /**
  * @swagger
@@ -253,7 +267,11 @@ router.delete("/:id", authenticate, validate(deleteStudentSchema), Controller.de
  *       404:
  *         description: Student not found
  */
-router.post("/forgot-password", validate(forgotPasswordSchema), Controller.forgotPassword.bind(Controller))
+router.post(
+  '/forgot-password',
+  validate(forgotPasswordSchema),
+  Controller.forgotPassword.bind(Controller)
+);
 
 /**
  * @swagger
@@ -290,7 +308,11 @@ router.post("/forgot-password", validate(forgotPasswordSchema), Controller.forgo
  *       404:
  *         description: User not found
  */
-router.post("/reset-password/:otp", validate(resetPasswordSchema), Controller.resetPassword.bind(Controller))
+router.post(
+  '/reset-password/:otp',
+  validate(resetPasswordSchema),
+  Controller.resetPassword.bind(Controller)
+);
 
 /**
  * @openapi
@@ -314,6 +336,6 @@ router.post("/reset-password/:otp", validate(resetPasswordSchema), Controller.re
  *       404:
  *         $ref: '#/components/responses/NotFoundError'
  */
-router.post("/resend-reset-token", Controller.resendResetToken.bind(Controller))
+router.post('/resend-reset-token', Controller.resendResetToken.bind(Controller));
 
-export default router
+export default router;

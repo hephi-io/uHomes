@@ -34,7 +34,7 @@
  *           type: string
  *           format: date-time
  *           example: "2025-10-27T10:21:00.000Z"
- *     
+ *
  *     RegisterStudentInput:
  *       type: object
  *       required:
@@ -99,7 +99,7 @@
  *               data:
  *                 $ref: '#/components/schemas/Student'
  *
- * 
+ *
  *     VerifyEmailInput:
  *       type: object
  *       required:

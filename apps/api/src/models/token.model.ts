@@ -1,9 +1,9 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IToken extends Document {
   userId: mongoose.Types.ObjectId;
-  role: "Student" | "Agent" | "Admin";
-  typeOf: "emailVerification" | "login" | "resetPassword";
+  role: 'Student' | 'Agent' | 'Admin';
+  typeOf: 'emailVerification' | 'login' | 'resetPassword';
   token: string;
   expiresAt: Date;
   createdAt: Date;
@@ -13,17 +13,17 @@ const tokenSchema: Schema<IToken> = new Schema(
   {
     userId: {
       type: Schema.Types.ObjectId,
-      refPath: "role", // dynamically refers to student or agent collection
+      refPath: 'role', // dynamically refers to student or agent collection
       required: true,
     },
     role: {
       type: String,
-      enum: ["Student", "Agent", "Admin"],
+      enum: ['Student', 'Agent', 'Admin'],
       required: true,
     },
     typeOf: {
       type: String,
-      enum: ["emailVerification", "login", "resetPassword"],
+      enum: ['emailVerification', 'login', 'resetPassword'],
       required: true,
     },
     token: {
@@ -40,6 +40,6 @@ const tokenSchema: Schema<IToken> = new Schema(
 
 tokenSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
-const Token = mongoose.model<IToken>("Token", tokenSchema);
+const Token = mongoose.model<IToken>('Token', tokenSchema);
 
 export default Token;

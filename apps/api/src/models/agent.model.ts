@@ -1,16 +1,16 @@
-import mongoose, { Schema, Document } from "mongoose"
+import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IAgent extends Document {
-  fullName: string
-  email: string
-  phoneNumber: string
-  password: string
-  role?: string
-  properties: mongoose.Types.ObjectId[]
-  totalRevenue?: number
-  isVerified: boolean 
-  createdAt: Date
-  updatedAt: Date
+  fullName: string;
+  email: string;
+  phoneNumber: string;
+  password: string;
+  role?: string;
+  properties: mongoose.Types.ObjectId[];
+  totalRevenue?: number;
+  isVerified: boolean;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const agentSchema: Schema<IAgent> = new Schema(
@@ -40,20 +40,18 @@ const agentSchema: Schema<IAgent> = new Schema(
     },
     role: {
       type: String,
-      enum: ["Agent","Student","Admin"],
-      default: "Agent",
+      enum: ['Agent', 'Student', 'Admin'],
+      default: 'Agent',
     },
-     properties: [
-      { type: Schema.Types.ObjectId, ref: "Property" }
-    ],
+    properties: [{ type: Schema.Types.ObjectId, ref: 'Property' }],
     isVerified: {
       type: Boolean,
       default: false,
     },
   },
   { timestamps: true }
-)
+);
 
-const Agent = mongoose.model<IAgent>("Agent", agentSchema);
+const Agent = mongoose.model<IAgent>('Agent', agentSchema);
 
 export default Agent;

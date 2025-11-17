@@ -1,19 +1,17 @@
-import Agent, { IAgent } from "../models/agent.model"
-import Token, {IToken} from "../models/token.model"
-import {randomBytes} from "crypto"
-import { sendEmail } from "../utils/sendEmail"
-import bcrypt from "bcryptjs"
-import jwt from "jsonwebtoken"
-import { BadRequestError, NotFoundError, UnauthorizedError } from "../middlewares/error.middlewere"
-
+import Agent, { IAgent } from '../models/agent.model';
+import Token from '../models/token.model';
+import { randomBytes } from 'crypto';
+import { sendEmail } from '../utils/sendEmail';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import { BadRequestError, NotFoundError, UnauthorizedError } from '../middlewares/error.middlewere';
 
 export class AgentService {
-  
-    async register(fullName: string, email: string, phoneNumber: string, password: string) {
+  async register(fullName: string, email: string, phoneNumber: string, password: string) {
     const existingUser = await Agent.findOne({ email });
-    if (existingUser) throw new Error("Email already in use")
+    if (existingUser) throw new Error('Email already in use');
 
-    const hashedPassword = await bcrypt.hash(password, 10)
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     const agent = new Agent({
       fullName,
@@ -22,16 +20,16 @@ export class AgentService {
       password: hashedPassword,
     });
 
-    await agent.save()
+    await agent.save();
 
-    const verificationToken = randomBytes(32).toString("hex");
+    const verificationToken = randomBytes(32).toString('hex');
     await Token.create({
       userId: agent._id,
-      role: "Agent",
-      typeOf: "emailVerification",
+      role: 'Agent',
+      typeOf: 'emailVerification',
       token: verificationToken,
       expiresAt: new Date(Date.now() + 60 * 60 * 1000), // 1 hour expiry
-    })
+    });
 
     const verifyLink = `${process.env.BASE_URL}/api/agent/verify-email/${verificationToken}`;
     const html = `
@@ -40,94 +38,93 @@ export class AgentService {
       <a href="${verifyLink}">Verify Email</a>
     `;
 
-    await sendEmail(email, "Verify Your Email", html);  
+    await sendEmail(email, 'Verify Your Email', html);
 
-    return { message: "Verification email sent. Please check your inbox." };
+    return { message: 'Verification email sent. Please check your inbox.' };
   }
 
   async verifyEmail(tokenString: string) {
-    
-    const tokenDoc = await Token.findOne({token: tokenString, typeOf: "emailVerification", expiresAt: { $gt: new Date() }
-    })
-    if (!tokenDoc) throw new BadRequestError("Invalid or expired verification token")
+    const tokenDoc = await Token.findOne({
+      token: tokenString,
+      typeOf: 'emailVerification',
+      expiresAt: { $gt: new Date() },
+    });
+    if (!tokenDoc) throw new BadRequestError('Invalid or expired verification token');
 
-    
-    const agent = await Agent.findById(tokenDoc.userId)
-    if (!agent) throw new NotFoundError("Agent not found")
+    const agent = await Agent.findById(tokenDoc.userId);
+    if (!agent) throw new NotFoundError('Agent not found');
 
-    agent.isVerified = true
-    await agent.save()
+    agent.isVerified = true;
+    await agent.save();
 
-  
-    await tokenDoc.deleteOne()
+    await tokenDoc.deleteOne();
 
-    return { message: "Email verified successfully" }
+    return { message: 'Email verified successfully' };
   }
 
   async resendVerification(email: string) {
-  const agent = await Agent.findOne({ email })
-  if (!agent) throw new NotFoundError("Agent not found")
+    const agent = await Agent.findOne({ email });
+    if (!agent) throw new NotFoundError('Agent not found');
 
-  if (agent.isVerified) throw new BadRequestError("Email already verified")
+    if (agent.isVerified) throw new BadRequestError('Email already verified');
 
-  // Generate a new verification token
-  const verificationToken = randomBytes(32).toString("hex")
-  await Token.create({
-    userId: agent._id,
-    role: "Agent",
-    typeOf: "emailVerification",
-    token: verificationToken,
-    expiresAt: new Date(Date.now() + 60 * 60 * 1000) // 1 hour
-  })
+    // Generate a new verification token
+    const verificationToken = randomBytes(32).toString('hex');
+    await Token.create({
+      userId: agent._id,
+      role: 'Agent',
+      typeOf: 'emailVerification',
+      token: verificationToken,
+      expiresAt: new Date(Date.now() + 60 * 60 * 1000), // 1 hour
+    });
 
-  const verifyLink = `${process.env.BASE_URL}/api/agent/verify-email/${verificationToken}`
-  const html = `
+    const verifyLink = `${process.env.BASE_URL}/api/agent/verify-email/${verificationToken}`;
+    const html = `
     <h3>Welcome back to U-Homes!</h3>
     <p>Please verify your email by clicking the link below:</p>
     <a href="${verifyLink}">Verify Email</a>
-  `
+  `;
 
-  await sendEmail(agent.email, "Verify Your Email", html)
+    await sendEmail(agent.email, 'Verify Your Email', html);
 
-  return { message: "Verification email resent successfully." }
-}
-
-
-  async login(email: string, password: string) {
-    const agent = await Agent.findOne({ email })
-    if (!agent) throw new NotFoundError("Agent not found")
-    if (!agent.isVerified) throw new BadRequestError("Please verify your email first")
-
-    const isMatch = await bcrypt.compare(password, agent.password)
-    if (!isMatch) throw new UnauthorizedError("Incorrect password")
-
-    const token = jwt.sign({ id: agent._id, role: agent.role }, process.env.JWT_SECRET!, { expiresIn: "1d" })
-    
-    const { password: _pwd, ...agentData } = agent.toObject()
-    return { token, agent: agentData }
-
+    return { message: 'Verification email resent successfully.' };
   }
 
-  
-  
+  async login(email: string, password: string) {
+    const agent = await Agent.findOne({ email });
+    if (!agent) throw new NotFoundError('Agent not found');
+    if (!agent.isVerified) throw new BadRequestError('Please verify your email first');
+
+    const isMatch = await bcrypt.compare(password, agent.password);
+    if (!isMatch) throw new UnauthorizedError('Incorrect password');
+
+    const token = jwt.sign({ id: agent._id, role: agent.role }, process.env.JWT_SECRET!, {
+      expiresIn: '1d',
+    });
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password: _, ...agentData } = agent.toObject();
+    return { token, agent: agentData };
+  }
+
   async getAllAgents() {
     return await Agent.find();
   }
 
   async getAgentById(id: string) {
     const agent = await Agent.findById(id);
-    if (!agent) throw new NotFoundError("Agent not found");
+    if (!agent) throw new NotFoundError('Agent not found');
     return agent;
   }
 
- async updateAgent(id: string, data: Partial<IAgent>) {
-  const agent = await Agent.findByIdAndUpdate(id, data, { new: true });
-  if (!agent) throw new NotFoundError("Agent not found");
+  async updateAgent(id: string, data: Partial<IAgent>) {
+    const agent = await Agent.findByIdAndUpdate(id, data, { new: true });
+    if (!agent) throw new NotFoundError('Agent not found');
 
-  // email content
-  const html = `
+    // email content
+    const html = `
     <h3>Account Update Notification</h3>
-    <p>Hi ${agent.fullName || "Agent"},</p>
+    <p>Hi ${agent.fullName || 'Agent'},</p>
     <p>Your account details were recently updated.</p>
     <p>If you made this change, no action is needed.</p>
     <p>If you did <b>NOT</b> make this change, please reset your password or contact support immediately.</p>
@@ -135,44 +132,38 @@ export class AgentService {
     <p>Best regards,<br>UHomes Team</p>
   `;
 
-  
-    await sendEmail(
-      agent.email,
-      "Your UHomes Account Was Updated",
-      html
-    );
+    await sendEmail(agent.email, 'Your UHomes Account Was Updated', html);
 
     return agent;
   }
 
-
   async deleteAgent(id: string) {
     const agent = await Agent.findByIdAndDelete(id);
-    if (!agent) throw new NotFoundError("User not found");
-    return { message: "User deleted successfully" };
+    if (!agent) throw new NotFoundError('User not found');
+    return { message: 'User deleted successfully' };
   }
 
- async forgotPassword(email: string) {
-  const agent = await Agent.findOne({ email })
-  if (!agent) throw new NotFoundError("User not found")
+  async forgotPassword(email: string) {
+    const agent = await Agent.findOne({ email });
+    if (!agent) throw new NotFoundError('User not found');
 
-  // Delete old reset tokens for the same user
-  await Token.deleteMany({ userId: agent._id, typeOf: "resetPassword" })
+    // Delete old reset tokens for the same user
+    await Token.deleteMany({ userId: agent._id, typeOf: 'resetPassword' });
 
-  const otp = Math.floor(100000 + Math.random() * 900000).toString()
-  const expiresAt = new Date(Date.now() + 15 * 60 * 1000) 
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
 
-  await Token.create({
-    userId: agent._id,
-    role: agent.role || "Agent",
-    typeOf: "resetPassword",
-    token: otp,
-    expiresAt,
-  })
+    await Token.create({
+      userId: agent._id,
+      role: agent.role || 'Agent',
+      typeOf: 'resetPassword',
+      token: otp,
+      expiresAt,
+    });
 
-  const html = `
+    const html = `
     <h3>Password Reset Request</h3>
-    <p>Hi ${agent.fullName || "User"},</p>
+    <p>Hi ${agent.fullName || 'User'},</p>
     <p>Your OTP for password reset is.:</p>
      <h2>${otp}</h2>
     <p>This code will expire in 15 minutes.</p>
@@ -180,129 +171,122 @@ export class AgentService {
     <p>If you did not request this, please ignore this email.</p>
     <br>
     <p>Best regards,<br>UHomes Team</p>
-  `
-  await sendEmail(agent.email, "UHomes Password Reset", html)
+  `;
+    await sendEmail(agent.email, 'UHomes Password Reset', html);
 
-  return { message: "Password reset link sent to your email." }
-}
+    return { message: 'Password reset link sent to your email.' };
+  }
 
-//   async resetPassword(email: string, otp: string, newPassword: string, confirmPassword: string) {
-//   email = email.trim()
-//   otp = otp.trim()
+  //   async resetPassword(email: string, otp: string, newPassword: string, confirmPassword: string) {
+  //   email = email.trim()
+  //   otp = otp.trim()
 
-//   const agent = await Agent.findOne({ email })
-//   if (!agent) throw new NotFoundError("User not found")
+  //   const agent = await Agent.findOne({ email })
+  //   if (!agent) throw new NotFoundError("User not found")
 
-//   if (newPassword !== confirmPassword)
-//     throw new BadRequestError("Passwords do not match")
+  //   if (newPassword !== confirmPassword)
+  //     throw new BadRequestError("Passwords do not match")
 
-//   if (newPassword.length < 8)
-//     throw new BadRequestError("Password must be at least 8 characters long")
+  //   if (newPassword.length < 8)
+  //     throw new BadRequestError("Password must be at least 8 characters long")
 
-//   const tokenDoc = await Token.findOne({
-//     userId: agent._id,
-//     typeOf: "resetPassword",
-//     token: otp,
-//     expiresAt: { $gt: new Date() }
-//   })
-//   if (!tokenDoc) throw new BadRequestError("Invalid or expired OTP")
+  //   const tokenDoc = await Token.findOne({
+  //     userId: agent._id,
+  //     typeOf: "resetPassword",
+  //     token: otp,
+  //     expiresAt: { $gt: new Date() }
+  //   })
+  //   if (!tokenDoc) throw new BadRequestError("Invalid or expired OTP")
 
-//   agent.password = await bcrypt.hash(newPassword, 10)
-//   await agent.save()
-//   await tokenDoc.deleteOne()
+  //   agent.password = await bcrypt.hash(newPassword, 10)
+  //   await agent.save()
+  //   await tokenDoc.deleteOne()
 
-//   const html = `
-//     <h3>Password Reset Successful</h3>
-//     <p>Hi ${agent.fullName || "Agent"},</p>
-//     <p>Your password has been successfully reset.</p>
-//     <p>If you did not perform this action, please contact support immediately.</p>
-//   `
-//   await sendEmail(agent.email, "Password Reset Confirmation", html)
+  //   const html = `
+  //     <h3>Password Reset Successful</h3>
+  //     <p>Hi ${agent.fullName || "Agent"},</p>
+  //     <p>Your password has been successfully reset.</p>
+  //     <p>If you did not perform this action, please contact support immediately.</p>
+  //   `
+  //   await sendEmail(agent.email, "Password Reset Confirmation", html)
 
-//   return {
-//     success: true,
-//     message: "Password reset successfully",
-//     email: agent.email,
-//     time: new Date()
-//   }
-// }
+  //   return {
+  //     success: true,
+  //     message: "Password reset successfully",
+  //     email: agent.email,
+  //     time: new Date()
+  //   }
+  // }
 
+  async resetPassword(otp: string, newPassword: string, confirmPassword: string) {
+    if (newPassword !== confirmPassword) throw new BadRequestError('Passwords do not match');
 
-async resetPassword(otp: string, newPassword: string, confirmPassword: string) {
+    if (newPassword.length < 8)
+      throw new BadRequestError('Password must be at least 8 characters long');
 
-  if (newPassword !== confirmPassword)
-    throw new BadRequestError("Passwords do not match")
+    // Find the token and associated agent
+    const tokenDoc = await Token.findOne({
+      token: otp.trim(),
+      typeOf: 'resetPassword',
+      expiresAt: { $gt: new Date() },
+    });
 
-  if (newPassword.length < 8)
-    throw new BadRequestError("Password must be at least 8 characters long")
+    if (!tokenDoc) throw new BadRequestError('Invalid or expired OTP');
 
-  // Find the token and associated agent
-  const tokenDoc = await Token.findOne({
-    token: otp.trim(),
-    typeOf: "resetPassword",
-    expiresAt: { $gt: new Date() }
-  })
+    const agent = await Agent.findById(tokenDoc.userId);
+    if (!agent) throw new NotFoundError('User not found');
 
-  if (!tokenDoc) throw new BadRequestError("Invalid or expired OTP")
+    // Update password
+    agent.password = newPassword;
+    await agent.save();
 
-  const agent = await Agent.findById(tokenDoc.userId)
-  if (!agent) throw new NotFoundError("User not found")
+    // Remove token after use
+    await tokenDoc.deleteOne();
 
-  // Update password
-  agent.password = newPassword
-  await agent.save()
-
-  // Remove token after use
-  await tokenDoc.deleteOne()
-
-  // Send confirmation email
-  const html = `
+    // Send confirmation email
+    const html = `
     <h3>Password Reset Successful</h3>
-    <p>Hi ${agent.fullName || "Agent"},</p>
+    <p>Hi ${agent.fullName || 'Agent'},</p>
     <p>Your password has been successfully reset.</p>
     <p>If you did not perform this action, please contact support immediately.</p>
-  `
-  await sendEmail(agent.email, "Password Reset Confirmation", html)
+  `;
+    await sendEmail(agent.email, 'Password Reset Confirmation', html);
 
-  return {
-    success: true,
-    message: "Password reset successfully",
-    time: new Date()
+    return {
+      success: true,
+      message: 'Password reset successfully',
+      time: new Date(),
+    };
   }
-}
 
+  // Step 3: Resend OTP
+  async resendResetOtp(email: string) {
+    const agent = await Agent.findOne({ email });
+    if (!agent) throw new NotFoundError('User not found');
 
+    // Remove old tokens
+    await Token.deleteMany({ userId: agent._id, typeOf: 'resetPassword' });
 
-// Step 3: Resend OTP
-async resendResetOtp(email: string) {
-  const agent = await Agent.findOne({ email })
-  if (!agent) throw new NotFoundError("User not found")
+    // Generate new OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
 
-  // Remove old tokens
-  await Token.deleteMany({ userId: agent._id, typeOf: "resetPassword" })
+    await Token.create({
+      userId: agent._id,
+      role: agent.role || 'Agent',
+      typeOf: 'resetPassword',
+      token: otp,
+      expiresAt,
+    });
 
-  // Generate new OTP
-  const otp = Math.floor(100000 + Math.random() * 900000).toString()
-  const expiresAt = new Date(Date.now() + 15 * 60 * 1000)
-
-  await Token.create({
-    userId: agent._id,
-    role: agent.role || "Agent",
-    typeOf: "resetPassword",
-    token: otp,
-    expiresAt
-  })
-
-  const html = `
+    const html = `
     <h3>New Password Reset OTP</h3>
     <p>Your new OTP is:</p>
     <h2>${otp}</h2>
     <p>This code will expire in 15 minutes.</p>
-  `
-  await sendEmail(agent.email, "New OTP for Password Reset", html)
+  `;
+    await sendEmail(agent.email, 'New OTP for Password Reset', html);
 
-  return { message: "New OTP sent to your email." }
- }
-
-
+    return { message: 'New OTP sent to your email.' };
+  }
 }

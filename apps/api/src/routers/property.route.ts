@@ -1,13 +1,12 @@
-import express from "express"
-import {PropertyController} from "../cotrollers/property.controller"
-import multer from "multer"
-import { authenticate } from "../middlewares/auth.middleware" 
+import express from 'express';
+import { PropertyController } from '../cotrollers/property.controller';
+import multer from 'multer';
+import { authenticate } from '../middlewares/auth.middleware';
 
-const router = express.Router()
-const upload = multer({ dest: "uploads/" }) 
+const router = express.Router();
+const upload = multer({ dest: 'uploads/' });
 
-const controller = new PropertyController()
-
+const controller = new PropertyController();
 
 /**
  * @swagger
@@ -62,8 +61,7 @@ const controller = new PropertyController()
  *       401:
  *         description: Unauthorized
  */
-router.post( "/",authenticate,upload.array("images"),controller.createProperty.bind(controller))
-
+router.post('/', authenticate, upload.array('images'), controller.createProperty.bind(controller));
 
 /**
  * @swagger
@@ -128,7 +126,12 @@ router.post( "/",authenticate,upload.array("images"),controller.createProperty.b
  *       404:
  *         description: Property not found
  */
-router.put( "/:id",authenticate, upload.array("images"), controller.updateProperty.bind(controller))
+router.put(
+  '/:id',
+  authenticate,
+  upload.array('images'),
+  controller.updateProperty.bind(controller)
+);
 
 /**
  * @swagger
@@ -140,8 +143,7 @@ router.put( "/:id",authenticate, upload.array("images"), controller.updateProper
  *       200:
  *         description: List of properties
  */
-router.get("/", controller.getAllProperties.bind(controller))
-
+router.get('/', controller.getAllProperties.bind(controller));
 
 /**
  * @swagger
@@ -191,7 +193,7 @@ router.get("/", controller.getAllProperties.bind(controller))
  *       404:
  *         $ref: '#/components/responses/NotFound'
  */
-router.get("/agent", authenticate, controller.getPropertiesByAgent.bind(controller))
+router.get('/agent', authenticate, controller.getPropertiesByAgent.bind(controller));
 
 /**
  * @swagger
@@ -220,9 +222,7 @@ router.get("/agent", authenticate, controller.getPropertiesByAgent.bind(controll
  *       404:
  *         description: Property not found
  */
-router.get("/:id", authenticate, controller.getPropertyById.bind(controller))
-
-
+router.get('/:id', authenticate, controller.getPropertyById.bind(controller));
 
 /**
  * @swagger
@@ -247,7 +247,7 @@ router.get("/:id", authenticate, controller.getPropertyById.bind(controller))
  *       404:
  *         description: Property not found
  */
-router.delete("/:id", authenticate, controller.deleteProperty.bind(controller))
+router.delete('/:id', authenticate, controller.deleteProperty.bind(controller));
 
 /**
  * @swagger
@@ -272,6 +272,6 @@ router.delete("/:id", authenticate, controller.deleteProperty.bind(controller))
  *       404:
  *         description: Property or image not found
  */
-router.delete("/:id/image",authenticate,controller.deleteSingleImage.bind(controller))
+router.delete('/:id/image', authenticate, controller.deleteSingleImage.bind(controller));
 
-export default router
+export default router;

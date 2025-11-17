@@ -49,7 +49,7 @@
  *       description: Unauthorized access
  *     BadRequest:
  *       description: Invalid request parameters
- * 
+ *
  *   put:
  *     summary: Update a property
  *     tags: [Properties]
@@ -92,7 +92,7 @@
  *               $ref: '#/components/schemas/Property'
  *       404:
  *         $ref: '#/components/responses/NotFound'
- * 
+ *
  *   delete:
  *     summary: Delete a property
  *     tags: [Properties]
