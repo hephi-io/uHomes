@@ -39,6 +39,12 @@ import CheckmarkBadge from './checkmark-badge.svg?react';
 import SecurityOne from './security-one.svg?react';
 import Favorite from './favorite.svg?react';
 import MenuIcon from './menu-icon';
+import ChevronLeft from './chevron-left.svg?react';
+import Share from './share.svg?react';
+import PropertyAdd from './property-add.svg?react';
+import Dot from './dot.svg?react';
+import FiveStars from './five-stars.svg?react';
+import FourAndHalfStars from './four-and-half-stars.svg?react';
 
 export const SVGs = {
   AddProperty,
@@ -82,4 +88,10 @@ export const SVGs = {
   SecurityOne,
   Favorite,
   MenuIcon,
+  ChevronLeft,
+  Share,
+  PropertyAdd,
+  Dot,
+  FiveStars,
+  FourAndHalfStars,
 };
