@@ -137,4 +137,14 @@ export class StudentController {
       next(err);
     }
   }
+
+  async delete(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      const result = await this.studentService.deleteStudent(id);
+      return ResponseHelper.success(res, result);
+    } catch (err) {
+      next(err);
+    }
+  }
 }
