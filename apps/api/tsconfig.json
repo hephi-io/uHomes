@@ -6,7 +6,8 @@
     "outDir": "dist",
     "paths": {
       "@uhomes/shared": ["../../packages/shared/src"],
-      "@api/*": ["src/*"]
+      "@api/*": ["src/*"],
+      "@cert/*": ["cert/*"]
     }
   },
   "include": ["src", "tests", "tests/setup.ts"], // keep both source and test included
