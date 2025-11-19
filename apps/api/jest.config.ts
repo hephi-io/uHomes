@@ -8,4 +8,9 @@ export default {
   moduleFileExtensions: ['ts', 'js', 'json', 'node'],
   testMatch: ['**/tests/**/*.test.ts'],
   clearMocks: true,
+  globals: {
+    'ts-jest': {
+      tsconfig: 'tsconfig.test.json',
+    },
+  },
 };

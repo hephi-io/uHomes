@@ -6,7 +6,10 @@
   "scripts": {
     "start": "node dist/server.js",
     "dev": "nodemon src/server.ts",
-    "test": "cross-env NODE_ENV=test jest --runInBand --detectOpenHandles"
+    "test": "cross-env NODE_ENV=test jest --runInBand --detectOpenHandles",
+    "clean": "rm -rf dist",
+    "copy:assets": "mkdir -p dist/cert dist/template dist/uploads && cp -r cert/* dist/cert/ 2>/dev/null || true && cp -r template/* dist/template/ 2>/dev/null || true",
+    "build": "pnpm clean && tsc && pnpm copy:assets"
   },
   "keywords": [],
   "author": "",

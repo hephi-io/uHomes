@@ -6,6 +6,9 @@
   "scripts": {
     "dev": "turbo dev",
     "build": "turbo build",
+    "build:api": "turbo build --filter=@uhomes/api",
+    "build:web": "turbo build --filter=@uhomes/web",
+    "build:landing": "turbo build --filter=@uhomes/landing",
     "lint": "turbo lint",
     "type-check": "turbo type-check",
     "clean": "turbo clean",
@@ -15,6 +18,7 @@
     "api:dev": "turbo dev --filter=@uhomes/api",
     "web:dev": "turbo dev --filter=@uhomes/web",
     "landing:dev": "turbo dev --filter=@uhomes/landing",
+    "start:api": "turbo start --filter=@uhomes/api",
     "prepare": "husky"
   },
   "devDependencies": {
