@@ -15,6 +15,7 @@ export {
   SelectValue,
 } from './components/ui/select';
 export { Tabs, TabsList, TabsTrigger, TabsContent } from './components/ui/tabs';
+export * from './components/ui/input-otp';
 
 // Shared Components
 export { default as TextField } from './components/shared/text-field';
