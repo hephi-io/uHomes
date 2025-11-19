@@ -53,9 +53,16 @@ export default function HostelDetail() {
     },
   ];
 
+  const paginationPlaceholders = [
+    { id: 1, content: '1' },
+    { id: 2, content: '2' },
+    { id: 3, content: '3...' },
+    { id: 4, content: '84' },
+  ];
+
   return (
     <>
-      <div className="flex gap-x-9 items-center pl-4 mt-5">
+      <div className="flex gap-x-9 items-center pl-4 mt-5 md:pl-8 md:mt-0">
         <Button variant="outline" className="w-11 h-11 rounded-full border border-[#E5E5E5] p-0">
           <SVGs.ChevronLeft />
         </Button>
@@ -64,7 +71,7 @@ export default function HostelDetail() {
         </h1>
       </div>
       <div className="border-t border-t-[#E4E4E4] mt-5"></div>
-      <div className="flex justify-between mt-14">
+      <div className="flex justify-between mt-12">
         <div>
           <h1 className="font-semibold text-xl leading-[120%] tracking-[0%] text-black">
             Novena Hostel
@@ -96,16 +103,16 @@ export default function HostelDetail() {
           <SVGs.ChevronLeft />
         </Button>
         <div className="flex gap-x-2">
-          {[...Array(3)].map((_, i) => (
+          {[...Array(4)].map((_, i) => (
             <div
               key={i}
-              className={`relative w-19.5 h-19.5 rounded overflow-hidden ${i === 0 ? 'border-[1.5px] border-[#141B34]' : ''}`}
+              className={`relative w-19.5 h-19.5 rounded overflow-hidden md:w-39.5 md:h-24 ${i === 0 ? 'border-[1.5px] border-[#141B34]' : ''} ${i === 1 ? 'hidden md:block' : ''}`}
             >
               <img src={HostelImage} alt="" className="w-full h-full" />
               <div
-                className={`absolute left-0 right-0 top-0 bottom-0 justify-center items-center bg-[#000000CC] ${i === 2 ? 'flex' : 'hidden'}`}
+                className={`absolute left-0 right-0 top-0 bottom-0 justify-center items-center bg-[#000000CC] ${i === 3 ? 'flex' : 'hidden'}`}
               >
-                <span className="font-medium text-xs leading-[100%] align-middle text-white">
+                <span className="font-medium text-xs leading-[100%] tracking-[0%] align-middle text-white">
                   +6
                 </span>
               </div>
@@ -116,7 +123,7 @@ export default function HostelDetail() {
           <SVGs.ChevronLeft className="rotate-180" />
         </Button>
       </div>
-      <h2 className="font-semibold text-base leading-[150%] tracking-[0%] text-black mt-6">
+      <h2 className="font-semibold text-base leading-[150%] tracking-[0%] text-black mt-6 md:mt-9">
         Description
       </h2>
       <p className="text-sm leading-[150%] tracking-[0%] text-black mt-3">
@@ -132,22 +139,24 @@ export default function HostelDetail() {
       <h2 className="font-semibold text-base leading-[150%] tracking-[0%] text-black mt-4">
         Available Rooms
       </h2>
-      {availableRooms.map((availableRoom) => (
-        <div key={availableRoom.id} className="rounded-md border border-[#EAEAEA] p-2 mt-3">
-          <span className="text-xs leading-[100%] tracking-[0%] text-[#71717A]">
-            {availableRoom.description}
-          </span>
-          <div className="leading-[100%] tracking-[0%] mt-4">
-            <span className="font-semibold text-xl text-[#09090B]">{availableRoom.price}</span>{' '}
-            <span className="text-sm text-[#71717A]">per semester</span>
-          </div>
-          <div className="w-fit flex items-center rounded-full bg-[#F3F3F3] px-1.5 py-0.5 mt-2">
-            <span className="text-xs leading-[100%] tracking-[0%] text-[#71717A] text-center align-middle">
-              2 rooms left
+      <div className="grid grid-cols-1 gap-3 md:w-[73.74%] md:grid-cols-2 mt-3">
+        {availableRooms.map((availableRoom) => (
+          <div key={availableRoom.id} className="rounded-md border border-[#EAEAEA] p-2">
+            <span className="text-xs leading-[100%] tracking-[0%] text-[#71717A]">
+              {availableRoom.description}
             </span>
+            <div className="leading-[100%] tracking-[0%] mt-4">
+              <span className="font-semibold text-xl text-[#09090B]">{availableRoom.price}</span>{' '}
+              <span className="text-sm text-[#71717A]">per semester</span>
+            </div>
+            <div className="w-fit flex items-center rounded-full bg-[#F3F3F3] px-1.5 py-0.5 mt-2">
+              <span className="text-xs leading-[100%] tracking-[0%] text-[#71717A] text-center align-middle">
+                2 rooms left
+              </span>
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
       <h2 className="font-semibold text-base leading-[150%] tracking-[0%] text-black mt-4">
         Amenities:
       </h2>
@@ -162,7 +171,7 @@ export default function HostelDetail() {
           Book Now
         </span>
       </Button>
-      <div className="rounded-[10px] border border-[#93A2C30D] shadow-[1px_1px_8px_0px_#00000014] p-10 pt-3 mt-[41px]">
+      <div className="rounded-[10px] border border-[#93A2C30D] shadow-[1px_1px_8px_0px_#00000014] p-10 pt-3 md:px-4 mt-[41px]">
         <div className="flex justify-between items-center">
           <h1 className="font-semibold text-lg leading-[100%] tracking-[0%] text-black">
             Students Review
@@ -191,13 +200,39 @@ export default function HostelDetail() {
             </p>
           </div>
         ))}
+        <div className="w-fit flex gap-x-5 items-center mx-auto mt-8">
+          <Button variant="ghost">
+            <SVGs.ChevronLeft />
+          </Button>
+          <div className="flex gap-x-6 items-center">
+            {paginationPlaceholders.map((placeholder) => (
+              <Button
+                key={placeholder.id}
+                variant="secondary"
+                className={`group size-11 rounded-full ${placeholder.id === 1 ? 'bg-[#3E78FF]' : 'bg-[#F7F7F7]'}`}
+              >
+                <span
+                  className={`text-base leading-[150%] tracking-[0%] align-middle group-hover:text-black ${placeholder.id === 1 ? 'text-white' : 'text-[#737373]'}`}
+                >
+                  {placeholder.content}
+                </span>
+              </Button>
+            ))}
+          </div>
+          <Button variant="ghost">
+            <SVGs.ChevronLeft className="rotate-180" />
+          </Button>
+        </div>
       </div>
       <h1 className="font-semibold text-lg leading-[150%] tracking-[0%] text-black mt-20">
         Hostels Like This
       </h1>
-      <div className="grid grid-cols-1 gap-6 rounded-2xl border border-[#F4F4F4] bg-[#FDFDFD] p-4 mt-4">
+      <div className="grid grid-cols-1 gap-6 rounded-2xl border border-[#F4F4F4] bg-[#FDFDFD] md:grid-cols-2 p-4 mt-4">
         {[...Array(4)].map((_, i) => (
-          <div key={i} className="rounded-2xl border border-[#F4F4F4] bg-[#FDFDFD] p-4">
+          <div
+            key={i}
+            className="rounded-2xl border border-[#F4F4F4] bg-[#FDFDFD] md:border-none p-4 md:p-0"
+          >
             <HostelCard />
           </div>
         ))}
