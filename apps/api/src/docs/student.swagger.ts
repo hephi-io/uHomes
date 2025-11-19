@@ -89,15 +89,15 @@
  *           application/json:
  *             schema:
  *               type: object
- *             properties:
- *               success:
- *                 type: boolean
- *                 example: true
- *               message:
- *                 type: string
- *                 example: "Student updated successfully"
- *               data:
- *                 $ref: '#/components/schemas/Student'
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Student updated successfully"
+ *                 data:
+ *                   $ref: '#/components/schemas/Student'
  *
  *
  *     VerifyEmailInput:
@@ -157,17 +157,6 @@
  *               message:
  *                 type: string
  *                 example: "Too many verification attempts. Please request a new code."
- *
- *     NotFoundError:
- *       description: Student not found
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               message:
- *                 type: string
- *                 example: "Student not found"
  *
  *     ResetPasswordSuccess:
  *       description: Password reset successfully
