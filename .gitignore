@@ -14,4 +14,6 @@ build/
 
 # TypeScript cache
 *.tsbuildinfo
->>>>>>> fcfd336 (added the forgotPassword, resetPassword, resend verifiation)
+
+logs/
+
