@@ -13,3 +13,5 @@ build/
 
 # TypeScript cache
 *.tsbuildinfo
+.pnpm-lock.yaml
+package-lock.json

@@ -4,7 +4,8 @@ import { swaggerDocs } from './config/swagger';
 import errorMiddleware from './middlewares/error.middlewere';
 import morgan from 'morgan';
 import { stream } from './utils/logger';
-import userRouter from './routers/user.router';
+import agentRouter from './routers/agent.router';
+import studentRouter from './routers/student.router';
 import propertyRouter from './routers/property.route';
 import bookingRouter from './routers/booking.router';
 
@@ -21,7 +22,7 @@ const app = express();
 const morganFormat = ':method :url :status :res[content-length] - :response-time ms';
 
 // Skip Swagger & favicon routes to avoid clutter
-const skip = (req: express.Request, _res: express.Response) => {
+const skip = (req: express.Request) => {
   return req.originalUrl.startsWith('/api-docs') || req.originalUrl === '/favicon.ico';
 };
 
@@ -36,15 +37,16 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan(morganFormat, { stream, skip }));
 
-app.get('/', (_req: Request, res: Response) => {
+app.get('/', (req: Request, res: Response) => {
   res.send('welcome to U-Homes API');
 });
 
-app.use('/api/users', userRouter);
+app.use('/api/agent', agentRouter);
+app.use('/api/student', studentRouter);
 app.use('/api/property', propertyRouter);
 app.use('/api/booking', bookingRouter);
 
-swaggerDocs(app || 7000);
+swaggerDocs(app);
 
 app.use(errorMiddleware);
 

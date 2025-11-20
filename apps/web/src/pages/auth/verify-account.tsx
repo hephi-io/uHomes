@@ -1,5 +1,5 @@
 import UHome from '@/assets/svgs/u-home.svg?react';
-import { Button } from '@uhomes/ui-kit';
+import { Button, InputOTP, InputOTPGroup, InputOTPSlot, InputOTPSeparator } from '@uhomes/ui-kit';
 import { useNavigate } from 'react-router-dom';
 import Refreshcircle from '@/assets/svgs/refresh-circle.svg?react';
 
@@ -20,6 +20,23 @@ const VerifyAccount = () => {
               Enter the 6 digit OTP sent to your email address
             </p>
           </div>
+
+          <div>
+            <InputOTP maxLength={6}>
+              <InputOTPGroup>
+                <InputOTPSlot index={0} />
+                <InputOTPSlot index={1} />
+                <InputOTPSlot index={2} />
+              </InputOTPGroup>
+              <InputOTPSeparator />
+              <InputOTPGroup>
+                <InputOTPSlot index={3} />
+                <InputOTPSlot index={4} />
+                <InputOTPSlot index={5} />
+              </InputOTPGroup>
+            </InputOTP>
+          </div>
+
           <div className="py-9 space-y-6">
             <div></div>
             <Button
