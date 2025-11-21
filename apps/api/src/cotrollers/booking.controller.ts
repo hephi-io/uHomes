@@ -6,7 +6,11 @@ export class BookingController {
   private bookingService = new BookingService();
 
   createBooking = async (req: Request, res: Response, next: NextFunction) => {
+<<<<<<< HEAD
     const user = req.user as { id: string; role: string };
+=======
+    const user = req.user as { id: string; types: string };
+>>>>>>> 009220c (refactored user)
     try {
       const booking = await this.bookingService.createBooking(req.body, user);
       return ResponseHelper.created(res, booking);
@@ -39,7 +43,11 @@ export class BookingController {
   };
 
   getAllBookings = async (req: Request, res: Response, next: NextFunction) => {
+<<<<<<< HEAD
     const user = req.user as { id: string; role: string };
+=======
+    const user = req.user as { id: string; types: string };
+>>>>>>> 009220c (refactored user)
     try {
       const bookings = await this.bookingService.getAllBookings(user);
       return ResponseHelper.success(res, bookings);
@@ -63,7 +71,11 @@ export class BookingController {
   };
 
   deleteBooking = async (req: Request, res: Response, next: NextFunction) => {
+<<<<<<< HEAD
     const user = req.user as { id: string; role: string };
+=======
+    const user = req.user as { id: string; types: string };
+>>>>>>> 009220c (refactored user)
     try {
       const deletedBooking = await this.bookingService.deleteBooking(req.params.id, user);
       return ResponseHelper.success(res, { message: 'Booking deleted', deletedBooking });

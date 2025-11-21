@@ -20,8 +20,9 @@ interface BookingInput {
 }
 
 export class BookingService {
-  async createBooking(data: BookingInput, user: { id: string; role: string }): Promise<IBooking> {
-    if (user.role !== 'Student') {
+
+  async createBooking(data: BookingInput, user: { id: string, types: string }): Promise<IBooking> {
+    if (user.types !== 'Student') {
       throw new UnauthorizedError('Only students can create bookings');
     }
 
@@ -69,12 +70,14 @@ export class BookingService {
       .sort({ createdAt: -1 });
   }
 
-  async getAllBookings(user: { id: string; role: string }): Promise<IBooking[]> {
+
+  async getAllBookings(user: { id: string; types: string }): Promise<IBooking[]> {
     // Admins can see all bookings, agents only see their bookings, students see their own
     let query = {};
-    if (user.role === 'Agent') {
+    if (user.types === 'Agent') {
       query = { agent: user.id };
-    } else if (user.role === 'Student') {
+    } else if (user.types === 'Student') {
+
       query = { tenant: user.id };
     }
 
@@ -102,7 +105,9 @@ export class BookingService {
     return await booking.save();
   }
 
-  async deleteBooking(bookingId: string, user: { id: string; role: string }): Promise<IBooking> {
+
+  async deleteBooking(bookingId: string, user: { id: string; types: string }): Promise<IBooking> {
+
     if (!mongoose.Types.ObjectId.isValid(bookingId))
       throw new BadRequestError('Invalid booking ID');
 
@@ -110,7 +115,8 @@ export class BookingService {
     if (!booking) throw new NotFoundError('Booking not found');
 
     const canDelete =
-      user.role === 'Admin' ||
+      user.types === 'Admin' ||
+
       booking.agent.toString() === user.id ||
       booking.tenant.toString() === user.id;
 

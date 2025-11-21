@@ -8,12 +8,20 @@ import agentRouter from './routers/agent.router';
 import studentRouter from './routers/student.router';
 import propertyRouter from './routers/property.route';
 import bookingRouter from './routers/booking.router';
+<<<<<<< HEAD
+=======
+import userRouter from './routers/user.router';
+>>>>>>> 009220c (refactored user)
 
 declare module 'express-serve-static-core' {
   interface Request {
     user?: {
       id: string;
+<<<<<<< HEAD
       role: string;
+=======
+      types: string;
+>>>>>>> 009220c (refactored user)
     };
   }
 }
@@ -44,7 +52,12 @@ app.get('/', (req: Request, res: Response) => {
 app.use('/api/agent', agentRouter);
 app.use('/api/student', studentRouter);
 app.use('/api/property', propertyRouter);
+<<<<<<< HEAD
 app.use('/api/booking', bookingRouter);
+=======
+app.use('/api/booking', bookingRouter)
+app.use('/api/users', userRouter)
+>>>>>>> 009220c (refactored user)
 
 swaggerDocs(app);
 

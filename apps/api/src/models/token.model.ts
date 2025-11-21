@@ -2,7 +2,11 @@ import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IToken extends Document {
   userId: mongoose.Types.ObjectId;
+<<<<<<< HEAD
   role: 'Student' | 'Agent' | 'Admin';
+=======
+  types: 'Student' | 'Agent' | 'Admin';
+>>>>>>> 009220c (refactored user)
   typeOf: 'emailVerification' | 'login' | 'resetPassword';
   token: string;
   expiresAt: Date;
@@ -16,7 +20,11 @@ const tokenSchema: Schema<IToken> = new Schema(
       refPath: 'role', // dynamically refers to student or agent collection
       required: true,
     },
+<<<<<<< HEAD
     role: {
+=======
+    types: {
+>>>>>>> 009220c (refactored user)
       type: String,
       enum: ['Student', 'Agent', 'Admin'],
       required: true,

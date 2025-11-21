@@ -1,9 +1,19 @@
 import { Request, Response, NextFunction } from "express";
-import jwt from "jsonwebtoken";
 
-interface JwtPayload {
+import * as jwt from "jsonwebtoken";
+
+export interface JwtPayload {
   id: string;
-  role: string;
+  types: string;
+
+}
+
+declare global {
+  namespace Express {
+    interface Request {
+      user?: JwtPayload;
+    }
+  }
 }
 
 export const authenticate = (req: Request, res: Response, next: NextFunction) => {

@@ -10,6 +10,10 @@ build/
 .vscode/
 .idea/
 *.swp
+git/
+logs/
+cert/
+.husky/
 
 # TypeScript cache
 *.tsbuildinfo

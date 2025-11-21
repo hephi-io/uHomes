@@ -2,6 +2,10 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "noEmit": true
+<<<<<<< HEAD
+=======
+    
+>>>>>>> 009220c (refactored user)
   },
   "include": ["src", "tests", "tests/setup.ts"],
   "exclude": ["node_modules", "dist"]
