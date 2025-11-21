@@ -1,0 +1,166 @@
+
+> @uhomes/api@1.0.0 dev C:\Users\USER\OneDrive\Desktop\uHomes\apps\api
+> nodemon src/server.ts
+
+[33m[nodemon] 3.1.10[39m
+[33m[nodemon] to restart at any time, enter `rs`[39m
+[33m[nodemon] watching path(s): *.*[39m
+[33m[nodemon] watching extensions: ts,json[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+[dotenv@17.2.3] injecting env (0) from .env -- tip: ✅ audit secrets and track compliance: https://dotenvx.com/ops
+ MongoDB connected: ac-uiawfdz-shard-00-00.2nesl6y.mongodb.net
+HTTP Server running at http://localhost:7000
+2025-11-20 10:16:07 [[31merror[39m] : Invalid or expired OTP
+BadRequestError: Invalid or expired OTP
+    at UserService.resetPassword (C:\Users\USER\OneDrive\Desktop\uHomes\apps\api\src\service\user.service.ts:245:29)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async UserController.resetPassword (C:\Users\USER\OneDrive\Desktop\uHomes\apps\api\src\controllers\user.controller.ts:88:23)
+2025-11-20 10:16:07 [[32minfo[39m] : POST /api/users/reset-password 400 59 - 245.289 ms
+2025-11-20 10:16:33 [[32minfo[39m] : POST /api/users/forget-password 200 74 - 4292.841 ms
+2025-11-20 10:17:04 [[31merror[39m] : Invalid or expired OTP
+BadRequestError: Invalid or expired OTP
+    at UserService.resetPassword (C:\Users\USER\OneDrive\Desktop\uHomes\apps\api\src\service\user.service.ts:245:29)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async UserController.resetPassword (C:\Users\USER\OneDrive\Desktop\uHomes\apps\api\src\controllers\user.controller.ts:88:23)
+2025-11-20 10:17:04 [[32minfo[39m] : POST /api/users/reset-password 400 59 - 197.760 ms
+2025-11-20 10:18:29 [[31merror[39m] : Invalid credentials
+BadRequestError: Invalid credentials
+    at UserService.login (C:\Users\USER\OneDrive\Desktop\uHomes\apps\api\src\service\user.service.ts:201:33)
+    at async UserController.login (C:\Users\USER\OneDrive\Desktop\uHomes\apps\api\src\controllers\user.controller.ts:59:24)
+2025-11-20 10:18:29 [[32minfo[39m] : POST /api/users/login 400 56 - 304.335 ms
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+[dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+ MongoDB connected: ac-uiawfdz-shard-00-00.2nesl6y.mongodb.net
+HTTP Server running at http://localhost:7000
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+[dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  override existing env vars with { override: true }
+ MongoDB connected: ac-uiawfdz-shard-00-02.2nesl6y.mongodb.net
+HTTP Server running at http://localhost:7000
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+[dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  suppress all logs with { quiet: true }
+ MongoDB connected: ac-uiawfdz-shard-00-01.2nesl6y.mongodb.net
+HTTP Server running at http://localhost:7000
+2025-11-20 10:20:58 [[32minfo[39m] : POST /api/users/forget-password 200 74 - 3998.113 ms
+2025-11-20 10:21:42 [[32minfo[39m] : POST /api/users/reset-password 200 69 - 4191.599 ms
+2025-11-20 10:21:57 [[31merror[39m] : Invalid credentials
+BadRequestError: Invalid credentials
+    at UserService.login (C:\Users\USER\OneDrive\Desktop\uHomes\apps\api\src\service\user.service.ts:201:33)
+    at async UserController.login (C:\Users\USER\OneDrive\Desktop\uHomes\apps\api\src\controllers\user.controller.ts:59:24)
+2025-11-20 10:21:57 [[32minfo[39m] : POST /api/users/login 400 56 - 217.737 ms
+2025-11-20 10:22:26 [[31merror[39m] : Invalid credentials
+BadRequestError: Invalid credentials
+    at UserService.login (C:\Users\USER\OneDrive\Desktop\uHomes\apps\api\src\service\user.service.ts:201:33)
+    at async UserController.login (C:\Users\USER\OneDrive\Desktop\uHomes\apps\api\src\controllers\user.controller.ts:59:24)
+2025-11-20 10:22:26 [[32minfo[39m] : POST /api/users/login 400 56 - 209.680 ms
+2025-11-20 10:23:30 [[31merror[39m] : Invalid credentials
+BadRequestError: Invalid credentials
+    at UserService.login (C:\Users\USER\OneDrive\Desktop\uHomes\apps\api\src\service\user.service.ts:201:33)
+    at async UserController.login (C:\Users\USER\OneDrive\Desktop\uHomes\apps\api\src\controllers\user.controller.ts:59:24)
+2025-11-20 10:23:30 [[32minfo[39m] : POST /api/users/login 400 56 - 300.908 ms
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+[dotenv@17.2.3] injecting env (0) from .env -- tip: 🔑 add access controls to secrets: https://dotenvx.com/ops
+ MongoDB connected: ac-uiawfdz-shard-00-02.2nesl6y.mongodb.net
+HTTP Server running at http://localhost:7000
+2025-11-20 10:42:24 [[32minfo[39m] : POST /api/users/forget-password 200 74 - 4212.581 ms
+2025-11-20 10:43:11 [[32minfo[39m] : POST /api/users/reset-password 200 69 - 5976.926 ms
+2025-11-20 10:43:55 [[32minfo[39m] : POST /api/users/login 200 640 - 449.328 ms
+2025-11-20 10:45:45 [[32minfo[39m] : POST /api/users/signup 201 83 - 10516.442 ms
+2025-11-20 10:46:12 [[32minfo[39m] : GET /api/users/verify-otp/363596 200 69 - 735.447 ms
+2025-11-20 10:47:28 [[32minfo[39m] : POST /api/users/login 200 586 - 1160.474 ms
+2025-11-20 10:48:12 [[32minfo[39m] : GET /api/admin/agents 404 155 - 1.960 ms
+2025-11-20 10:49:16 [[32minfo[39m] : POST /api/property 201 943 - 6527.935 ms
+2025-11-20 10:50:49 [[31merror[39m] : Invalid credentials
+BadRequestError: Invalid credentials
+    at UserService.login (C:\Users\USER\OneDrive\Desktop\uHomes\apps\api\src\service\user.service.ts:139:33)
+    at async UserController.login (C:\Users\USER\OneDrive\Desktop\uHomes\apps\api\src\controllers\user.controller.ts:59:24)
+2025-11-20 10:50:49 [[32minfo[39m] : POST /api/users/login 400 56 - 267.793 ms
+2025-11-20 10:51:46 [[31merror[39m] : Invalid credentials
+BadRequestError: Invalid credentials
+    at UserService.login (C:\Users\USER\OneDrive\Desktop\uHomes\apps\api\src\service\user.service.ts:139:33)
+    at async UserController.login (C:\Users\USER\OneDrive\Desktop\uHomes\apps\api\src\controllers\user.controller.ts:59:24)
+2025-11-20 10:51:46 [[32minfo[39m] : POST /api/users/login 400 56 - 447.842 ms
+2025-11-20 10:52:33 [[32minfo[39m] : POST /api/users/login 200 640 - 1017.786 ms
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+[dotenv@17.2.3] injecting env (0) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+ MongoDB connected: ac-uiawfdz-shard-00-02.2nesl6y.mongodb.net

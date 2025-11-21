@@ -1,0 +1,14 @@
+{
+  "extends": "@uhomes/typescript-config/node.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "rootDir": ".", // change this from "src" to "."
+    "outDir": "dist",
+    "paths": {
+      "@uhomes/shared": ["../../packages/shared/src"],
+      "@api/*": ["src/*"]
+    }
+  },
+  "include": ["src", "tests", "tests/setup.ts"], // keep both source and test included
+  "exclude": ["node_modules", "dist"]
+}
