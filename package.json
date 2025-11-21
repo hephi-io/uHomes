@@ -1,0 +1,47 @@
+{
+  "name": "uhomes",
+  "private": true,
+  "version": "1.0.0",
+  "description": "uHomes monorepo",
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "build:api": "turbo build --filter=@uhomes/api",
+    "build:web": "turbo build --filter=@uhomes/web",
+    "build:landing": "turbo build --filter=@uhomes/landing",
+    "lint": "turbo lint",
+    "type-check": "turbo type-check",
+    "clean": "turbo clean",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "commit": "cz",
+    "lint:staged": "lint-staged",
+    "api:dev": "turbo dev --filter=@uhomes/api",
+    "web:dev": "turbo dev --filter=@uhomes/web",
+    "landing:dev": "turbo dev --filter=@uhomes/landing",
+    "start:api": "turbo start --filter=@uhomes/api",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "20.1.0",
+    "@commitlint/config-conventional": "20.0.0",
+    "@types/node": "^24.7.2",
+    "@uhomes/eslint-config": "workspace:*",
+    "commitizen": "4.3.1",
+    "cz-conventional-changelog": "3.3.0",
+    "eslint": "^9.36.0",
+    "husky": "9.1.7",
+    "lint-staged": "16.2.6",
+    "prettier": "^3.4.2",
+    "turbo": "^2.5.1"
+  },
+  "packageManager": "pnpm@9.15.0",
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "config": {
+    "commitizen": {
+      "path": "cz-conventional-changelog"
+    }
+  }
+}

@@ -1,0 +1,118 @@
+import { NextFunction, Request, Response } from 'express';
+import mongoose from 'mongoose';
+import { PropertyService } from '../service/property.service';
+import { ResponseHelper } from '../utils/response';
+
+export class PropertyController {
+  private propertyService: PropertyService;
+
+  constructor() {
+    this.propertyService = new PropertyService();
+  }
+
+  async createProperty(req: Request, res: Response, next: NextFunction) {
+    try {
+      if (!req.user) return ResponseHelper.unauthorized(res, 'Unauthorized');
+
+      const agentId = req.user.id;
+      const files = req.files as Express.Multer.File[] | undefined;
+      const property = await this.propertyService.createProperty(agentId, req.body, files);
+      return ResponseHelper.created(res, { message: 'Property created successfully', property });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async updateProperty(req: Request, res: Response, next: NextFunction) {
+    try {
+      if (!req.user) return ResponseHelper.unauthorized(res, 'Unauthorized');
+
+      const { id } = req.params;
+      const files = req.files as Express.Multer.File[] | undefined;
+      const updated = await this.propertyService.updateProperty(id, req.body, files);
+      return ResponseHelper.success(res, {
+        message: 'Property updated successfully',
+        property: updated,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async getAllProperties(req: Request, res: Response, next: NextFunction) {
+    try {
+      const properties = await this.propertyService.getAllProperties();
+      return ResponseHelper.success(res, {
+        message: 'Properties fetched successfully',
+        properties,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async getPropertyById(req: Request, res: Response, next: NextFunction) {
+    try {
+      if (!req.user) return ResponseHelper.unauthorized(res, 'Unauthorized');
+
+      const { id } = req.params;
+      if (!mongoose.Types.ObjectId.isValid(id)) {
+        return ResponseHelper.error(res, 'Invalid property ID', 404);
+      }
+
+      const property = await this.propertyService.getPropertyById(id);
+      if (!property) {
+        return ResponseHelper.error(res, 'Property not found', 404);
+      }
+
+      return ResponseHelper.success(res, { message: 'Property fetched successfully', property });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async getPropertiesByAgent(req: Request, res: Response, next: NextFunction) {
+    try {
+      if (!req.user) return ResponseHelper.unauthorized(res, 'Unauthorized');
+
+      const agentId = req.user.id;
+      const page = Number(req.query.page) || 1;
+      const limit = Number(req.query.limit) || 10;
+
+      const result = await this.propertyService.getPropertiesByAgent(agentId, page, limit);
+
+      return ResponseHelper.success(res, {
+        message: 'Agent properties fetched successfully',
+        ...result,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async deleteProperty(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      await this.propertyService.deleteProperty(id);
+
+      return ResponseHelper.success(res, { messge: 'Property deleted successfully' });
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  async deleteSingleImage(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      const { cloudinaryId } = req.body;
+
+      await this.propertyService.deleteSingleImage(id, cloudinaryId);
+
+      return ResponseHelper.success(res, { message: 'Image deleted successfully' });
+    } catch (error) {
+      return next(error);
+    }
+  }
+}
+
+export default new PropertyController();
