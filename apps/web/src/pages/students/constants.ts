@@ -1,3 +1,5 @@
+import { SVGs } from '@/assets/svgs/Index';
+
 export const hostelDetails = [
   {
     id: 1,
@@ -34,4 +36,17 @@ export const hostelDetails = [
     label: 'Move-in Date',
     text: '2024-02-01',
   },
+];
+
+export const topBadges = [
+  { id: 1, Icon: SVGs.CheckmarkBadge, text: 'Available' },
+  { id: 2, Icon: SVGs.SecurityOne, text: 'Verified' },
+];
+
+export const badges = [
+  { id: 1, Icon: SVGs.Wifi, text: 'WiFi' },
+  { id: 2, Icon: SVGs.Security, text: 'Security' },
+  { id: 3, Icon: SVGs.Car, text: 'Parking' },
+  { id: 4, Icon: SVGs.Droplet, text: 'Water' },
+  { id: 5, Icon: SVGs.Zap, text: 'Power' },
 ];

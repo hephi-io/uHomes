@@ -10,6 +10,7 @@ import Dashboard from '@/pages/Agent/dashboard';
 import StudentDashboardLayout from '@/layouts/students/index';
 import StudentDashboard from '@/pages/students/student-dashboard';
 import FindHostels from '@/pages/students/find-hostels';
+import HostelDetail from '@/pages/students/hostel-detail';
 
 const router = createBrowserRouter([
   {
@@ -43,6 +44,7 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <StudentDashboard /> },
       { path: 'find-hostels', element: <FindHostels /> },
+      { path: 'find-hostels/hostel-detail', element: <HostelDetail /> },
     ],
   },
 ]);

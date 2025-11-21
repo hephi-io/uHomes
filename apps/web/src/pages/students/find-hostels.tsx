@@ -1,5 +1,7 @@
 import { Button, Input } from '@uhomes/ui-kit';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@uhomes/ui-kit';
+import Badge from '@/shared/badge';
+import { badges, topBadges } from '@/pages/students/constants';
 import { SVGs } from '@/assets/svgs/Index';
 import HostelImage from '@/assets/pngs/hostel-image.jpg';
 
@@ -96,29 +98,7 @@ export default function FindHostels() {
   );
 }
 
-function Badge({ Icon, text }: { Icon: any; text: string }) {
-  return (
-    <div className="flex gap-x-1 items-center rounded-full bg-[#F4F4F5] px-2 py-1">
-      <Icon />
-      <span className="text-[11px] leading-[150%] tracking-[0%] text-[#3D3D3D]">{text}</span>
-    </div>
-  );
-}
-
 export function HostelCard() {
-  const badges = [
-    { id: 1, Icon: SVGs.Wifi, text: 'WiFi' },
-    { id: 2, Icon: SVGs.Security, text: 'Security' },
-    { id: 3, Icon: SVGs.Car, text: 'Parking' },
-    { id: 4, Icon: SVGs.Droplet, text: 'Water' },
-    { id: 5, Icon: SVGs.Zap, text: 'Power' },
-  ];
-
-  const topBadges = [
-    { id: 1, Icon: SVGs.CheckmarkBadge, text: 'Available' },
-    { id: 2, Icon: SVGs.SecurityOne, text: 'Verified' },
-  ];
-
   return (
     <div className="rounded-xl border border-[#F4F4F4] bg-white overflow-hidden">
       <div className="relative h-[206px]">
