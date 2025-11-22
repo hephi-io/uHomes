@@ -9,8 +9,12 @@
     "skipLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
-      "@uhomes/shared": ["../../packages/shared/src"]
+      "@uhomes/shared": ["../../packages/shared/src"],
+      // Add mappings for ui-kit's @/ imports
+      "@/lib/*": ["../../packages/ui-kit/src/lib/*"],
+      "@/components/*": ["../../packages/ui-kit/src/components/*"],
+      // General web app alias
+      "@/*": ["src/*"]
     },
 
     /* Bundler mode */
@@ -33,8 +37,12 @@
   "extends": "./tsconfig.json",
   "baseUrl": ".",
   "paths": {
-    "@/*": ["src/*"],
-    "@uhomes/shared": ["../../packages/shared/src"]
+    "@uhomes/shared": ["../../packages/shared/src"],
+    // Add mappings for ui-kit's @/ imports here too
+    "@/lib/*": ["../../packages/ui-kit/src/lib/*"],
+    "@/components/*": ["../../packages/ui-kit/src/components/*"],
+    // General web app alias
+    "@/*": ["src/*"]
   },
 
   "include": ["src", "src/vite-env.d.ts"]
