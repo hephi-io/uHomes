@@ -1,9 +1,4 @@
-// Only load dotenv in non-production environments (where .env file exists)
-// On Render/production, environment variables are set directly via dashboard
-if (process.env.API_ENV !== 'production') {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  require('dotenv/config');
-}
+import 'dotenv/config';
 
 import app from './app';
 import connectDB from './config/db';

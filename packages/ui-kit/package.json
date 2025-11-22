@@ -21,6 +21,7 @@
     "@radix-ui/react-tabs": "^1.1.13",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "input-otp": "1.4.2",
     "lucide-react": "^0.545.0",
     "tailwind-merge": "^3.3.1"
   },
