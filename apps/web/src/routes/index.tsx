@@ -11,6 +11,8 @@ import StudentDashboardLayout from '@/layouts/students/index';
 import StudentDashboard from '@/pages/students/student-dashboard';
 import FindHostels from '@/pages/students/find-hostels';
 import HostelDetail from '@/pages/students/hostel-detail';
+import BookingLayout from '@/layouts/booking/booking-layout';
+import Booking from '@/pages/booking/booking';
 
 const router = createBrowserRouter([
   {
@@ -45,6 +47,10 @@ const router = createBrowserRouter([
       { index: true, element: <StudentDashboard /> },
       { path: 'find-hostels', element: <FindHostels /> },
       { path: 'find-hostels/hostel-detail', element: <HostelDetail /> },
+      {
+        element: <BookingLayout />,
+        children: [{ path: 'booking', element: <Booking /> }],
+      },
     ],
   },
 ]);
