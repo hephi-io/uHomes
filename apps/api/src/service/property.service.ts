@@ -1,7 +1,8 @@
 import cloudinary from '../config/cloudinary';
 import Property, { IProperty } from '../models/property.model';
 import mongoose from 'mongoose';
-import Agent from '../models/agent.model';
+import User from '../models/user.model'
+import User_type from '../models/user-type.model';
 import { BadRequestError, NotFoundError, UnauthorizedError } from '../middlewares/error.middlewere';
 
 interface CloudinaryImage {
@@ -10,12 +11,22 @@ interface CloudinaryImage {
 }
 
 export class PropertyService {
+
   async createProperty(
     agentId: string,
     data: Partial<IProperty>,
     files?: Express.Multer.File[]
   ): Promise<IProperty> {
     if (!agentId) throw new UnauthorizedError('Unauthorized agent');
+
+    // Make sure the agent exists and is actually an 'Agent'
+    const agent = await User.findById(agentId);
+    if (!agent) throw new NotFoundError('Agent not found');
+
+    const agentType = await User_type.findOne({ userId: agentId });
+    if (!agentType || agentType.types !== 'Agent') {
+      throw new UnauthorizedError('User is not an agent');
+    }
 
     if (!files || files.length === 0) throw new BadRequestError('At least one image is required');
 
@@ -32,10 +43,11 @@ export class PropertyService {
     const newProperty = await Property.create({
       ...data,
       images: uploadedImages,
-      agentId: [agentId],
+      agentId: agent._id,
     });
 
-    await Agent.findByIdAndUpdate(agentId, {
+    // Optional: push property ID to the agent document
+    await User.findByIdAndUpdate(agent._id, {
       $push: { properties: newProperty._id },
     });
 

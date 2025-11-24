@@ -25,6 +25,10 @@
  *           type: string
  *           example: 300
  *           description: Optional, only for Student role
+ *         types:
+ *           type: string
+ *           enum: [Student, Agent, Admin]
+ *           example: Student
  *         isVerified:
  *           type: boolean
  *           example: false
@@ -36,7 +40,7 @@
  *           type: string
  *           format: date-time
  *           example: 2025-11-17T10:15:30Z
- *     
+ *
  *     Token:
  *       type: object
  *       properties:
@@ -141,7 +145,8 @@
  *           example: success
  *         data:
  *           type: object
- *           description: The returned payload or message
+ *           nullable: true
+ *           description: Optional payload or message returned
  *
  *     FailResponse:
  *       type: object
@@ -151,7 +156,7 @@
  *           example: fail
  *         data:
  *           type: object
- *           description: Error details or validation errors
+ *           description: Error details or validation messages
  *
  *     ErrorResponse:
  *       type: object

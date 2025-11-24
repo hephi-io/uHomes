@@ -99,7 +99,7 @@ const errorMiddleware = (
   err: Error | AppError,
   req: Request,
   res: Response,
-  next: NextFunction
+  _next: NextFunction
 ) => {
   // Log the full error with stack trace and request context
   logger.error("Error handler caught:", {

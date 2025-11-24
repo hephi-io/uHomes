@@ -1,7 +1,8 @@
-import { Router } from 'express';
-import { UserController } from '../cotrollers/user.controller';
-import { validate } from '../middlewares/validate.middleware';
-import { signupSchema, loginSchema } from '../validation/user.validation';
+import { Router } from 'express'
+import {UserController} from '../cotrollers/user.controller'
+import { validate } from '../middlewares/validate.middleware'
+import { signupSchema, loginSchema } from '../validation/user.validation'
+import { authenticate } from '../middlewares/auth.middleware'
 
 const router: Router = Router();
 const userController = new UserController();
@@ -25,7 +26,7 @@ const userController = new UserController();
  *               - email
  *               - phoneNumber
  *               - password
- *               - role
+ *               - types
  *             properties:
  *               fullName:
  *                 type: string
@@ -278,6 +279,144 @@ router.post('/forget-password', userController.forgetPassword.bind(userControlle
  */
 router.post('/reset-password', userController.resetPassword.bind(userController))
 
+/**
+ * @swagger
+ * /api/users/resend-reset-otp:
+ *   post:
+ *     summary: Resend OTP for resetting password
+ *     description: Sends a new OTP to the user's email for password reset
+ *     tags: [Users]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 example: john@example.com
+ *     responses:
+ *       200:
+ *         description: New OTP sent successfully
+ *       400:
+ *         description: Invalid input
+ *       404:
+ *         description: User not found
+ */
+router.post('/resend-reset-otp', userController.resendResetOtp.bind(userController))
+
+
+/**
+ * @swagger
+ * /api/users:
+ *   get:
+ *     summary: Get all users
+ *     description: Retrieve all registered users (Admin only)
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of all users
+ *       404:
+ *         description: No users found
+ */
+router.get('/users', authenticate, userController.getAllUsers.bind(userController))
+
+
+/**
+ * @swagger
+ * /api/users/{id}:
+ *   get:
+ *     summary: Get user by ID
+ *     description: Retrieve a single user's details by ID
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *         example: 634fbdc9e4b0f1b7a9a1c123
+ *     responses:
+ *       200:
+ *         description: User retrieved successfully
+ *       400:
+ *         description: Invalid ID
+ *       404:
+ *         description: User not found
+ */
+router.get('/user/:id', authenticate, userController.getUserById.bind(userController))
+
+
+/**
+ * @swagger
+ * /api/users/{id}:
+ *   put:
+ *     summary: Update user
+ *     description: Update user information (User or Admin)
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             example:
+ *               fullName: John Updated
+ *               phoneNumber: "09011223344"
+ *               password: newpass123
+ *     responses:
+ *       200:
+ *         description: User updated successfully
+ *       400:
+ *         description: Invalid ID or data
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: User not found
+ */
+router.put('/user/:id', authenticate, userController.updateUser.bind(userController))
+
+
+/**
+ * @swagger
+ * /api/users/{id}:
+ *   delete:
+ *     summary: Delete a user
+ *     description: Delete a user by their ID
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: User deleted successfully
+ *       400:
+ *         description: User ID required
+ *       404:
+ *         description: User not found
+ */
+router.delete('/user/:id', authenticate, userController.deleteUser.bind(userController))
+
 
 /**
  * @swagger
@@ -314,7 +453,7 @@ router.post('/reset-password', userController.resetPassword.bind(userController)
  *             schema:
  *               $ref: '#/components/schemas/FailResponse'
  */
-router.delete('/user/:id', userController.deleteById.bind(userController))
+router.delete('/user/:id', userController.deleteUser.bind(userController))
 
 
 export default router;

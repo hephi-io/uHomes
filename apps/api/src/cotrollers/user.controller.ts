@@ -92,12 +92,60 @@ export class UserController {
     }
   }
 
-   async deleteById(req: Request, res: Response, next: NextFunction) {
+    async resendResetOtp(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { email } = req.body;
+      if (!email) return ResponseHelper.badRequest(res, { error: 'Email is required' });
+
+      await this.userService.resendResetOtp(email);
+      return ResponseHelper.success(res, { message: 'New OTP sent to your email.' });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async getAllUsers(req: Request, res: Response, next: NextFunction) {
+    try {
+      const users = await this.userService.getAllUsers();
+      return ResponseHelper.success(res, { message: 'Users retrieved successfully', users });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async getUserById(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      if (!id) return ResponseHelper.badRequest(res, { error: 'User ID is required' });
+
+      const user = await this.userService.getUserById(id);
+      return ResponseHelper.success(res, { message: 'User retrieved successfully', user });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async updateUser(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      if (!id) return ResponseHelper.badRequest(res, { error: 'User ID is required' });
+
+      const data = req.body;
+      const updatedUser = await this.userService.updateUser(id, data, { id: req.user.id, types: req.user.types });
+
+      return ResponseHelper.success(res, { message: 'User updated successfully', user: updatedUser });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+
+  async deleteUser(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
       if (!id) return ResponseHelper.badRequest(res, { error: 'User ID is required' })
 
-      await this.userService.deleteById(id)
+      await this.userService.deleteUser(id, {id: req.user.id, types: req.user.types})
       return ResponseHelper.success(res, { message: 'user deleted successfuly' })
     } catch (err) {
       next(err)

@@ -4,8 +4,6 @@ import { swaggerDocs } from './config/swagger';
 import errorMiddleware from './middlewares/error.middlewere';
 import morgan from 'morgan';
 import { stream } from './utils/logger';
-import agentRouter from './routers/agent.router';
-import studentRouter from './routers/student.router';
 import propertyRouter from './routers/property.route';
 import bookingRouter from './routers/booking.router';
 <<<<<<< HEAD
@@ -49,8 +47,6 @@ app.get('/', (req: Request, res: Response) => {
   res.send('welcome to U-Homes API');
 });
 
-app.use('/api/agent', agentRouter);
-app.use('/api/student', studentRouter);
 app.use('/api/property', propertyRouter);
 <<<<<<< HEAD
 app.use('/api/booking', bookingRouter);

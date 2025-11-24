@@ -2,127 +2,155 @@ import Booking, { IBooking } from '../models/booking.model';
 import property from '../models/property.model';
 import mongoose from 'mongoose';
 import { BadRequestError, NotFoundError, UnauthorizedError } from '../middlewares/error.middlewere';
+import {BookingPayload} from '../interface/user.paload';
 
-type BookingStatus = 'pending' | 'confirmed' | 'cancelled' | 'completed';
-
-interface BookingInput {
-  property: string;
-  tenantName: string;
-  tenantEmail: string;
-  tenantPhone: string;
-  moveInDate: Date;
-  moveOutDate?: Date;
-  duration: string;
-  amount: number;
-  status?: BookingStatus;
-  paymentStatus?: 'pending' | 'paid' | 'refunded';
-  notes?: string;
-}
 
 export class BookingService {
 
-  async createBooking(data: BookingInput, user: { id: string, types: string }): Promise<IBooking> {
-    if (user.types !== 'Student') {
-      throw new UnauthorizedError('Only students can create bookings');
+  
+    async createBooking(data: BookingPayload, user: { id: string, types: string }): Promise<IBooking> {
+    const foundProperty = await property.findById(data.propertyid)
+    if (!foundProperty) {
+      throw new NotFoundError('Property not found')
     }
 
-    const foundProperty = await property.findById(data.property);
-    if (!foundProperty) throw new NotFoundError('Property not found');
+    const agentId = foundProperty.agentId
+      if (!agentId) {
+      throw new BadRequestError('Property has no assigned agent')
+    }
 
-    const agentId = Array.isArray(foundProperty.agentId)
-      ? foundProperty.agentId[0]
-      : foundProperty.agentId;
+    let tenantId = data.tenant
+
+    if (user.types === 'Student') {
+      tenantId = user.id
+    }
+
+    if (user.types === 'Agent' && !tenantId) {
+      throw new BadRequestError('Tenant is required when an agent creates a booking')
+    }
 
     const booking = new Booking({
-      ...data,
-      tenant: user.id,
+      propertyid: data.propertyid,
+      tenant: tenantId,
       agent: agentId,
-    });
+      moveInDate: data.moveInDate,
+      moveOutDate: data.moveOutDate,
+      duration: data.duration,
+      amount: data.amount,
+      status: data.status || 'pending',
+      paymentStatus: data.paymentStatus || 'pending'
+    })
 
-    return await booking.save();
+    return await booking.save()
   }
 
-  async getBookingById(bookingId: string, userId: string): Promise<IBooking> {
-    if (!mongoose.Types.ObjectId.isValid(bookingId))
-      throw new BadRequestError('Invalid booking ID');
-
-    const booking = await Booking.findById(bookingId)
-      .populate('property', 'title location price')
-      .populate('tenant', 'fullName email phoneNumber')
-      .populate('agent', 'fullName email phoneNumber');
-
-    if (!booking) throw new NotFoundError('Booking not found');
-
-    const isAgent = booking.agent && booking.agent.toString() === userId;
-    const isTenant = booking.tenant && booking.tenant.toString() === userId;
-    if (!isAgent && !isTenant) throw new UnauthorizedError('Access denied');
-
-    return booking;
+    async getBookingById(bookingId: string, user: { id: string; types: string }): Promise<IBooking> {
+  if (!mongoose.Types.ObjectId.isValid(bookingId)) {
+    throw new BadRequestError('Invalid booking ID')
   }
 
-  async getBookingsByAgent(agentId: string, userId: string): Promise<IBooking[]> {
-    if (!mongoose.Types.ObjectId.isValid(agentId)) throw new BadRequestError('Invalid agent ID');
-    if (agentId !== userId) throw new UnauthorizedError('Access denied');
+  const booking = await Booking.findById(bookingId)
+    .populate('propertyid', 'title location price')
+    .populate('tenant', 'fullName email phoneNumber')
+    .populate('agent', 'fullName email phoneNumber')
 
-    return await Booking.find({ agent: agentId })
-      .populate('property', 'title location price')
-      .populate('tenant', 'fullName email phoneNumber')
-      .sort({ createdAt: -1 });
+  if (!booking) {
+    throw new NotFoundError('Booking not found')
   }
 
 
-  async getAllBookings(user: { id: string; types: string }): Promise<IBooking[]> {
-    // Admins can see all bookings, agents only see their bookings, students see their own
-    let query = {};
+  const userIsAgent = booking.agent?._id.toString() === user.id
+  const userIsTenant = booking.tenant?._id.toString() === user.id
+
+  if (!userIsAgent && !userIsTenant && user.types !== 'Admin') {
+    throw new UnauthorizedError('Access denied')
+  }
+
+  return booking
+}
+
+  async getAllBookings(user: { id: string; types: string }): Promise<{ bookings: IBooking[], count: number, lastUpdated: Date }> {
+    let query = {}
+
     if (user.types === 'Agent') {
-      query = { agent: user.id };
+      query = { agent: user.id }
     } else if (user.types === 'Student') {
 
-      query = { tenant: user.id };
+      query = { tenant: user.id }
+
     }
 
-    return await Booking.find(query)
-      .populate('property', 'title location price')
+    const bookings = await Booking.find(query)
+      .populate('propertyid', 'title location price')
       .populate('tenant', 'fullName email phoneNumber')
       .populate('agent', 'fullName email phoneNumber')
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+
+    return {
+      bookings,
+      count: bookings.length,
+      lastUpdated: new Date()
+    }
   }
 
-  async updateBookingStatus(
-    bookingId: string,
-    status: BookingStatus,
-    userId: string
-  ): Promise<IBooking> {
-    if (!mongoose.Types.ObjectId.isValid(bookingId))
-      throw new BadRequestError('Invalid booking ID');
+  async getBookingsByAgent(agentId: string, user: { id: string; types: string }): Promise<{ bookings: IBooking[], count: number, lastUpdated: Date }> {
+    if (!mongoose.Types.ObjectId.isValid(agentId)) throw new BadRequestError('Invalid agent ID')
+    if (user.id !== agentId && user.types !== 'Admin') throw new UnauthorizedError('Access denied')
 
-    const booking = await Booking.findById(bookingId);
-    if (!booking) throw new NotFoundError('Booking not found');
-    if (booking.agent.toString() !== userId)
-      throw new UnauthorizedError('Only the assigned agent can update this booking');
+    const bookings = await Booking.find({ agent: agentId })
+      .populate('propertyid', 'title location price')
+      .populate('tenant', 'fullName email phoneNumber')
+      .populate('agent', 'fullName email phoneNumber')
+      .sort({ createdAt: -1 })
 
-    booking.status = status;
-    return await booking.save();
+    return {
+      bookings,
+      count: bookings.length,
+      lastUpdated: new Date()
+    }
   }
 
 
-  async deleteBooking(bookingId: string, user: { id: string; types: string }): Promise<IBooking> {
 
-    if (!mongoose.Types.ObjectId.isValid(bookingId))
-      throw new BadRequestError('Invalid booking ID');
+async updateBookingStatus(
+  bookingId: string,
+  status: BookingPayload['status'],
+  user: { id: string; types: string }
+): Promise<IBooking> {
+  if (!mongoose.Types.ObjectId.isValid(bookingId)) throw new BadRequestError('Invalid booking ID')
 
-    const booking = await Booking.findById(bookingId);
-    if (!booking) throw new NotFoundError('Booking not found');
+  const booking = await Booking.findById(bookingId)
+  if (!booking) throw new NotFoundError('Booking not found')
 
-    const canDelete =
-      user.types === 'Admin' ||
-
-      booking.agent.toString() === user.id ||
-      booking.tenant.toString() === user.id;
-
-    if (!canDelete) throw new UnauthorizedError('Access denied');
-
-    await booking.deleteOne();
-    return booking;
+  // Only the assigned agent or Admin can update
+  if (booking.agent.toString() !== user.id && user.types !== 'Admin') {
+    throw new UnauthorizedError('Only the assigned agent can update this booking')
   }
+
+  if (status === undefined) throw new BadRequestError('Status is required')
+
+  booking.status = status
+  return await booking.save()
+}
+
+async deleteBooking(bookingId: string, user: { id: string; types: string }): Promise<IBooking> {
+  if (!mongoose.Types.ObjectId.isValid(bookingId)) throw new BadRequestError('Invalid booking ID')
+
+  const booking = await Booking.findById(bookingId)
+  if (!booking) throw new NotFoundError('Booking not found')
+
+  const canDelete =
+    user.types === 'Admin' ||
+    booking.agent?.toString() === user.id ||
+    booking.tenant?.toString() === user.id
+
+  if (!canDelete) throw new UnauthorizedError('Access denied')
+
+  await booking.deleteOne()
+  return booking
+}
+
+    
+    
+
 }
