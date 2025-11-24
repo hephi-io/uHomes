@@ -1,0 +1,1 @@
+export { Hostel } from './hostel';

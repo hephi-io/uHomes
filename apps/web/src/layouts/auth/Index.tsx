@@ -1,7 +1,7 @@
 import Blobs from '@/assets/pngs/Blobs-Wrapper.png';
 import { Outlet } from 'react-router-dom';
 
-const Index = () => {
+const AuthLayout = () => {
   return (
     <section
       className="md:flex md:min-h-screen md:justify-center md:items-center font-Bricolage
@@ -17,4 +17,4 @@ const Index = () => {
   );
 };
 
-export default Index;
+export default AuthLayout;

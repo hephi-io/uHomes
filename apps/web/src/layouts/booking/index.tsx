@@ -1,6 +1,8 @@
-import { Button } from '@uhomes/ui-kit';
-import { SVGs } from '@/assets/svgs/Index';
 import { Outlet } from 'react-router-dom';
+
+import { Button } from '@uhomes/ui-kit';
+
+import { SVGs } from '@/assets/svgs/Index';
 
 export default function BookingLayout() {
   return (
