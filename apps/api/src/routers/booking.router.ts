@@ -2,189 +2,240 @@ import express from 'express';
 import { BookingController } from '../cotrollers/booking.controller';
 import { validate } from '../middlewares/validate.middleware';
 import { authenticate } from '../middlewares/auth.middleware';
-import { bookingSchema, updateBookingStatusSchema } from '../validation/booking.validation';
+import {
+  bookingSchema,
+  updateBookingStatusSchema,
+  bookingResponseSchema,
+  bookingListResponseSchema,
+  createBookingResponseSchema,
+  updateBookingStatusRequestSchema,
+  updateBookingStatusParamsSchema,
+} from '../validation/booking.validation';
+import { registry } from '../config/swagger';
+import {
+  badRequestResponseSchema,
+  unauthorizedResponseSchema,
+  notFoundResponseSchema,
+} from '../validation/shared-responses';
+import { z } from 'zod';
 
 const router = express.Router();
 const bookingController = new BookingController();
 
-/**
- * @swagger
- * /api/booking:
- *   post:
- *     summary: Create a new booking
- *     tags: [Booking]
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/BookingInput'
- *     responses:
- *       201:
- *         description: Booking created successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Booking'
- *       400:
- *         description: Bad request (missing or invalid fields)
- */
+registry.registerPath({
+  method: 'post',
+  path: '/api/booking',
+  summary: 'Create a new booking',
+  tags: ['Bookings'],
+  security: [{ bearerAuth: [] }],
+  request: {
+    body: {
+      content: {
+        'application/json': {
+          schema: bookingSchema,
+        },
+      },
+    },
+  },
+  responses: {
+    201: {
+      description: 'Booking created successfully',
+      content: {
+        'application/json': {
+          schema: createBookingResponseSchema,
+        },
+      },
+    },
+    400: {
+      description: 'Bad request (missing or invalid fields)',
+      content: {
+        'application/json': {
+          schema: badRequestResponseSchema,
+        },
+      },
+    },
+  },
+});
+
 router.post('/', authenticate, validate(bookingSchema), bookingController.createBooking);
 
-/**
- * @swagger
- * /api/booking/{id}:
- *   get:
- *     summary: Get booking by ID
- *     tags: [Booking]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - name: id
- *         in: path
- *         required: true
- *         description: Booking ID
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Booking retrieved successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Booking'
- *       400:
- *         description: Invalid booking ID
- *       404:
- *         description: Booking not found
- *       401:
- *         description: Unauthorized access
- */
+registry.registerPath({
+  method: 'get',
+  path: '/api/booking/{id}',
+  summary: 'Get booking by ID',
+  tags: ['Bookings'],
+  security: [{ bearerAuth: [] }],
+  request: {
+    params: z.object({
+      id: z.string().openapi({ param: { name: 'id', in: 'path' } }),
+    }),
+  },
+  responses: {
+    200: {
+      description: 'Booking retrieved successfully',
+      content: {
+        'application/json': {
+          schema: bookingResponseSchema,
+        },
+      },
+    },
+    400: {
+      description: 'Invalid booking ID',
+      content: {
+        'application/json': {
+          schema: badRequestResponseSchema,
+        },
+      },
+    },
+    404: {
+      description: 'Booking not found',
+      content: {
+        'application/json': {
+          schema: notFoundResponseSchema,
+        },
+      },
+    },
+    401: {
+      description: 'Unauthorized access',
+      content: {
+        'application/json': {
+          schema: unauthorizedResponseSchema,
+        },
+      },
+    },
+  },
+});
+
 router.get('/:id', authenticate, bookingController.getBooking);
 
-/**
- * @swagger
- * /api/booking/agent/{agentId}:
- *   get:
- *     summary: Get all bookings for an agent
- *     tags: [Booking]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - name: agentId
- *         in: path
- *         required: true
- *         description: Agent ID
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: List of agent bookings
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Booking'
- *       400:
- *         description: Invalid agent ID
- *       401:
- *         description: Unauthorized access
- */
+registry.registerPath({
+  method: 'get',
+  path: '/api/booking/agent/{agentId}',
+  summary: 'Get all bookings for an agent',
+  tags: ['Bookings'],
+  security: [{ bearerAuth: [] }],
+  request: {
+    params: z.object({
+      agentId: z.string().openapi({ param: { name: 'agentId', in: 'path' } }),
+    }),
+  },
+  responses: {
+    200: {
+      description: 'List of agent bookings',
+      content: {
+        'application/json': {
+          schema: bookingListResponseSchema,
+        },
+      },
+    },
+    400: {
+      description: 'Invalid agent ID',
+      content: {
+        'application/json': {
+          schema: badRequestResponseSchema,
+        },
+      },
+    },
+    401: {
+      description: 'Unauthorized access',
+      content: {
+        'application/json': {
+          schema: unauthorizedResponseSchema,
+        },
+      },
+    },
+  },
+});
+
 router.get('/agent/:agentId', authenticate, bookingController.getAgentBookings);
 
-/**
- * @swagger
- * /api/bookings:
- *   get:
- *     summary: Get all bookings
- *     description:
- *       Retrieve all bookings based on the user's role.
- *       - **Admin:** Can view all bookings.
- *       - **Agent:** Can view only their assigned bookings.
- *       - **Student:** Can view only their own bookings.
- *     tags: [Bookings]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Bookings retrieved successfully
- *         content:
- *           application/json:
- *             example:
- *               success: true
- *               message: Bookings retrieved successfully
- *               data:
- *                 - _id: 67312ef4d47ab3e5f02a9c51
- *                   property:
- *                     _id: 6720f1a96b4d3e12b8c4f412
- *                     title: Cozy Apartment
- *                     location: Lekki Phase 1, Lagos
- *                     price: 250000
- *                   tenant:
- *                     _id: 671fea7a8e2b5c63d4a90a23
- *                     fullName: John Doe
- *                     email: johndoe@example.com
- *                     phoneNumber: +2348091234567
- *                   agent:
- *                     _id: 671ff8d56c3a4b21b9f72e99
- *                     fullName: Agent Mike
- *                     email: agentmike@example.com
- *                     phoneNumber: +2348097654321
- *                   moveInDate: 2025-12-01
- *                   moveOutDate: 2026-06-01
- *                   duration: 6 months
- *                   amount: 250000
- *                   status: confirmed
- *                   paymentStatus: paid
- *                   notes: Tenant requested early move-in if possible
- *                   createdAt: 2025-11-06T10:30:00.000Z
- *       401:
- *         description: Unauthorized - Missing or invalid token
- */
+registry.registerPath({
+  method: 'get',
+  path: '/api/bookings',
+  summary: 'Get all bookings',
+  description: `Retrieve all bookings based on the user's role. Admin: Can view all bookings. Agent: Can view only their assigned bookings. Student: Can view only their own bookings.`,
+  tags: ['Bookings'],
+  security: [{ bearerAuth: [] }],
+  responses: {
+    200: {
+      description: 'Bookings retrieved successfully',
+      content: {
+        'application/json': {
+          schema: z
+            .object({
+              success: z.boolean(),
+              message: z.string(),
+              data: bookingListResponseSchema,
+            })
+            .openapi({ type: 'object' }),
+        },
+      },
+    },
+    401: {
+      description: 'Unauthorized - Missing or invalid token',
+      content: {
+        'application/json': {
+          schema: unauthorizedResponseSchema,
+        },
+      },
+    },
+  },
+});
+
 router.get('/', authenticate, bookingController.getAllBookings);
 
-/**
- * @swagger
- * /api/booking/{id}/status:
- *   patch:
- *     summary: Update booking status
- *     tags: [Booking]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - name: id
- *         in: path
- *         required: true
- *         description: Booking ID
- *         schema:
- *           type: string
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               status:
- *                 type: string
- *                 enum: [pending, confirmed, cancelled, completed]
- *     responses:
- *       200:
- *         description: Booking status updated successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Booking'
- *       400:
- *         description: Invalid booking ID or status
- *       401:
- *         description: Unauthorized access
- *       404:
- *         description: Booking not found
- */
+registry.registerPath({
+  method: 'patch',
+  path: '/api/booking/{id}/status',
+  summary: 'Update booking status',
+  tags: ['Bookings'],
+  security: [{ bearerAuth: [] }],
+  request: {
+    params: updateBookingStatusParamsSchema,
+    body: {
+      content: {
+        'application/json': {
+          schema: updateBookingStatusRequestSchema,
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: 'Booking status updated successfully',
+      content: {
+        'application/json': {
+          schema: bookingResponseSchema,
+        },
+      },
+    },
+    400: {
+      description: 'Invalid booking ID or status',
+      content: {
+        'application/json': {
+          schema: badRequestResponseSchema,
+        },
+      },
+    },
+    401: {
+      description: 'Unauthorized access',
+      content: {
+        'application/json': {
+          schema: unauthorizedResponseSchema,
+        },
+      },
+    },
+    404: {
+      description: 'Booking not found',
+      content: {
+        'application/json': {
+          schema: notFoundResponseSchema,
+        },
+      },
+    },
+  },
+});
+
 router.patch(
   '/:id/status',
   authenticate,
@@ -192,63 +243,61 @@ router.patch(
   bookingController.updateBookingStatus
 );
 
-/**
- * @swagger
- * /api/booking/{id}:
- *   delete:
- *     summary: Delete a booking
- *     description:
- *       Delete a specific booking by ID.
- *       - **Admin:** Can delete any booking.
- *       - **Agent:** Can delete only their assigned bookings.
- *       - **Student:** Can delete only their own bookings.
- *     tags: [Bookings]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         description: Booking ID
- *         schema:
- *           type: string
- *           example: 67312ef4d47ab3e5f02a9c51
- *     responses:
- *       200:
- *         description: Booking deleted successfully
- *         content:
- *           application/json:
- *             example:
- *               success: true
- *               message: Booking deleted successfully
- *               data:
- *                 _id: 67312ef4d47ab3e5f02a9c51
- *                 property:
- *                   _id: 6720f1a96b4d3e12b8c4f412
- *                   title: Cozy Apartment
- *                   location: Lekki Phase 1, Lagos
- *                   price: 250000
- *                 tenant:
- *                   _id: 671fea7a8e2b5c63d4a90a23
- *                   fullName: John Doe
- *                   email: johndoe@example.com
- *                 agent:
- *                   _id: 671ff8d56c3a4b21b9f72e99
- *                   fullName: Agent Mike
- *                   email: agentmike@example.com
- *                 moveInDate: 2025-12-01
- *                 duration: 6 months
- *                 amount: 250000
- *                 status: confirmed
- *                 paymentStatus: paid
- *                 notes: Tenant requested early move-in if possible
- *       400:
- *         description: Invalid booking ID
- *       401:
- *         description: Unauthorized - You do not have permission to delete this booking
- *       404:
- *         description: Booking not found
- */
+registry.registerPath({
+  method: 'delete',
+  path: '/api/booking/{id}',
+  summary: 'Delete a booking',
+  description:
+    'Delete a specific booking by ID. Admin: Can delete any booking. Agent: Can delete only their assigned bookings. Student: Can delete only their own bookings.',
+  tags: ['Bookings'],
+  security: [{ bearerAuth: [] }],
+  request: {
+    params: z.object({
+      id: z.string().openapi({ param: { name: 'id', in: 'path' } }),
+    }),
+  },
+  responses: {
+    200: {
+      description: 'Booking deleted successfully',
+      content: {
+        'application/json': {
+          schema: z
+            .object({
+              success: z.boolean(),
+              message: z.string(),
+              data: bookingResponseSchema.optional(),
+            })
+            .openapi({ type: 'object' }),
+        },
+      },
+    },
+    400: {
+      description: 'Invalid booking ID',
+      content: {
+        'application/json': {
+          schema: badRequestResponseSchema,
+        },
+      },
+    },
+    401: {
+      description: 'Unauthorized - You do not have permission to delete this booking',
+      content: {
+        'application/json': {
+          schema: unauthorizedResponseSchema,
+        },
+      },
+    },
+    404: {
+      description: 'Booking not found',
+      content: {
+        'application/json': {
+          schema: notFoundResponseSchema,
+        },
+      },
+    },
+  },
+});
+
 router.delete('/:id', authenticate, bookingController.deleteBooking);
 
 export default router;

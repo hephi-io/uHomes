@@ -1,131 +1,132 @@
 import express from 'express';
+import { z } from 'zod';
 import { PropertyController } from '../cotrollers/property.controller';
 import multer from 'multer';
 import { authenticate } from '../middlewares/auth.middleware';
+import {
+  propertyResponseSchema,
+  propertyListResponseSchema,
+  paginatedPropertyResponseSchema,
+  createPropertyRequestSchema,
+  updatePropertyRequestSchema,
+  getPropertyByIdParamsSchema,
+  deletePropertyParamsSchema,
+  getPropertiesByAgentQuerySchema,
+} from '../validation/property.validation';
+import { registry } from '../config/swagger';
+import {
+  badRequestResponseSchema,
+  unauthorizedResponseSchema,
+  notFoundResponseSchema,
+} from '../validation/shared-responses';
 
 const router = express.Router();
 const upload = multer({ dest: 'uploads/' });
 
 const controller = new PropertyController();
 
-/**
- * @swagger
- * tags:
- *   name: Properties
- *   description: Property management endpoints
- */
+registry.registerPath({
+  method: 'post',
+  path: '/api/property',
+  summary: 'Create a new property',
+  tags: ['Properties'],
+  security: [{ bearerAuth: [] }],
+  request: {
+    body: {
+      content: {
+        'multipart/form-data': {
+          schema: createPropertyRequestSchema.extend({
+            images: z.array(z.any()).optional(),
+            replaceImages: z.boolean().optional(),
+          }),
+        },
+      },
+    },
+  },
+  responses: {
+    201: {
+      description: 'Property created successfully',
+      content: {
+        'application/json': {
+          schema: propertyResponseSchema,
+        },
+      },
+    },
+    400: {
+      description: 'Validation error',
+      content: {
+        'application/json': {
+          schema: badRequestResponseSchema,
+        },
+      },
+    },
+    401: {
+      description: 'Unauthorized',
+      content: {
+        'application/json': {
+          schema: unauthorizedResponseSchema,
+        },
+      },
+    },
+  },
+});
 
-/**
- * @swagger
- * /api/property:
- *   post:
- *     summary: Create a new property
- *     tags: [Properties]
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         multipart/form-data:
- *           schema:
- *             type: object
- *             required:
- *               - title
- *               - description
- *               - price
- *               - location
- *               - images
- *             properties:
- *               title:
- *                 type: string
- *                 example: "Luxury Apartment"
- *               description:
- *                 type: string
- *                 example: "Spacious 3-bedroom apartment in the city center"
- *               price:
- *                 type: number
- *                 example: 250000
- *               location:
- *                 type: string
- *                 example: "Downtown, New York"
- *               images:
- *                 type: array
- *                 items:
- *                   type: string
- *                   format: binary
- *     responses:
- *       201:
- *         description: Property created successfully
- *       400:
- *         description: Validation error
- *       401:
- *         description: Unauthorized
- */
 router.post('/', authenticate, upload.array('images'), controller.createProperty.bind(controller));
 
-/**
- * @swagger
- * tags:
- *   name: Properties
- *   description: Property management endpoints
- */
+registry.registerPath({
+  method: 'put',
+  path: '/api/property/{id}',
+  summary: 'Update a property by ID',
+  tags: ['Properties'],
+  security: [{ bearerAuth: [] }],
+  request: {
+    params: getPropertyByIdParamsSchema,
+    body: {
+      content: {
+        'multipart/form-data': {
+          schema: updatePropertyRequestSchema.extend({
+            images: z.array(z.any()).optional(),
+          }),
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: 'Property updated successfully',
+      content: {
+        'application/json': {
+          schema: propertyResponseSchema,
+        },
+      },
+    },
+    400: {
+      description: 'Validation error',
+      content: {
+        'application/json': {
+          schema: badRequestResponseSchema,
+        },
+      },
+    },
+    401: {
+      description: 'Unauthorized',
+      content: {
+        'application/json': {
+          schema: unauthorizedResponseSchema,
+        },
+      },
+    },
+    404: {
+      description: 'Property not found',
+      content: {
+        'application/json': {
+          schema: notFoundResponseSchema,
+        },
+      },
+    },
+  },
+});
 
-/**
- * @swagger
- * /api/property/{id}:
- *   put:
- *     summary: Update a property by ID
- *     tags: [Properties]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: Property ID
- *     requestBody:
- *       required: true
- *       content:
- *         multipart/form-data:
- *           schema:
- *             type: object
- *             properties:
- *               title:
- *                 type: string
- *                 example: "Luxury Apartment Updated"
- *               description:
- *                 type: string
- *                 example: "Updated 3-bedroom apartment in the city center"
- *               price:
- *                 type: number
- *                 example: 260000
- *               location:
- *                 type: string
- *                 example: "Downtown, New York"
- *               replaceImages:
- *                 type: boolean
- *                 description: Replace existing images if true
- *               images:
- *                 type: array
- *                 items:
- *                   type: string
- *                   format: binary
- *     responses:
- *       200:
- *         description: Property updated successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Property'
- *       400:
- *         description: Validation error
- *       401:
- *         description: Unauthorized
- *       404:
- *         description: Property not found
- */
 router.put(
   '/:id',
   authenticate,
@@ -133,145 +134,169 @@ router.put(
   controller.updateProperty.bind(controller)
 );
 
-/**
- * @swagger
- * /api/property:
- *   get:
- *     summary: Get all properties
- *     tags: [Properties]
- *     responses:
- *       200:
- *         description: List of properties
- */
+registry.registerPath({
+  method: 'get',
+  path: '/api/property',
+  summary: 'Get all properties',
+  tags: ['Properties'],
+  responses: {
+    200: {
+      description: 'List of properties',
+      content: {
+        'application/json': {
+          schema: propertyListResponseSchema,
+        },
+      },
+    },
+  },
+});
+
 router.get('/', controller.getAllProperties.bind(controller));
 
-/**
- * @swagger
- * /api/property/agent:
- *   get:
- *     summary: Get properties for the authenticated agent with pagination
- *     tags: [Properties]
- *     parameters:
- *       - in: query
- *         name: page
- *         schema:
- *           type: integer
- *           default: 1
- *         description: Page number for pagination
- *       - in: query
- *         name: limit
- *         schema:
- *           type: integer
- *           default: 10
- *         description: Number of properties per page
- *     responses:
- *       200:
- *         description: Paginated list of properties for the agent
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Agent properties fetched successfully
- *                 properties:
- *                   type: array
- *                   items:
- *                     $ref: '#/components/schemas/Property'
- *                 total:
- *                   type: integer
- *                   example: 25
- *                 page:
- *                   type: integer
- *                   example: 1
- *                 limit:
- *                   type: integer
- *                   example: 10
- *       401:
- *         $ref: '#/components/responses/Unauthorized'
- *       404:
- *         $ref: '#/components/responses/NotFound'
- */
+registry.registerPath({
+  method: 'get',
+  path: '/api/property/agent',
+  summary: 'Get properties for the authenticated agent with pagination',
+  tags: ['Properties'],
+  security: [{ bearerAuth: [] }],
+  request: {
+    query: getPropertiesByAgentQuerySchema,
+  },
+  responses: {
+    200: {
+      description: 'Paginated list of properties for the agent',
+      content: {
+        'application/json': {
+          schema: paginatedPropertyResponseSchema,
+        },
+      },
+    },
+    401: {
+      description: 'Unauthorized',
+      content: {
+        'application/json': {
+          schema: unauthorizedResponseSchema,
+        },
+      },
+    },
+    404: {
+      description: 'Not found',
+      content: {
+        'application/json': {
+          schema: notFoundResponseSchema,
+        },
+      },
+    },
+  },
+});
+
 router.get('/agent', authenticate, controller.getPropertiesByAgent.bind(controller));
 
-/**
- * @swagger
- * /api/property/{id}:
- *   get:
- *     summary: Get a single property by its ID
- *     tags: [Properties]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: The ID of the property to retrieve
- *     responses:
- *       200:
- *         description: Property found
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Property'
- *       401:
- *         description: Unauthorized
- *       404:
- *         description: Property not found
- */
+registry.registerPath({
+  method: 'get',
+  path: '/api/property/{id}',
+  summary: 'Get a single property by its ID',
+  tags: ['Properties'],
+  security: [{ bearerAuth: [] }],
+  request: {
+    params: getPropertyByIdParamsSchema,
+  },
+  responses: {
+    200: {
+      description: 'Property found',
+      content: {
+        'application/json': {
+          schema: propertyResponseSchema,
+        },
+      },
+    },
+    401: {
+      description: 'Unauthorized',
+      content: {
+        'application/json': {
+          schema: unauthorizedResponseSchema,
+        },
+      },
+    },
+    404: {
+      description: 'Property not found',
+      content: {
+        'application/json': {
+          schema: notFoundResponseSchema,
+        },
+      },
+    },
+  },
+});
+
 router.get('/:id', authenticate, controller.getPropertyById.bind(controller));
 
-/**
- * @swagger
- * /api/property/{id}:
- *   delete:
- *     summary: Delete a property
- *     tags: [Properties]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: Property ID
- *     responses:
- *       200:
- *         description: Property deleted successfully
- *       401:
- *         description: Unauthorized
- *       404:
- *         description: Property not found
- */
+registry.registerPath({
+  method: 'delete',
+  path: '/api/property/{id}',
+  summary: 'Delete a property',
+  tags: ['Properties'],
+  security: [{ bearerAuth: [] }],
+  request: {
+    params: deletePropertyParamsSchema,
+  },
+  responses: {
+    200: {
+      description: 'Property deleted successfully',
+    },
+    401: {
+      description: 'Unauthorized',
+      content: {
+        'application/json': {
+          schema: unauthorizedResponseSchema,
+        },
+      },
+    },
+    404: {
+      description: 'Property not found',
+      content: {
+        'application/json': {
+          schema: notFoundResponseSchema,
+        },
+      },
+    },
+  },
+});
+
 router.delete('/:id', authenticate, controller.deleteProperty.bind(controller));
 
-/**
- * @swagger
- * /api/property/{id}/image:
- *   delete:
- *     summary: Delete a single image from a property
- *     tags: [Properties]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: Property ID
- *     responses:
- *       200:
- *         description: Image deleted successfully
- *       401:
- *         description: Unauthorized
- *       404:
- *         description: Property or image not found
- */
+registry.registerPath({
+  method: 'delete',
+  path: '/api/property/{id}/image',
+  summary: 'Delete a single image from a property',
+  tags: ['Properties'],
+  security: [{ bearerAuth: [] }],
+  request: {
+    params: getPropertyByIdParamsSchema,
+  },
+  responses: {
+    200: {
+      description: 'Image deleted successfully',
+    },
+    401: {
+      description: 'Unauthorized',
+      content: {
+        'application/json': {
+          schema: unauthorizedResponseSchema,
+        },
+      },
+    },
+    404: {
+      description: 'Property or image not found',
+      content: {
+        'application/json': {
+          schema: notFoundResponseSchema,
+        },
+      },
+    },
+  },
+});
+
 router.delete('/:id/image', authenticate, controller.deleteSingleImage.bind(controller));
 
 export default router;

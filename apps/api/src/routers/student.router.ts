@@ -1,4 +1,5 @@
 import Express from 'express';
+import { z } from 'zod';
 import { StudentController } from '../cotrollers/student.controller';
 import { authenticate } from '../middlewares/auth.middleware';
 import { validate } from '../middlewares/validate.middleware';
@@ -10,165 +11,261 @@ import {
   deleteStudentSchema,
   forgotPasswordSchema,
   resetPasswordSchema,
+  studentResponseSchema,
+  studentListResponseSchema,
+  registerStudentResponseSchema,
+  loginStudentResponseSchema,
+  verifyEmailResponseSchema,
+  forgotPasswordResponseSchema,
+  resetPasswordResponseSchema,
+  registerStudentRequestSchema,
+  loginRequestSchema,
+  updateStudentRequestSchema,
+  forgotPasswordRequestSchema,
+  resetPasswordRequestSchema,
+  verifyEmailParamsSchema,
+  getStudentByIdParamsSchema,
+  deleteStudentParamsSchema,
+  resetPasswordParamsSchema,
 } from '../validation/student.validation';
+import { registry } from '../config/swagger';
+import {
+  badRequestResponseSchema,
+  unauthorizedResponseSchema,
+  notFoundResponseSchema,
+  serverErrorResponseSchema,
+} from '../validation/shared-responses';
 
 const router = Express.Router();
 const Controller = new StudentController();
 
-/**
- * @openapi
- * /api/students/register:
- *   post:
- *     summary: Register a new student
- *     tags: [Students]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/RegisterStudentInput'
- *     responses:
- *       201:
- *         description: Student registered successfully. Verification email sent.
- *       400:
- *         $ref: '#/components/responses/BadRequestError'
- */
+// Register routes with OpenAPI
+registry.registerPath({
+  method: 'post',
+  path: '/api/students/register',
+  summary: 'Register a new student',
+  tags: ['Students'],
+  request: {
+    body: {
+      content: {
+        'application/json': {
+          schema: registerStudentRequestSchema,
+        },
+      },
+    },
+  },
+  responses: {
+    201: {
+      description: 'Student registered successfully. Verification email sent.',
+      content: {
+        'application/json': {
+          schema: registerStudentResponseSchema,
+        },
+      },
+    },
+    400: {
+      description: 'Bad request / validation failed',
+      content: {
+        'application/json': {
+          schema: badRequestResponseSchema,
+        },
+      },
+    },
+  },
+});
+
 router.post('/register', validate(createStudentSchema), Controller.register.bind(Controller));
 
-/**
- * @openapi
- * /api/student/verify-email/{otp}:
- *   get:
- *     summary: Verify a student email using the OTP sent via email
- *     tags: [Students]
- *     parameters:
- *       - in: path
- *         name: otp
- *         required: true
- *         schema:
- *           type: string
- *         description: OTP sent via email for verification
- *     responses:
- *       200:
- *         description: Email verified successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Email verified successfully
- *       400:
- *         $ref: '#/components/responses/BadRequest'
- *       401:
- *         $ref: '#/components/responses/Unauthorized'
- *       404:
- *         $ref: '#/components/responses/NotFound'
- *       500:
- *         $ref: '#/components/responses/ServerError'
- */
+registry.registerPath({
+  method: 'get',
+  path: '/api/student/verify-email/{otp}',
+  summary: 'Verify a student email using the OTP sent via email',
+  tags: ['Students'],
+  request: {
+    params: verifyEmailParamsSchema,
+  },
+  responses: {
+    200: {
+      description: 'Email verified successfully',
+      content: {
+        'application/json': {
+          schema: verifyEmailResponseSchema,
+        },
+      },
+    },
+    400: {
+      description: 'Bad request',
+      content: {
+        'application/json': {
+          schema: badRequestResponseSchema,
+        },
+      },
+    },
+    401: {
+      description: 'Unauthorized',
+      content: {
+        'application/json': {
+          schema: unauthorizedResponseSchema,
+        },
+      },
+    },
+    404: {
+      description: 'Not found',
+      content: {
+        'application/json': {
+          schema: notFoundResponseSchema,
+        },
+      },
+    },
+    500: {
+      description: 'Server error',
+      content: {
+        'application/json': {
+          schema: serverErrorResponseSchema,
+        },
+      },
+    },
+  },
+});
+
 router.get('/verify-email/:otp', Controller.verifyEmail.bind(Controller));
 
-/**
- * @openapi
- * /api/students/resend-verification:
- *   post:
- *     summary: Resend email verification link
- *     tags: [Students]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               email:
- *                 type: string
- *                 example: student@example.com
- *     responses:
- *       200:
- *         description: Verification email resent successfully
- *       404:
- *         $ref: '#/components/responses/NotFoundError'
- */
+registry.registerPath({
+  method: 'post',
+  path: '/api/students/resend-verification',
+  summary: 'Resend email verification link',
+  tags: ['Students'],
+  request: {
+    body: {
+      content: {
+        'application/json': {
+          schema: z
+            .object({
+              email: z.string().email(),
+            })
+            .openapi({ type: 'object' }),
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: 'Verification email resent successfully',
+    },
+    404: {
+      description: 'Not found',
+      content: {
+        'application/json': {
+          schema: notFoundResponseSchema,
+        },
+      },
+    },
+  },
+});
+
 router.post('/resend-verification', Controller.resendVerification.bind(Controller));
 
-/**
- * @swagger
- * /api/student/login:
- *   post:
- *     summary: Login a student
- *     tags: [Students]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - email
- *               - password
- *             properties:
- *               email:
- *                 type: string
- *                 format: email
- *                 example: "student@example.com"
- *               password:
- *                 type: string
- *                 example: "MyPassword123"
- *     responses:
- *       200:
- *         description: Login successful, JWT token returned
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 token:
- *                   type: string
- *                   example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
- *                 student:
- *                   $ref: '#/components/schemas/Student'
- *       400:
- *         description: Bad request / validation failed
- *       401:
- *         description: Incorrect email or password
- *       404:
- *         description: Student not found
- */
+registry.registerPath({
+  method: 'post',
+  path: '/api/student/login',
+  summary: 'Login a student',
+  tags: ['Students'],
+  request: {
+    body: {
+      content: {
+        'application/json': {
+          schema: loginRequestSchema,
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: 'Login successful, JWT token returned',
+      content: {
+        'application/json': {
+          schema: loginStudentResponseSchema,
+        },
+      },
+    },
+    400: {
+      description: 'Bad request / validation failed',
+      content: {
+        'application/json': {
+          schema: badRequestResponseSchema,
+        },
+      },
+    },
+    401: {
+      description: 'Incorrect email or password',
+      content: {
+        'application/json': {
+          schema: unauthorizedResponseSchema,
+        },
+      },
+    },
+    404: {
+      description: 'Student not found',
+      content: {
+        'application/json': {
+          schema: notFoundResponseSchema,
+        },
+      },
+    },
+  },
+});
+
 router.post('/login', validate(loginSchema), Controller.login.bind(Controller));
 
-/**
- * @openapi
- * /api/students:
- *   get:
- *     summary: Get all students
- *     tags: [Students]
- *     responses:
- *       200:
- *         description: List of all students
- */
+registry.registerPath({
+  method: 'get',
+  path: '/api/students',
+  summary: 'Get all students',
+  tags: ['Students'],
+  security: [{ bearerAuth: [] }],
+  responses: {
+    200: {
+      description: 'List of all students',
+      content: {
+        'application/json': {
+          schema: studentListResponseSchema,
+        },
+      },
+    },
+  },
+});
+
 router.get('/', authenticate, Controller.getAll.bind(Controller));
 
-/**
- * @openapi
- * /api/students/{id}:
- *   get:
- *     summary: Get a single student by ID
- *     tags: [Students]
- *     parameters:
- *       - name: id
- *         in: path
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Student details retrieved successfully
- *       404:
- *         $ref: '#/components/responses/NotFoundError'
- */
+registry.registerPath({
+  method: 'get',
+  path: '/api/students/{id}',
+  summary: 'Get a single student by ID',
+  tags: ['Students'],
+  security: [{ bearerAuth: [] }],
+  request: {
+    params: getStudentByIdParamsSchema,
+  },
+  responses: {
+    200: {
+      description: 'Student details retrieved successfully',
+      content: {
+        'application/json': {
+          schema: studentResponseSchema,
+        },
+      },
+    },
+    404: {
+      description: 'Not found',
+      content: {
+        'application/json': {
+          schema: notFoundResponseSchema,
+        },
+      },
+    },
+  },
+});
+
 router.get(
   '/:id',
   authenticate,
@@ -176,30 +273,42 @@ router.get(
   Controller.getById.bind(Controller)
 );
 
-/**
- * @openapi
- * /api/students/{id}:
- *   put:
- *     summary: Update student details
- *     tags: [Students]
- *     parameters:
- *       - name: id
- *         in: path
- *         required: true
- *         schema:
- *           type: string
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/UpdateStudentInput'
- *     responses:
- *       200:
- *         description: Updated student
- *       404:
- *         $ref: '#/components/responses/NotFoundError'
- */
+registry.registerPath({
+  method: 'put',
+  path: '/api/students/{id}',
+  summary: 'Update student details',
+  tags: ['Students'],
+  security: [{ bearerAuth: [] }],
+  request: {
+    params: getStudentByIdParamsSchema,
+    body: {
+      content: {
+        'application/json': {
+          schema: updateStudentRequestSchema,
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: 'Updated student',
+      content: {
+        'application/json': {
+          schema: studentResponseSchema,
+        },
+      },
+    },
+    404: {
+      description: 'Not found',
+      content: {
+        'application/json': {
+          schema: notFoundResponseSchema,
+        },
+      },
+    },
+  },
+});
+
 router.put(
   '/:id',
   authenticate,
@@ -207,24 +316,30 @@ router.put(
   Controller.updateStudent.bind(Controller)
 );
 
-/**
- * @openapi
- * /api/students/{id}:
- *   delete:
- *     summary: Delete a student by ID
- *     tags: [Students]
- *     parameters:
- *       - name: id
- *         in: path
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Student deleted successfully
- *       404:
- *         $ref: '#/components/responses/NotFoundError'
- */
+registry.registerPath({
+  method: 'delete',
+  path: '/api/students/{id}',
+  summary: 'Delete a student by ID',
+  tags: ['Students'],
+  security: [{ bearerAuth: [] }],
+  request: {
+    params: deleteStudentParamsSchema,
+  },
+  responses: {
+    200: {
+      description: 'Student deleted successfully',
+    },
+    404: {
+      description: 'Not found',
+      content: {
+        'application/json': {
+          schema: notFoundResponseSchema,
+        },
+      },
+    },
+  },
+});
+
 router.delete(
   '/:id',
   authenticate,
@@ -232,110 +347,136 @@ router.delete(
   Controller.delete.bind(Controller)
 );
 
-/**
- * @swagger
- * /api/student/forgot-password:
- *   post:
- *     summary: Request password reset
- *     tags: [Students]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - email
- *             properties:
- *               email:
- *                 type: string
- *                 format: email
- *                 example: "student@example.com"
- *     responses:
- *       200:
- *         description: Password reset link sent successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: "Password reset link sent to your email."
- *       400:
- *         description: Bad request / validation failed
- *       404:
- *         description: Student not found
- */
+registry.registerPath({
+  method: 'post',
+  path: '/api/student/forgot-password',
+  summary: 'Request password reset',
+  tags: ['Students'],
+  request: {
+    body: {
+      content: {
+        'application/json': {
+          schema: forgotPasswordRequestSchema,
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: 'Password reset link sent successfully',
+      content: {
+        'application/json': {
+          schema: forgotPasswordResponseSchema,
+        },
+      },
+    },
+    400: {
+      description: 'Bad request / validation failed',
+      content: {
+        'application/json': {
+          schema: badRequestResponseSchema,
+        },
+      },
+    },
+    404: {
+      description: 'Student not found',
+      content: {
+        'application/json': {
+          schema: notFoundResponseSchema,
+        },
+      },
+    },
+  },
+});
+
 router.post(
   '/forgot-password',
   validate(forgotPasswordSchema),
   Controller.forgotPassword.bind(Controller)
 );
 
-/**
- * @swagger
- * /api/student/reset-password/{otp}:
- *   post:
- *     summary: Reset password using OTP
- *     tags: [Students]
- *     parameters:
- *       - in: path
- *         name: otp
- *         required: true
- *         schema:
- *           type: string
- *           example: "123456"
- *         description: OTP received by email
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               newPassword:
- *                 type: string
- *                 example: NewPassword123
- *               confirmPassword:
- *                 type: string
- *                 example: NewPassword123
- *     responses:
- *       200:
- *         description: Password reset successfully
- *       400:
- *         description: Bad request or invalid OTP
- *       404:
- *         description: User not found
- */
+registry.registerPath({
+  method: 'post',
+  path: '/api/student/reset-password/{otp}',
+  summary: 'Reset password using OTP',
+  tags: ['Students'],
+  request: {
+    params: resetPasswordParamsSchema,
+    body: {
+      content: {
+        'application/json': {
+          schema: resetPasswordRequestSchema,
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: 'Password reset successfully',
+      content: {
+        'application/json': {
+          schema: resetPasswordResponseSchema,
+        },
+      },
+    },
+    400: {
+      description: 'Bad request or invalid OTP',
+      content: {
+        'application/json': {
+          schema: badRequestResponseSchema,
+        },
+      },
+    },
+    404: {
+      description: 'User not found',
+      content: {
+        'application/json': {
+          schema: notFoundResponseSchema,
+        },
+      },
+    },
+  },
+});
+
 router.post(
   '/reset-password/:otp',
   validate(resetPasswordSchema),
   Controller.resetPassword.bind(Controller)
 );
 
-/**
- * @openapi
- * /api/students/resend-reset-token:
- *   post:
- *     summary: Resend password reset token
- *     tags: [Students]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               email:
- *                 type: string
- *                 example: student@example.com
- *     responses:
- *       200:
- *         description: Reset token resent successfully
- *       404:
- *         $ref: '#/components/responses/NotFoundError'
- */
+registry.registerPath({
+  method: 'post',
+  path: '/api/students/resend-reset-token',
+  summary: 'Resend password reset token',
+  tags: ['Students'],
+  request: {
+    body: {
+      content: {
+        'application/json': {
+          schema: z
+            .object({
+              email: z.string().email(),
+            })
+            .openapi({ type: 'object' }),
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: 'Reset token resent successfully',
+    },
+    404: {
+      description: 'Not found',
+      content: {
+        'application/json': {
+          schema: notFoundResponseSchema,
+        },
+      },
+    },
+  },
+});
+
 router.post('/resend-reset-token', Controller.resendResetToken.bind(Controller));
 
 export default router;
