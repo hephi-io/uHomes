@@ -1,11 +1,12 @@
-import { Outlet } from 'react-router-dom';
+import { NavLink, Outlet } from 'react-router-dom';
 import { SVGs } from '@/assets/svgs/Index';
+import { cn } from '@uhomes/ui-kit';
 
-const Index = () => {
+const StudentLayout = () => {
   const navButtons = [
-    { id: 1, label: 'Dashboard' },
-    { id: 2, label: 'Find Hostels' },
-    { id: 3, label: 'Help' },
+    { id: 1, label: 'Dashboard', path: '/students/dashboard' },
+    { id: 2, label: 'Find Hostels', path: '/students/hostels' },
+    { id: 3, label: 'Help', path: '/students/help' },
   ];
 
   return (
@@ -15,30 +16,42 @@ const Index = () => {
           <div className="hidden w-10 h-10 justify-center items-center rounded-lg bg-[#F8F8F8] hover:cursor-pointer md:flex lg:hidden">
             <SVGs.MenuIcon />
           </div>
+
           <div className="flex gap-x-2 items-center">
             <SVGs.UHome />
+
             <h1 className="font-bold text-lg leading-6 tracking-normal align-middle text-[#1F1E1E]">
               HOMES
             </h1>
           </div>
+
           <div className="hidden lg:flex lg:gap-x-12 lg:items-center">
             {navButtons.map((navButton) => (
-              <a
+              <NavLink
                 key={navButton.id}
-                className="font-semibold text-sm leading-[100%] tracking-[0%] text-[#71717A] hover:cursor-pointer"
+                to={navButton.path}
+                className={({ isActive }) =>
+                  cn(
+                    'font-semibold text-sm leading-[100%] tracking-[0%] text-[#71717A] hover:cursor-pointer',
+                    isActive && 'text-[#000000]'
+                  )
+                }
               >
                 {navButton.label}
-              </a>
+              </NavLink>
             ))}
           </div>
         </div>
+
         <div className="w-10 h-10 flex justify-center items-center rounded-lg bg-[#F8F8F8] hover:cursor-pointer md:hidden">
           <SVGs.MenuIcon />
         </div>
+
         <div className="hidden md:block lg:flex lg:gap-x-8 lg:items-center">
           <div className="hidden w-10 h-10 justify-center items-center rounded-full border border-[#00000033] bg-[#F8F8F8] lg:flex">
             <SVGs.Notification />
           </div>
+
           <div className="hidden md:flex md:gap-x-3 md:items-center hover:cursor-pointer">
             <SVGs.ProfilePicSmall />
             <span className="font-medium text-sm leading-[150%] tracking-[0%] text-center text-[#000000]">
@@ -48,6 +61,7 @@ const Index = () => {
           </div>
         </div>
       </div>
+
       <div className="mt-7 md:mt-8 lg:mt-0">
         <Outlet />
       </div>
@@ -55,4 +69,4 @@ const Index = () => {
   );
 };
 
-export default Index;
+export default StudentLayout;

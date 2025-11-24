@@ -1,76 +1,39 @@
 import { Button } from '@uhomes/ui-kit';
+
 import Badge from '@/shared/badge';
 import LikeButton from '@/shared/like-button';
-import HostelCard from '@/shared/hostel-card';
+import { HostelCard } from '@/shared/hostel-card';
 import { badges, topBadges } from '@/pages/students/constants';
 import { SVGs } from '@/assets/svgs/Index';
 import HostelImage from '@/assets/pngs/hostel-image-3.png';
+import { useNavigate } from 'react-router-dom';
+import { availableRooms, studentReviews, paginationPlaceholders } from './mocks';
 
-export default function HostelDetail() {
-  const availableRooms = [
-    { id: 1, description: 'Single Room', price: '₦250,000' },
-    { id: 2, description: 'Shared Room (2-person)', price: '₦125,000' },
-  ];
+export function Hostel() {
+  const navigate = useNavigate();
 
-  const studentReviews = [
-    {
-      id: 1,
-      name: 'David',
-      date: '21/10/2025',
-      rating: SVGs.FiveStars,
-      review:
-        'Novena Hostel really made my stay at school easy. The rooms are clean, the environment is peaceful, and I love that there’s always light and water. Totally worth it!',
-    },
-    {
-      id: 2,
-      name: 'Esther',
-      date: '21/8/2024',
-      rating: SVGs.FourAndHalfStars,
-      review:
-        'I’ve stayed here for two sessions now, and it’s been great. The WIFI is fast, and the location is close to everything, food spots, school, and transport. Highly recommend.',
-    },
-    {
-      id: 3,
-      name: 'Amaka',
-      date: '4/10/2023',
-      rating: SVGs.FourAndHalfStars,
-      review:
-        'It’s my first hostel off campus, and I love it here! The place feels safe, neat, and comfortable. Plus, the balcony view is perfect for evening relaxation.',
-    },
-    {
-      id: 4,
-      name: 'Emeka',
-      date: '23/4/2023',
-      rating: SVGs.FiveStars,
-      review: 'Very neat environment, highly recommended!',
-    },
-    {
-      id: 5,
-      name: 'Samuel',
-      date: '3/6/2023',
-      rating: SVGs.FiveStars,
-      review: 'Very neat environment, highly recommended!',
-    },
-  ];
-
-  const paginationPlaceholders = [
-    { id: 1, content: '1' },
-    { id: 2, content: '2' },
-    { id: 3, content: '3...' },
-    { id: 4, content: '84' },
-  ];
+  const handleGoBack = () => {
+    navigate('/students/hostels');
+  };
 
   return (
     <>
       <div className="flex gap-x-9 items-center pl-4 md:pl-8 mt-5 md:mt-0 lg:mt-5">
-        <Button variant="outline" className="w-11 h-11 rounded-full border border-[#E5E5E5] p-0">
+        <Button
+          variant="outline"
+          className="w-11 h-11 rounded-full border border-[#E5E5E5] p-0 cursor-pointer"
+          onClick={handleGoBack}
+        >
           <SVGs.ChevronLeft />
         </Button>
+
         <h1 className="font-semibold text-base leading-[120%] tracking-[0%] text-black">
           Find Hostels
         </h1>
       </div>
+
       <div className="border-t border-t-[#E4E4E4] mt-5"></div>
+
       <div className="lg:p-8">
         <div className="lg:flex lg:gap-x-[25px] lg:items-start">
           <div className="grow">
@@ -206,10 +169,12 @@ export default function HostelDetail() {
                 </p>
               </div>
             ))}
+
             <div className="w-fit flex gap-x-5 items-center lg:w-full mx-auto mt-8">
               <Button variant="ghost">
                 <SVGs.ChevronLeft />
               </Button>
+
               <div className="flex gap-x-6 items-center lg:gap-x-0">
                 {paginationPlaceholders.map((placeholder) => (
                   <Button
@@ -225,15 +190,18 @@ export default function HostelDetail() {
                   </Button>
                 ))}
               </div>
+
               <Button variant="ghost">
                 <SVGs.ChevronLeft className="rotate-180" />
               </Button>
             </div>
           </div>
         </div>
+
         <h1 className="font-semibold text-lg leading-[150%] tracking-[0%] text-black mt-20">
           Hostels Like This
         </h1>
+
         <div className="grid grid-cols-1 gap-6 rounded-2xl border border-[#F4F4F4] bg-[#FDFDFD] md:grid-cols-2 lg:grid-cols-3 lg:gap-12 lg:border-none lg:bg-inherit p-4 lg:p-0 mt-4">
           {[...Array(4)].map((_, i) => (
             <div

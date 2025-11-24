@@ -1,17 +1,16 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
-import AuthLayout from '../layouts/auth/Index';
+import AuthLayout from '@/layouts/auth';
+import AgentLayout from '@/layouts/agent';
+import StudentDashboardLayout from '@/layouts/students';
+import BookingLayout from '@/layouts/booking';
+
 import Auth from '@/pages/auth/auth';
 import ForgotPassword from '@/pages/auth/forgot-password';
 import VerifyAccount from '@/pages/auth/verify-account';
 import ResetPassword from '@/pages/auth/reset-password';
 import ResetPasswordSuccess from '@/pages/auth/reset-password-success';
-import AgentLayout from '@/layouts/agent/Index';
 import Dashboard from '@/pages/Agent/dashboard';
-import StudentDashboardLayout from '@/layouts/students/index';
-import StudentDashboard from '@/pages/students/student-dashboard';
-import FindHostels from '@/pages/students/find-hostels';
-import HostelDetail from '@/pages/students/hostel-detail';
-import BookingLayout from '@/layouts/booking/booking-layout';
+import { StudentDashboard, Hostels, Hostel, Help } from '@/pages/students';
 import Booking from '@/pages/booking/booking';
 
 const router = createBrowserRouter([
@@ -41,12 +40,14 @@ const router = createBrowserRouter([
     ],
   },
   {
-    path: '/student-dashboard',
+    path: '/students',
     element: <StudentDashboardLayout />,
     children: [
-      { index: true, element: <StudentDashboard /> },
-      { path: 'find-hostels', element: <FindHostels /> },
-      { path: 'find-hostels/hostel-detail', element: <HostelDetail /> },
+      { index: true, element: <Navigate to="dashboard" replace /> },
+      { path: 'dashboard', element: <StudentDashboard /> },
+      { path: 'hostels', element: <Hostels /> },
+      { path: 'hostels/:id', element: <Hostel /> },
+      { path: 'help', element: <Help /> },
       {
         element: <BookingLayout />,
         children: [{ path: 'booking', element: <Booking /> }],

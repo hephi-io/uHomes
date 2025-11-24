@@ -1,13 +1,13 @@
 import { Button } from '@uhomes/ui-kit';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@uhomes/ui-kit';
-import { HostelCard } from '@/pages/students/find-hostels';
+import { HostelCard } from '@/shared/hostel-card';
 import { SVGs } from '@/assets/svgs/Index';
 import { hostelDetails } from '@/pages/students/constants';
 import NoBookings from '@/assets/pngs/no-bookings.png';
 import HostelImageTwo from '@/assets/pngs/hostel-image-2.png';
 import HostelImage from '@/assets/pngs/hostel-image.jpg';
 
-export default function StudentDashboard() {
+export function StudentDashboard() {
   const cards = [
     {
       id: 1,
