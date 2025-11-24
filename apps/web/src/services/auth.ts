@@ -100,15 +100,3 @@ export const resetPassword = (otp: string, newPassword: string, confirmPassword:
 export const resendResetToken = (email: string) => {
   return API.post<TResponse<{ message: string }>>(endpoints.resendResetToken, { email });
 };
-
-// Legacy functions (for backward compatibility during migration)
-export const agentSignup = register;
-export const agentLogin = login;
-export const getAgent = getUserById;
-export const resentPassword = (payload: {
-  token: string;
-  newPassword: string;
-  confirmPassword: string;
-}) => {
-  return resetPassword(payload.token, payload.newPassword, payload.confirmPassword);
-};
