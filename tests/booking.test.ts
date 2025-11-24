@@ -1,10 +1,10 @@
-import mongoose from 'mongoose';
+
 import Booking from '../src/models/booking.model';
 import Property from '../src/models/property.model';
 import User from '../src/models/user.model';
 import User_type from '../src/models/user-type.model';
 import { BookingService } from '../src/service/booking.service';
-import { BadRequestError, NotFoundError, UnauthorizedError } from '../src/middlewares/error.middlewere';
+import { NotFoundError } from '../src/middlewares/error.middlewere';
 
 describe('BookingService', () => {
   let bookingService: BookingService;

@@ -4,7 +4,7 @@ import User from '../src/models/user.model';
 import User_type from '../src/models/user-type.model';
 import { PropertyService } from '../src/service/property.service';
 import cloudinary from '../src/config/cloudinary';
-import { BadRequestError, UnauthorizedError, NotFoundError } from '../src/middlewares/error.middlewere';
+import {  NotFoundError } from '../src/middlewares/error.middlewere';
 
 jest.mock('../src/config/cloudinary', () => ({
   uploader: {

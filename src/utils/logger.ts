@@ -1,11 +1,11 @@
 import winston, { Logger } from "winston";
 
-interface LogInfo {
-  level: string;
-  message: string;
-  timestamp?: string;
-  [key: string]: any;
-}
+// interface LogInfo {
+//   level: string;
+//   message: string;
+//   timestamp?: string;
+//   [key: string]: any;
+// }
 
 const logger: Logger = winston.createLogger({
   level: process.env.NODE_ENV === "production" ? "info" : "debug",

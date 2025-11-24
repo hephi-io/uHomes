@@ -19,7 +19,7 @@ export const authenticate = (req: Request, res: Response, next: NextFunction) =>
     const payload = jwt.verify(token, process.env.JWT_SECRET!) as JwtPayload;
     req.user = payload; // attach user info to request
     next();
-  } catch (err) {
-    return res.status(401).json({ error: "Unauthorized, invalid token" });
+  } catch {
+    return res.status(401).json({ err: "Unauthorized, invalid token" });
   }
 };
