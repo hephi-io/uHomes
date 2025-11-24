@@ -1,8 +1,12 @@
-import cloudinary from '../config/cloudinary';
-import Property, { IProperty } from '../models/property.model';
 import mongoose from 'mongoose';
-import Agent from '../models/agent.model';
+
+import Property, { IProperty } from '../models/property.model';
+import User from '../models/user.model';
+import UserType from '../models/user-type.model';
+
 import { BadRequestError, NotFoundError, UnauthorizedError } from '../middlewares/error.middlewere';
+
+import cloudinary from '../config/cloudinary';
 
 interface CloudinaryImage {
   url: string;
@@ -16,6 +20,12 @@ export class PropertyService {
     files?: Express.Multer.File[]
   ): Promise<IProperty> {
     if (!agentId) throw new UnauthorizedError('Unauthorized agent');
+
+    // Validate agent type
+    const agentType = await UserType.findOne({ userId: agentId });
+    if (!agentType || agentType.type !== 'agent') {
+      throw new UnauthorizedError('Only agents can create properties');
+    }
 
     if (!files || files.length === 0) throw new BadRequestError('At least one image is required');
 
@@ -35,7 +45,8 @@ export class PropertyService {
       agentId: [agentId],
     });
 
-    await Agent.findByIdAndUpdate(agentId, {
+    // Update user's properties array
+    await User.findByIdAndUpdate(agentId, {
       $push: { properties: newProperty._id },
     });
 
@@ -61,6 +72,12 @@ export class PropertyService {
     limit = 10
   ): Promise<{ properties: IProperty[]; total: number; page: number; limit: number }> {
     if (!mongoose.Types.ObjectId.isValid(agentId)) throw new NotFoundError('Invalid agent ID');
+
+    // Validate agent type
+    const agentType = await UserType.findOne({ userId: agentId });
+    if (!agentType || agentType.type !== 'agent') {
+      throw new BadRequestError('Invalid agent ID');
+    }
 
     const skip = (page - 1) * limit;
     const total = await Property.countDocuments({ agentId });

@@ -2,7 +2,6 @@ import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IToken extends Document {
   userId: mongoose.Types.ObjectId;
-  role: 'Student' | 'Agent' | 'Admin';
   typeOf: 'emailVerification' | 'login' | 'resetPassword';
   token: string;
   expiresAt: Date;
@@ -13,12 +12,7 @@ const tokenSchema: Schema<IToken> = new Schema(
   {
     userId: {
       type: Schema.Types.ObjectId,
-      refPath: 'role', // dynamically refers to student or agent collection
-      required: true,
-    },
-    role: {
-      type: String,
-      enum: ['Student', 'Agent', 'Admin'],
+      ref: 'User', // references User collection
       required: true,
     },
     typeOf: {

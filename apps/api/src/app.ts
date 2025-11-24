@@ -6,6 +6,7 @@ import morgan from 'morgan';
 import { stream } from './utils/logger';
 import agentRouter from './routers/agent.router';
 import studentRouter from './routers/student.router';
+import authRouter from './routers/auth.router';
 import propertyRouter from './routers/property.route';
 import bookingRouter from './routers/booking.router';
 
@@ -13,7 +14,8 @@ declare module 'express-serve-static-core' {
   interface Request {
     user?: {
       id: string;
-      role: string;
+      type?: string;
+      role?: string; // Keep for backward compatibility
     };
   }
 }
@@ -41,8 +43,13 @@ app.get('/', (req: Request, res: Response) => {
   res.send('welcome to U-Homes API');
 });
 
+// New unified auth routes
+app.use('/api/auth', authRouter);
+
+// Legacy routes (kept for backward compatibility during migration)
 app.use('/api/agent', agentRouter);
 app.use('/api/student', studentRouter);
+
 app.use('/api/property', propertyRouter);
 app.use('/api/booking', bookingRouter);
 

@@ -4,8 +4,7 @@ import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import Warning from '@/assets/svgs/warning.svg?react';
 import { useState } from 'react';
-import { resentPassword } from '@/services/auth';
-import { AxiosError } from 'axios';
+import { resetPassword } from '@/services/auth';
 import { Loader2 } from 'lucide-react';
 
 interface IResetPassword {
@@ -23,19 +22,13 @@ const ResetPassword = () => {
   const onSubmit = async (data: IResetPassword) => {
     const { password } = data;
 
-    const payload = { token, newPassword: password };
     try {
       setLoading(true);
-      const response = await resentPassword(payload);
-      console.log('Forgot password response:', response);
+      await resetPassword(token, password, password);
 
       navigate('/auth/reset-password-success');
     } catch (error) {
-      if (error instanceof AxiosError) {
-        console.error('Uh oh! Something went wrong:', error.response?.data?.error || error.message);
-      } else {
-        console.error('Network error or server not responding');
-      }
+      console.log(error);
     } finally {
       setLoading(false);
     }

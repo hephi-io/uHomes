@@ -1,6 +1,9 @@
+import mongoose from 'mongoose';
+
 import Booking, { IBooking } from '../models/booking.model';
 import property from '../models/property.model';
-import mongoose from 'mongoose';
+import UserType from '../models/user-type.model';
+
 import { BadRequestError, NotFoundError, UnauthorizedError } from '../middlewares/error.middlewere';
 
 type BookingStatus = 'pending' | 'confirmed' | 'cancelled' | 'completed';
@@ -20,8 +23,11 @@ interface BookingInput {
 }
 
 export class BookingService {
-  async createBooking(data: BookingInput, user: { id: string; role: string }): Promise<IBooking> {
-    if (user.role !== 'Student') {
+  async createBooking(data: BookingInput, user: { id: string; type?: string }): Promise<IBooking> {
+    // Validate user type
+    const userType = await UserType.findOne({ userId: user.id });
+    if (!userType) throw new NotFoundError('User type not found');
+    if (userType.type !== 'student') {
       throw new UnauthorizedError('Only students can create bookings');
     }
 
@@ -31,6 +37,14 @@ export class BookingService {
     const agentId = Array.isArray(foundProperty.agentId)
       ? foundProperty.agentId[0]
       : foundProperty.agentId;
+
+    // Validate agent type
+    if (agentId) {
+      const agentType = await UserType.findOne({ userId: agentId });
+      if (!agentType || agentType.type !== 'agent') {
+        throw new BadRequestError('Invalid agent assigned to property');
+      }
+    }
 
     const booking = new Booking({
       ...data,
@@ -69,14 +83,19 @@ export class BookingService {
       .sort({ createdAt: -1 });
   }
 
-  async getAllBookings(user: { id: string; role: string }): Promise<IBooking[]> {
+  async getAllBookings(user: { id: string; type?: string }): Promise<IBooking[]> {
+    // Get user type
+    const userType = await UserType.findOne({ userId: user.id });
+    if (!userType) throw new NotFoundError('User type not found');
+
     // Admins can see all bookings, agents only see their bookings, students see their own
     let query = {};
-    if (user.role === 'Agent') {
+    if (userType.type === 'agent') {
       query = { agent: user.id };
-    } else if (user.role === 'Student') {
+    } else if (userType.type === 'student') {
       query = { tenant: user.id };
     }
+    // Admin sees all (empty query)
 
     return await Booking.find(query)
       .populate('property', 'title location price')
