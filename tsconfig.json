@@ -1,0 +1,19 @@
+{
+  
+  "compilerOptions": {
+    "baseUrl": ".",
+    "rootDir": "src",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "outDir": "dist",
+    "noEmit": false,
+    "tsBuildInfoFile": "dist/.tsbuildinfo",
+    "paths": {
+      "@uhomes/shared": ["../../packages/shared/src"],
+      "@api/*": ["src/*"],
+      "@cert/*": ["cert/*"]
+    }
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "dist", "tests"]
+}

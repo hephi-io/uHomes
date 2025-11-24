@@ -1,4 +1,5 @@
 #!/bin/sh
+<<<<<<< HEAD
 # 🪝 Husky v9 pre-commit hook
 
 # Load NVM only if available (safe for all environments)
@@ -15,3 +16,8 @@ elif command -v yarn >/dev/null 2>&1; then
 else
   npm exec lint-staged
 fi
+=======
+. "$(dirname "$0")/_/husky.sh"
+
+npm test
+>>>>>>> a48bc6d (test husky)
