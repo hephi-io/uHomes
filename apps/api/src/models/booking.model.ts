@@ -20,8 +20,8 @@ export interface IBooking extends Document {
 const bookingSchema: Schema<IBooking> = new Schema(
   {
     property: { type: Schema.Types.ObjectId, ref: 'Property', required: true },
-    agent: { type: Schema.Types.ObjectId, ref: 'Agent', required: true },
-    tenant: { type: Schema.Types.ObjectId, ref: 'Student', required: true },
+    agent: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    tenant: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     tenantName: { type: String, required: true },
     tenantEmail: { type: String, required: true },
     tenantPhone: { type: String, required: true },

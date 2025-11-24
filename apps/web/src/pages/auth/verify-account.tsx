@@ -1,16 +1,22 @@
-import UHome from '@/assets/svgs/u-home.svg?react';
-import { Button, InputOTP, InputOTPGroup, InputOTPSlot, InputOTPSeparator } from '@uhomes/ui-kit';
 import { useNavigate } from 'react-router-dom';
-import Refreshcircle from '@/assets/svgs/refresh-circle.svg?react';
+
+import { Button, InputOTP, InputOTPGroup, InputOTPSlot } from '@uhomes/ui-kit';
+
+import { SVGs } from '@/assets/svgs/Index';
 
 const VerifyAccount = () => {
   const navigate = useNavigate();
+
+  const handleContinue = () => {
+    navigate('/auth/reset-password');
+  };
+
   return (
     <section className="md:w-[494px] w-full flex  my-9 md:my-[108px] justify-center items-center   bg-white  p-4 md:p-10 rounded-none md:rounded-2xl">
       <div className=" w-full md:p-8 mb-9">
         <div className="flex justify-center items-center">
           <div className="p-2 bg-[#EDEDED] rounded-xl">
-            <UHome className="w-[46.4px] h-[45px]" />
+            <SVGs.UHome className="w-[46.4px] h-[45px]" />
           </div>
         </div>
         <div className="">
@@ -21,42 +27,35 @@ const VerifyAccount = () => {
             </p>
           </div>
 
-          <div>
-            <InputOTP maxLength={6}>
-              <InputOTPGroup>
-                <InputOTPSlot index={0} />
-                <InputOTPSlot index={1} />
-                <InputOTPSlot index={2} />
-              </InputOTPGroup>
-              <InputOTPSeparator />
-              <InputOTPGroup>
-                <InputOTPSlot index={3} />
-                <InputOTPSlot index={4} />
-                <InputOTPSlot index={5} />
+          <div className="mt-9 mb-6">
+            <InputOTP maxLength={6} className="w-full">
+              <InputOTPGroup className="w-full">
+                <InputOTPSlot index={0} className="w-1/6" />
+                <InputOTPSlot index={1} className="w-1/6" />
+                <InputOTPSlot index={2} className="w-1/6" />
+                <InputOTPSlot index={3} className="w-1/6" />
+                <InputOTPSlot index={4} className="w-1/6" />
+                <InputOTPSlot index={5} className="w-1/6" />
               </InputOTPGroup>
             </InputOTP>
           </div>
 
-          <div className="py-9 space-y-6">
-            <div></div>
-            <Button
-              onClick={() => navigate('/auth/reset-password')}
-              type="submit"
-              variant="outline"
-              className="bg-[#3E78FF] text-white border border-[#E4E4E4EE] px-4 py-2 w-full font-medium text-sm rounded-[5px] cursor-pointer"
-            >
-              Continue
-            </Button>
-          </div>
+          <Button
+            onClick={handleContinue}
+            type="submit"
+            variant="outline"
+            className="bg-[#3E78FF] text-white border border-[#E4E4E4EE] px-4 py-2 w-full font-medium text-sm rounded-[5px] cursor-pointer mb-9"
+          >
+            Continue
+          </Button>
 
           <div className="flex justify-between items-center">
-            <Button
-              variant="outline"
-              className="flex items-center gap-1 rounded-[10000px] bg-[#F4F4F4]  "
-            >
-              <Refreshcircle />
+            <button className="flex items-center gap-1 bg-[#F4F4F4] h-6 px-1.5 rounded-full cursor-pointer">
+              <SVGs.RefreshCircle />
+
               <span className="text-[#26203B] font-normal text-xs">Resend code</span>
-            </Button>
+            </button>
+
             <span className="text-[#FA3507] font-bold text-[13px]">00.59s</span>
           </div>
         </div>
