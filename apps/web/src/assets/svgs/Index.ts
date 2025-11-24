@@ -45,6 +45,11 @@ import PropertyAdd from './property-add.svg?react';
 import Dot from './dot.svg?react';
 import FiveStars from './five-stars.svg?react';
 import FourAndHalfStars from './four-and-half-stars.svg?react';
+import ContactBook from './contact-book.svg?react';
+import Dashes from './dashes.svg?react';
+import CreditCard from './credit-card.svg?react';
+import CheckmarkCircle from './checkmark-circle.svg?react';
+import ChevronsUpDown from './chevrons-up-down.svg?react';
 
 export const SVGs = {
   AddProperty,
@@ -94,4 +99,9 @@ export const SVGs = {
   Dot,
   FiveStars,
   FourAndHalfStars,
+  ContactBook,
+  Dashes,
+  CreditCard,
+  CheckmarkCircle,
+  ChevronsUpDown,
 };
