@@ -267,6 +267,30 @@ router.get('/me', authenticate, controller.getCurrentUser.bind(controller));
 
 /**
  * @openapi
+ * /api/auth/logout:
+ *   post:
+ *     summary: Logout user
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Logged out successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Logged out successfully"
+ *       401:
+ *         description: Unauthorized
+ */
+router.post('/logout', authenticate, controller.logout.bind(controller));
+
+/**
+ * @openapi
  * /api/auth/{id}:
  *   get:
  *     summary: Get a user by ID

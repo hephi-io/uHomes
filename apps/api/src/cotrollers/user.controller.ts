@@ -186,4 +186,14 @@ export class UserController {
       next(err);
     }
   }
+
+  async logout(req: Request, res: Response, next: NextFunction) {
+    try {
+      // Since JWT is stateless, we just return success
+      // This endpoint can be extended in the future for token blacklisting
+      return ResponseHelper.success(res, { message: 'Logged out successfully' });
+    } catch (err) {
+      next(err);
+    }
+  }
 }
