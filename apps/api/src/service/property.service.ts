@@ -53,10 +53,93 @@ export class PropertyService {
     return newProperty;
   }
 
-  async getAllProperties(): Promise<IProperty[]> {
-    const properties = await Property.find().populate('agentId', '-password');
-    if (!properties.length) throw new NotFoundError('No properties found');
-    return properties;
+  async getAllProperties(filters: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    minPrice?: number;
+    maxPrice?: number;
+    location?: string;
+    amenities?: string[];
+    agentId?: string;
+    sortBy?: string;
+  }): Promise<{
+    properties: IProperty[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  }> {
+    const {
+      page = 1,
+      limit = 10,
+      search,
+      minPrice,
+      maxPrice,
+      location,
+      amenities,
+      agentId,
+      sortBy = 'createdAt',
+    } = filters;
+
+    // Build query object
+    const query: any = { isAvailable: true };
+
+    // Search filter (title or description)
+    if (search) {
+      query.$or = [
+        { title: { $regex: search, $options: 'i' } },
+        { description: { $regex: search, $options: 'i' } },
+      ];
+    }
+
+    // Price range filter
+    if (minPrice !== undefined || maxPrice !== undefined) {
+      query.price = {};
+      if (minPrice !== undefined) {
+        query.price.$gte = minPrice;
+      }
+      if (maxPrice !== undefined) {
+        query.price.$lte = maxPrice;
+      }
+    }
+
+    // Location filter
+    if (location) {
+      query.location = { $regex: location, $options: 'i' };
+    }
+
+    // Amenities filter (must contain all specified amenities)
+    if (amenities && amenities.length > 0) {
+      query.amenities = { $all: amenities };
+    }
+
+    // Agent filter
+    if (agentId && mongoose.Types.ObjectId.isValid(agentId)) {
+      query.agentId = { $in: [new mongoose.Types.ObjectId(agentId)] };
+    }
+
+    // Calculate pagination
+    const skip = (page - 1) * limit;
+    const total = await Property.countDocuments(query);
+    const totalPages = Math.ceil(total / limit);
+
+    // Build sort object
+    let sort: any = { [sortBy]: -1 };
+    if (sortBy === 'price') {
+      sort = { price: 1 }; // Ascending for price
+    } else if (sortBy === 'rating') {
+      sort = { rating: -1 }; // Descending for rating
+    }
+
+    // Execute query with pagination
+    const properties = await Property.find(query)
+      .populate('agentId', 'fullName email phoneNumber')
+      .sort(sort)
+      .skip(skip)
+      .limit(limit);
+
+    return { properties, total, page, limit, totalPages };
   }
 
   async getPropertyById(id: string): Promise<IProperty> {

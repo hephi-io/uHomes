@@ -137,11 +137,91 @@ router.put(
  * @swagger
  * /api/property:
  *   get:
- *     summary: Get all properties
+ *     summary: Get all properties with filtering and pagination
  *     tags: [Properties]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number for pagination
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Number of properties per page
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Search query for title or description
+ *       - in: query
+ *         name: minPrice
+ *         schema:
+ *           type: number
+ *         description: Minimum price filter
+ *       - in: query
+ *         name: maxPrice
+ *         schema:
+ *           type: number
+ *         description: Maximum price filter
+ *       - in: query
+ *         name: location
+ *         schema:
+ *           type: string
+ *         description: Location filter (case-insensitive partial match)
+ *       - in: query
+ *         name: amenities
+ *         schema:
+ *           type: string
+ *         description: Comma-separated list of amenities to filter by
+ *       - in: query
+ *         name: agentId
+ *         schema:
+ *           type: string
+ *         description: Filter by agent ID
+ *       - in: query
+ *         name: sortBy
+ *         schema:
+ *           type: string
+ *           enum: [createdAt, price, rating]
+ *           default: createdAt
+ *         description: Sort field (createdAt, price, rating)
  *     responses:
  *       200:
- *         description: List of properties
+ *         description: Paginated list of properties
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     message:
+ *                       type: string
+ *                       example: Properties fetched successfully
+ *                     properties:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/Property'
+ *                     total:
+ *                       type: integer
+ *                       example: 50
+ *                     page:
+ *                       type: integer
+ *                       example: 1
+ *                     limit:
+ *                       type: integer
+ *                       example: 10
+ *                     totalPages:
+ *                       type: integer
+ *                       example: 5
  */
 router.get('/', controller.getAllProperties.bind(controller));
 
