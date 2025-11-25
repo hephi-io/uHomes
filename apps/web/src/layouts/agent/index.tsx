@@ -2,7 +2,7 @@ import { Outlet } from 'react-router-dom';
 
 import { Navbar } from '../../components/navbar';
 
-function AgentLayout() {
+const AgentLayout = () => {
   const navItems = [
     { id: 1, label: 'Dashboard', path: '/agent-dashboard' },
     { id: 2, label: 'Favorites', path: '/agent-dashboard/favorites' },
@@ -17,6 +17,6 @@ function AgentLayout() {
       </section>
     </div>
   );
-}
+};
 
 export default AgentLayout;
