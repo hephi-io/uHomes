@@ -52,6 +52,30 @@ export class UserController {
     }
   }
 
+  async verifyAccount(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { email, code } = req.body;
+      const result = await this.userService.verifyAccount(email, code);
+      return ResponseHelper.success(res, result);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async verifyAccountViaUrl(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { token } = req.query;
+      if (!token || typeof token !== 'string') {
+        return ResponseHelper.badRequest(res, { message: 'Missing verification token' });
+      }
+
+      const result = await this.userService.verifyAccountViaUrl(token);
+      return ResponseHelper.success(res, result);
+    } catch (err: unknown) {
+      next(err);
+    }
+  }
+
   async login(req: Request, res: Response, next: NextFunction) {
     try {
       const { email, password } = req.body;

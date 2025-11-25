@@ -1,8 +1,9 @@
 import User, { IUser } from '../models/user.model';
 import UserType from '../models/user-type.model';
 import Token from '../models/token.model';
-import { randomBytes } from 'crypto';
 import { sendEmail } from '../utils/sendEmail';
+import { sendVerificationEmail } from '../utils/verification-email';
+import { TokenService } from './token.service';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { BadRequestError, NotFoundError, UnauthorizedError } from '../middlewares/error.middlewere';
@@ -20,6 +21,8 @@ interface RegisterData {
 }
 
 export class UserService {
+  private tokenService = new TokenService();
+
   /**
    * Get user type by userId (with caching potential)
    */
@@ -35,9 +38,13 @@ export class UserService {
   async register(data: RegisterData) {
     const { fullName, email, phoneNumber, password, type, university, yearOfStudy } = data;
 
-    // Check if user already exists
-    const existingUser = await User.findOne({ email });
-    if (existingUser) throw new BadRequestError('Email already in use');
+    // Check if user already exists by email
+    const existingUserByEmail = await User.findOne({ email });
+    if (existingUserByEmail) throw new BadRequestError('Email already in use');
+
+    // Check if phone number already exists
+    const existingUserByPhone = await User.findOne({ phoneNumber });
+    if (existingUserByPhone) throw new BadRequestError('Phone number already in use');
 
     // Validate type-specific fields
     if (type === 'student') {
@@ -68,31 +75,23 @@ export class UserService {
     });
     await userType.save();
 
-    // Generate verification token
-    const verificationToken = randomBytes(32).toString('hex');
+    // Generate 6-digit verification code
+    const verificationCode = await this.tokenService.createVerificationCode(
+      String(user._id),
+      email
+    );
 
-    await Token.create({
-      userId: user._id,
-      typeOf: 'emailVerification',
-      token: verificationToken,
-      expiresAt: new Date(Date.now() + 60 * 60 * 1000), // 1 hour expiry
-    });
+    // Sign verification URL
+    const signedUrl = this.tokenService.signVerificationUrl(verificationCode, email);
 
-    // Send verification email
-    const verifyLink = `${process.env.BASE_URL}/api/auth/verify-email/${verificationToken}`;
-    const html = `
-      <h3>Welcome to U-Homes!</h3>
-      <p>Please verify your email by clicking the link below:</p>
-      <a href="${verifyLink}">Verify Email</a>
-    `;
-
-    await sendEmail(email, 'Verify Your Email', html);
+    // Send verification email with code and signed URL
+    await sendVerificationEmail(email, verificationCode, signedUrl, fullName);
 
     return { message: 'Verification email sent. Please check your inbox.' };
   }
 
   /**
-   * Verify user email
+   * Verify user email (legacy token-based - kept for backward compatibility)
    */
   async verifyEmail(tokenString: string) {
     const tokenDoc = await Token.findOne({
@@ -115,6 +114,73 @@ export class UserService {
   }
 
   /**
+   * Verify account using 6-digit code
+   */
+  async verifyAccount(email: string, code: string) {
+    try {
+      // Verify the code
+      const { userId, tokenId } = await this.tokenService.verifyCode(email, code);
+
+      // Mark user as verified
+      const user = await User.findById(userId);
+      if (!user) throw new NotFoundError('User not found');
+
+      user.isVerified = true;
+      await user.save();
+
+      // Mark code as verified
+      await this.tokenService.markAsVerified(tokenId);
+
+      // Get user type
+      const userType = await UserType.findOne({ userId: user._id });
+      if (!userType) throw new NotFoundError('User type not found');
+
+      // Generate JWT token (same as login)
+      const token = jwt.sign({ id: user._id, type: userType.type }, process.env.JWT_SECRET!, {
+        expiresIn: '1d',
+      });
+
+      // Remove password from response
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { password: _, ...userData } = user.toObject();
+
+      return {
+        token,
+        user: {
+          ...userData,
+          userType: {
+            type: userType.type,
+          },
+        },
+        message: 'Account verified successfully',
+      };
+    } catch (error) {
+      // If verification fails, increment attempts
+      const token = await Token.findOne({
+        email: email.toLowerCase(),
+        token: code,
+        typeOf: 'emailVerification',
+        status: 'pending',
+      });
+      if (token) {
+        await this.tokenService.incrementAttempts(String(token._id));
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * Verify account via signed URL
+   */
+  async verifyAccountViaUrl(signedToken: string) {
+    // Verify and extract code/email from signed token
+    const { code, email } = this.tokenService.verifySignedUrl(signedToken);
+
+    // Use the same verification logic
+    return this.verifyAccount(email, code);
+  }
+
+  /**
    * Resend verification email
    */
   async resendVerification(email: string) {
@@ -123,23 +189,25 @@ export class UserService {
 
     if (user.isVerified) throw new BadRequestError('Email already verified');
 
-    // Generate a new verification token
-    const verificationToken = randomBytes(32).toString('hex');
-    await Token.create({
-      userId: user._id,
-      typeOf: 'emailVerification',
-      token: verificationToken,
-      expiresAt: new Date(Date.now() + 60 * 60 * 1000), // 1 hour
-    });
+    // Check rate limit (max 3 per hour)
+    const canResend = await this.tokenService.checkRateLimit(email);
+    if (!canResend) {
+      throw new BadRequestError(
+        'Too many verification requests. Please wait before requesting a new code.'
+      );
+    }
 
-    const verifyLink = `${process.env.BASE_URL}/api/auth/verify-email/${verificationToken}`;
-    const html = `
-      <h3>Welcome back to U-Homes!</h3>
-      <p>Please verify your email by clicking the link below:</p>
-      <a href="${verifyLink}">Verify Email</a>
-    `;
+    // Generate new 6-digit verification code
+    const verificationCode = await this.tokenService.createVerificationCode(
+      String(user._id),
+      email
+    );
 
-    await sendEmail(user.email, 'Verify Your Email', html);
+    // Sign verification URL
+    const signedUrl = this.tokenService.signVerificationUrl(verificationCode, email);
+
+    // Send verification email with code and signed URL
+    await sendVerificationEmail(email, verificationCode, signedUrl, user.fullName);
 
     return { message: 'Verification email resent successfully.' };
   }

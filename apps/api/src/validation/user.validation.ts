@@ -130,3 +130,21 @@ export const resendResetTokenSchema = z.object({
     email: z.string().email('Please provide a valid email address').min(1, 'Email is required'),
   }),
 });
+
+// Verify account schema (POST /auth/verify-account)
+export const verifyAccountSchema = z.object({
+  body: z.object({
+    email: z.string().email('Valid email is required'),
+    code: z
+      .string()
+      .length(6, 'Verification code must be 6 digits')
+      .regex(/^\d+$/, 'Verification code must be numeric'),
+  }),
+});
+
+// Verify URL schema (GET /auth/verify)
+export const verifyUrlSchema = z.object({
+  query: z.object({
+    token: z.string().min(1, 'Verification token is required'),
+  }),
+});
