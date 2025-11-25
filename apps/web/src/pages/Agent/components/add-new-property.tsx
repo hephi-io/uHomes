@@ -41,7 +41,7 @@ const AddNewProperty = () => {
           <span className="font-medium text-sm text-white">Add Property</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className="md:w-[674px]   md:rounded-xl md:p-6 bg-white md:space-y-12">
+      <DialogContent className="md:w-[674px] md:h-[90vh] overflow-auto  md:rounded-xl md:p-6 bg-white md:space-y-12">
         <div className="md:space-y-6">
           <div>
             <h2 className="font-semibold text-[18px] leading-[130%] text-[#101828]">
