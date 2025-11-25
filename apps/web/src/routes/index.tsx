@@ -1,7 +1,7 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 
-import AuthLayout from '@/layouts/auth/index';
-import AgentLayout from '@/layouts/agent/index';
+import AuthLayout from '@/layouts/auth/Index';
+import AgentLayout from '@/layouts/agent/Index';
 import StudentDashboardLayout from '@/layouts/students/index';
 import BookingLayout from '@/layouts/booking/index';
 import ProtectedRoute from '../components/protected-route';
@@ -17,6 +17,7 @@ import ResetPasswordSuccess from '@/pages/auth/reset-password-success';
 import Dashboard from '@/pages/Agent/dashboard';
 import { StudentDashboard, Hostels, Hostel, Help } from '@/pages/students';
 import Booking from '@/pages/booking/booking';
+import Checkout from '@/pages/booking/checkout';
 
 const router = createBrowserRouter([
   {
@@ -77,7 +78,10 @@ const router = createBrowserRouter([
       { path: 'help', element: <Help /> },
       {
         element: <BookingLayout />,
-        children: [{ path: 'booking', element: <Booking /> }],
+        children: [
+          { path: 'booking', element: <Booking /> },
+          { path: 'booking/checkout', element: <Checkout /> },
+        ],
       },
     ],
   },
