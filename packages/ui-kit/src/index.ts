@@ -40,8 +40,8 @@ export {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DialogClose
-} from "@/components/ui/dialog"
+  DialogClose,
+} from '@/components/ui/dialog';
 export {
   Command,
   CommandDialog,
@@ -52,20 +52,16 @@ export {
   CommandList,
   CommandSeparator,
   CommandShortcut,
-} from "@/components/ui/command"
+} from '@/components/ui/command';
 
-export {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
+export { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
-export type {  ColumnDef } from '@tanstack/react-table';
+export type { ColumnDef } from '@tanstack/react-table';
 
 export { Tabs, TabsList, TabsTrigger, TabsContent } from './components/ui/tabs';
 export * from './components/ui/input-otp';
 export { Checkbox } from '@/components/ui/checkbox';
-export { Textarea } from "@/components/ui/textarea"
+export { Textarea } from '@/components/ui/textarea';
 
 // Shared Components
 export { default as TextField } from './components/shared/text-field';

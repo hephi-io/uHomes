@@ -1,12 +1,5 @@
 import profile from '@/assets/pngs/profile.png';
-import {
-  Button,
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-
-} from '@uhomes/ui-kit';
+import { Button, Tabs, TabsContent, TabsList, TabsTrigger } from '@uhomes/ui-kit';
 import { SVGs } from '@/assets/svgs/Index';
 import { columns } from '@/shared/columns';
 import { data } from '../students/constants';
@@ -15,20 +8,14 @@ import Grid from './grid';
 import List from './components/List';
 import AddNewProperty from './components/add-new-property';
 
-
-
 const Dashboard = () => {
- 
-
-  const [activeView, setActiveView] = useState<"list" | "grid">("grid");
+  const [activeView, setActiveView] = useState<'list' | 'grid'>('grid');
 
   const tabTriggers = [
     { id: 1, name: 'My Listings' },
     { id: 2, name: 'Bookings' },
     { id: 2, name: 'Transactions' },
   ];
-
- 
 
   return (
     <div className="">
@@ -140,18 +127,23 @@ const Dashboard = () => {
             </div>
 
             <div className="flex items-center gap-1 md:hidden">
-              <div onClick={() => setActiveView("list")} className={` py-2 px-3 flex items-center gap-2 cursor-pointer  ${activeView === "list" ? "border-b-2 border-[#09090B]" : ""} ?`}>
+              <div
+                onClick={() => setActiveView('list')}
+                className={` py-2 px-3 flex items-center gap-2 cursor-pointer  ${activeView === 'list' ? 'border-b-2 border-[#09090B]' : ''} ?`}
+              >
                 <SVGs.ListIcon />
                 <span className="text-[#09090B] font-medium text-sm">List</span>
               </div>
 
-              <div onClick={() => setActiveView("grid")} className={` py-2 px-3 flex items-center gap-2 cursor-pointer  ${activeView === "grid" ? "border-b-2 border-[#09090B]" : ""} ?`}>
+              <div
+                onClick={() => setActiveView('grid')}
+                className={` py-2 px-3 flex items-center gap-2 cursor-pointer  ${activeView === 'grid' ? 'border-b-2 border-[#09090B]' : ''} ?`}
+              >
                 <SVGs.GridView />
                 <span className="text-[#09090B] font-medium text-sm">Grid</span>
               </div>
             </div>
           </div>
-
 
           <Tabs defaultValue="My Listings" className="gap-0 mt-4 md:mt-0">
             <div className="md:flex md:gap-[100px] md:items-center px-4 md:pt-4">
@@ -186,12 +178,18 @@ const Dashboard = () => {
 
               {/* ---------- List / Grid Toggle ---------- */}
               <div className="hidden lg:flex items-center gap-3 ">
-                <div onClick={() => setActiveView("list")} className={` py-2 px-3 flex items-center gap-2 cursor-pointer  ${activeView === "list" ? "border-b-2 border-[#09090B]" : ""} ?`}>
+                <div
+                  onClick={() => setActiveView('list')}
+                  className={` py-2 px-3 flex items-center gap-2 cursor-pointer  ${activeView === 'list' ? 'border-b-2 border-[#09090B]' : ''} ?`}
+                >
                   <SVGs.ListIcon />
                   <span className="text-[#09090B] font-medium text-sm">List</span>
                 </div>
 
-                <div onClick={() => setActiveView("grid")} className={`py-2 px-3 flex items-center gap-2 cursor-pointer ${activeView === "grid" ? "border-b-2 border-[#09090B]" : ""}`}>
+                <div
+                  onClick={() => setActiveView('grid')}
+                  className={`py-2 px-3 flex items-center gap-2 cursor-pointer ${activeView === 'grid' ? 'border-b-2 border-[#09090B]' : ''}`}
+                >
                   <SVGs.GridView />
                   <span className="text-[#09090B] font-medium text-sm">Grid</span>
                 </div>
@@ -223,31 +221,34 @@ const Dashboard = () => {
 
             <div className=" hidden md:flex justify-between items-center mt-4 lg:hidden mb-4 px-4">
               <div className="flex items-center gap-3 ">
-                <div onClick={() => setActiveView("list")} className={` py-2 px-3 flex items-center gap-2 cursor-pointer  ${activeView === "list" ? "border-b-2 border-[#09090B]" : ""} ?`}>
+                <div
+                  onClick={() => setActiveView('list')}
+                  className={` py-2 px-3 flex items-center gap-2 cursor-pointer  ${activeView === 'list' ? 'border-b-2 border-[#09090B]' : ''} ?`}
+                >
                   <SVGs.ListIcon />
                   <span className="text-[#09090B] font-medium text-sm">List</span>
                 </div>
 
-                <div onClick={() => setActiveView("grid")} className={` py-2 px-3 flex items-center gap-2 cursor-pointer  ${activeView === "grid" ? "border-b-2 border-[#09090B]" : ""} ?`}>
+                <div
+                  onClick={() => setActiveView('grid')}
+                  className={` py-2 px-3 flex items-center gap-2 cursor-pointer  ${activeView === 'grid' ? 'border-b-2 border-[#09090B]' : ''} ?`}
+                >
                   <SVGs.GridView />
                   <span className="text-[#09090B] font-medium text-sm">Grid</span>
                 </div>
               </div>
 
               <div className="flex items-center gap-4 lg:hidden">
-                <AddNewProperty/>
+                <AddNewProperty />
               </div>
             </div>
 
             <div className="hidden lg:block lg:border-t lg:border-t-[#E4E7EC] lg:mt-4"></div>
             <TabsContent value="My Listings" className="">
-              {activeView === "list" ? <List columns={columns} data={data} /> : <Grid />}
+              {activeView === 'list' ? <List columns={columns} data={data} /> : <Grid />}
             </TabsContent>
-            <TabsContent value="Bookings" className="">
-              
-            </TabsContent>
-            <TabsContent value="Transactions" className="">
-            </TabsContent>
+            <TabsContent value="Bookings" className=""></TabsContent>
+            <TabsContent value="Transactions" className=""></TabsContent>
           </Tabs>
         </div>
       </div>

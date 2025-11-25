@@ -174,64 +174,61 @@ export const data: Property[] = [
   },
 ];
 
+export const Checkboxes = [
+  { id: '1', name: 'Single Room' },
+  { id: '2', name: 'Shared Room' },
+  { id: '3', name: 'Self Contain' },
+];
+export const amenities = [
+  { id: '1', name: 'Wifi' },
+  { id: '2', name: 'Parking' },
+  { id: '3', name: 'Kitchen' },
+  { id: '4', name: '24/7 Power' },
+  { id: '5', name: 'Security' },
+  { id: '6', name: 'Gym' },
+];
 
-
-
- export  const Checkboxes = [
-        { id: '1', name: 'Single Room' },
-        { id: '2', name: 'Shared Room' },
-        { id: '3', name: 'Self Contain' }
-    ]
- export   const amenities = [
-        { id: '1', name: 'Wifi' },
-        { id: '2', name: 'Parking' },
-        { id: '3', name: 'Kitchen' },
-        { id: '4', name: '24/7 Power' },
-        { id: '5', name: 'Security' },
-        { id: '6', name: 'Gym' },
-    ]
-
-   export const frameworks = [
-        {
-            value: "next.js",
-            label: "Next.js",
-        },
-        {
-            value: "sveltekit",
-            label: "SvelteKit",
-        },
-        {
-            value: "nuxt.js",
-            label: "Nuxt.js",
-        },
-        {
-            value: "remix",
-            label: "Remix",
-        },
-        {
-            value: "astro",
-            label: "Astro",
-        },
-    ]
-   export const frameworks2 = [
-        {
-            value: "next.js",
-            label: "Next.js",
-        },
-        {
-            value: "sveltekit",
-            label: "SvelteKit",
-        },
-        {
-            value: "nuxt.js",
-            label: "Nuxt.js",
-        },
-        {
-            value: "remix",
-            label: "Remix",
-        },
-        {
-            value: "astro",
-            label: "Astro",
-        },
-    ]
+export const frameworks = [
+  {
+    value: 'next.js',
+    label: 'Next.js',
+  },
+  {
+    value: 'sveltekit',
+    label: 'SvelteKit',
+  },
+  {
+    value: 'nuxt.js',
+    label: 'Nuxt.js',
+  },
+  {
+    value: 'remix',
+    label: 'Remix',
+  },
+  {
+    value: 'astro',
+    label: 'Astro',
+  },
+];
+export const frameworks2 = [
+  {
+    value: 'next.js',
+    label: 'Next.js',
+  },
+  {
+    value: 'sveltekit',
+    label: 'SvelteKit',
+  },
+  {
+    value: 'nuxt.js',
+    label: 'Nuxt.js',
+  },
+  {
+    value: 'remix',
+    label: 'Remix',
+  },
+  {
+    value: 'astro',
+    label: 'Astro',
+  },
+];

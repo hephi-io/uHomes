@@ -21,9 +21,6 @@ const VerifyAccount = () => {
             </p>
           </div>
 
-
-
-
           <div className="py-9 space-y-6">
             <div className="flex justify-center">
               <InputOTP
