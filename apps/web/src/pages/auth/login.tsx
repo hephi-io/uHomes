@@ -1,11 +1,13 @@
-import { agentLogin } from '@/services/auth';
-import { Button, TextField } from '@uhomes/ui-kit';
-import { useForm } from 'react-hook-form';
-import { Link, useNavigate } from 'react-router-dom';
-import { AxiosError } from 'axios';
 import { useState } from 'react';
+import { AxiosError } from 'axios';
+import { Link, useNavigate } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
 import { Loader2 } from 'lucide-react';
-import { token } from '@/utils';
+
+import { Button, TextField } from '@uhomes/ui-kit';
+
+import { login } from '@/services/auth';
+import { useAuth } from '@/contexts/auth-context';
 
 interface LoginForm {
   name: string;
@@ -17,6 +19,7 @@ interface LoginForm {
 
 const Login = () => {
   const navigate = useNavigate();
+  const { login: loginAuth } = useAuth();
   const [loading, setLoading] = useState(false);
   const { control, handleSubmit } = useForm<LoginForm>({
     defaultValues: { email: '', password: '' },
@@ -24,20 +27,30 @@ const Login = () => {
 
   const onSubmit = async (payload: LoginForm) => {
     const { email, password } = payload;
-    console.log(payload);
+
     try {
       setLoading(true);
-      const { data } = await agentLogin({ email, password });
-      token.login(data.data.token);
-      navigate('/agent-dashboard');
+      const { data } = await login({ email, password });
+
+      // Use auth context login
+      loginAuth(data.data.token, data.data.user);
+
+      // Navigate based on user type
+      const userType = data.data.user?.userType?.type;
+
+      if (userType === 'agent') {
+        navigate('/agent-dashboard');
+      } else if (userType === 'student') {
+        navigate('/students/dashboard');
+      } else {
+        navigate('/agent-dashboard'); // Default fallback
+      }
     } catch (error) {
-      setLoading(false);
       if (error instanceof AxiosError) {
         console.error('Uh oh! Something went wrong:', error.response?.data?.error || error.message);
       } else {
         console.error('Unexpected error:', error);
       }
-      return;
     } finally {
       setLoading(false);
     }

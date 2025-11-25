@@ -1,0 +1,218 @@
+import { Button } from '@uhomes/ui-kit';
+
+import Badge from '@/shared/badge';
+import LikeButton from '@/shared/like-button';
+import { HostelCard } from '@/shared/hostel-card';
+import { badges, topBadges } from '@/pages/students/constants';
+import { SVGs } from '@/assets/svgs/Index';
+import HostelImage from '@/assets/pngs/hostel-image-3.png';
+import { useNavigate } from 'react-router-dom';
+import { availableRooms, studentReviews, paginationPlaceholders } from './mocks';
+
+export function Hostel() {
+  const navigate = useNavigate();
+
+  const handleGoBack = () => {
+    navigate('/students/hostels');
+  };
+
+  return (
+    <>
+      <div className="flex gap-x-9 items-center pl-4 md:pl-8 mt-5 md:mt-0 lg:mt-5">
+        <Button
+          variant="outline"
+          className="w-11 h-11 rounded-full border border-[#E5E5E5] p-0 cursor-pointer"
+          onClick={handleGoBack}
+        >
+          <SVGs.ChevronLeft />
+        </Button>
+
+        <h1 className="font-semibold text-base leading-[120%] tracking-[0%] text-black">
+          Find Hostels
+        </h1>
+      </div>
+
+      <div className="border-t border-t-[#E4E4E4] mt-5"></div>
+
+      <div className="lg:p-8">
+        <div className="lg:flex lg:gap-x-[25px] lg:items-start">
+          <div className="grow">
+            <div className="flex justify-between mt-12 lg:mt-3">
+              <div>
+                <h1 className="font-semibold text-xl leading-[120%] tracking-[0%] text-black">
+                  Novena Hostel
+                </h1>
+                <div className="flex gap-x-1.5 items-center mt-2">
+                  <SVGs.Location />
+                  <span className="text-sm leading-[100%] tracking-[0%] align-middle text-[#09090B]">
+                    Miracle Jct, Ifite-Awka 420116, Anambra
+                  </span>
+                </div>
+              </div>
+              <Button variant="outline" className="w-10 h-10 rounded-full border border-[#E5E5E5]">
+                <SVGs.Share />
+              </Button>
+            </div>
+            <div className="relative h-[505px] rounded overflow-hidden mt-4">
+              <img src={HostelImage} alt="" className="w-full h-full" />
+              <div className="absolute left-4 right-4 top-3.5 flex justify-between items-center">
+                <div className="flex gap-x-1.5 items-center">
+                  {topBadges.map((topBadge) => (
+                    <Badge key={topBadge.id} Icon={topBadge.Icon} text={topBadge.text} />
+                  ))}
+                </div>
+                <LikeButton />
+              </div>
+            </div>
+            <div className="flex justify-between items-center px-5 mt-2">
+              <Button variant="ghost" className="w-fit p-0 m-0">
+                <SVGs.ChevronLeft />
+              </Button>
+              <div className="flex gap-x-2">
+                {[...Array(4)].map((_, i) => (
+                  <div
+                    key={i}
+                    className={`relative w-19.5 h-19.5 rounded overflow-hidden md:w-39.5 md:h-24 ${i === 0 ? 'border-[1.5px] border-[#141B34]' : ''} ${i === 1 ? 'hidden md:block' : ''}`}
+                  >
+                    <img src={HostelImage} alt="" className="w-full h-full" />
+                    <div
+                      className={`absolute left-0 right-0 top-0 bottom-0 justify-center items-center bg-[#000000CC] ${i === 3 ? 'flex' : 'hidden'}`}
+                    >
+                      <span className="font-medium text-xs leading-[100%] tracking-[0%] align-middle text-white">
+                        +6
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <Button variant="ghost" className="w-fit p-0 m-0">
+                <SVGs.ChevronLeft className="rotate-180" />
+              </Button>
+            </div>
+            <h2 className="font-semibold text-base leading-[150%] tracking-[0%] text-black mt-6 md:mt-9">
+              Description
+            </h2>
+            <p className="text-sm leading-[150%] tracking-[0%] text-black mt-3">
+              Enjoy comfortable living at Novena Hostel, just minutes from UNIZIK. Each room comes
+              with free WIFI, air-conditioning, and a private bathroom. The hostel provides free
+              on-site parking, a washing machine, and a shared dining area. With spacious balconies,
+              tiled floors, and comfortable seating spaces, Novena Hostel offers a calm and homely
+              environment for relaxation and study. Ideally located in the heart of Ifite-Awka, just
+              a short distance from Nnamdi Azikiwe University (UNIZIK), Novena Hostel provides quick
+              access to nearby supermarkets, eateries, and local attractions. It’s a convenient
+              choice for students looking for comfort, safety, and proximity to campus life.
+            </p>
+            <h2 className="font-semibold text-base leading-[150%] tracking-[0%] text-black mt-4 lg:mt-9">
+              Available Rooms
+            </h2>
+            <div className="grid grid-cols-1 gap-3 md:w-[73.74%] md:grid-cols-2 mt-3">
+              {availableRooms.map((availableRoom) => (
+                <div key={availableRoom.id} className="rounded-md border border-[#EAEAEA] p-2">
+                  <span className="text-xs leading-[100%] tracking-[0%] text-[#71717A]">
+                    {availableRoom.description}
+                  </span>
+                  <div className="leading-[100%] tracking-[0%] mt-4">
+                    <span className="font-semibold text-xl text-[#09090B]">
+                      {availableRoom.price}
+                    </span>{' '}
+                    <span className="text-sm text-[#71717A]">per semester</span>
+                  </div>
+                  <div className="w-fit flex items-center rounded-full bg-[#F3F3F3] px-1.5 py-0.5 mt-2">
+                    <span className="text-xs leading-[100%] tracking-[0%] text-[#71717A] text-center align-middle">
+                      2 rooms left
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <h2 className="font-semibold text-base leading-[150%] tracking-[0%] text-black mt-4 lg:mt-9">
+              Amenities:
+            </h2>
+            <div className="flex gap-2 mt-3">
+              {badges.map((badge) => (
+                <Badge key={badge.id} Icon={badge.Icon} text={badge.text} />
+              ))}
+            </div>
+            <Button className="w-full h-[37px] gap-x-2 rounded-[5px] border border-[#E4E4E4EE] bg-[#3E78FF] px-4 py-2 mt-4 lg:mt-9">
+              <SVGs.PropertyAdd />
+              <span className="font-medium text-sm leading-[150%] tracking-[0%] text-white">
+                Book Now
+              </span>
+            </Button>
+          </div>
+          <div className="rounded-[10px] border border-[#93A2C30D] shadow-[1px_1px_8px_0px_#00000014] lg:w-[409px] p-10 pt-3 md:px-4 lg:px-10 lg:pt-3 lg:pb-10 mt-[41px] lg:mt-0">
+            <div className="flex justify-between items-center">
+              <h1 className="font-semibold text-lg leading-[100%] tracking-[0%] text-black">
+                Students Review
+              </h1>
+              <div className="flex gap-x-1 items-center">
+                <SVGs.StarHalf />
+                <div className="text-sm leading-[100%] tracking-[0%] align-middle">
+                  <span className="font-semibold">4.5</span> <span>(84)</span>
+                </div>
+              </div>
+            </div>
+            {studentReviews.map((review) => (
+              <div key={review.id} className={`${review.id === 1 ? 'mt-8' : 'mt-12'}`}>
+                <div className="flex gap-x-4 items-center">
+                  <span className="text-sm leading-[100%] tracking-[0%] text-[#09090B]">
+                    {review.name}
+                  </span>
+                  <SVGs.Dot />
+                  <span className="text-xs leading-[100%] tracking-[0%] text-[#AFAFAF]">
+                    {review.date}
+                  </span>
+                </div>
+                <review.rating className="mt-2.5" />
+                <p className="text-sm leading-[100%] tracking-[0%] text-[#AFAFAF] mt-2.5">
+                  {review.review}
+                </p>
+              </div>
+            ))}
+
+            <div className="w-fit flex gap-x-5 items-center lg:w-full mx-auto mt-8">
+              <Button variant="ghost">
+                <SVGs.ChevronLeft />
+              </Button>
+
+              <div className="flex gap-x-6 items-center lg:gap-x-0">
+                {paginationPlaceholders.map((placeholder) => (
+                  <Button
+                    key={placeholder.id}
+                    variant="secondary"
+                    className={`group size-11 rounded-full ${placeholder.id === 1 ? 'bg-[#3E78FF]' : 'bg-[#F7F7F7]'}`}
+                  >
+                    <span
+                      className={`text-base leading-[150%] tracking-[0%] align-middle group-hover:text-black ${placeholder.id === 1 ? 'text-white' : 'text-[#737373]'}`}
+                    >
+                      {placeholder.content}
+                    </span>
+                  </Button>
+                ))}
+              </div>
+
+              <Button variant="ghost">
+                <SVGs.ChevronLeft className="rotate-180" />
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        <h1 className="font-semibold text-lg leading-[150%] tracking-[0%] text-black mt-20">
+          Hostels Like This
+        </h1>
+
+        <div className="grid grid-cols-1 gap-6 rounded-2xl border border-[#F4F4F4] bg-[#FDFDFD] md:grid-cols-2 lg:grid-cols-3 lg:gap-12 lg:border-none lg:bg-inherit p-4 lg:p-0 mt-4">
+          {[...Array(4)].map((_, i) => (
+            <div
+              key={i}
+              className="rounded-2xl border border-[#F4F4F4] bg-[#FDFDFD] md:border-none p-4 md:p-0"
+            >
+              <HostelCard />
+            </div>
+          ))}
+        </div>
+      </div>
+    </>
+  );
+}

@@ -1,17 +1,22 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
-import AuthLayout from '../layouts/auth/Index';
+
+import AuthLayout from '@/layouts/auth/index';
+import AgentLayout from '@/layouts/agent/index';
+import StudentDashboardLayout from '@/layouts/students/index';
+import BookingLayout from '@/layouts/booking/index';
+import ProtectedRoute from '../components/protected-route';
+import { PublicRoute } from '../components/public-route';
+
 import Auth from '@/pages/auth/auth';
 import ForgotPassword from '@/pages/auth/forgot-password';
 import VerifyAccount from '@/pages/auth/verify-account';
+import VerifySuccess from '@/pages/auth/verify-success';
+import VerifyFailed from '@/pages/auth/verify-failed';
 import ResetPassword from '@/pages/auth/reset-password';
 import ResetPasswordSuccess from '@/pages/auth/reset-password-success';
-import AgentLayout from '@/layouts/agent/Index';
 import Dashboard from '@/pages/Agent/dashboard';
-import StudentDashboardLayout from '@/layouts/students/index';
-import StudentDashboard from '@/pages/students/student-dashboard';
-import FindHostels from '@/pages/students/find-hostels';
-import HostelDetail from '@/pages/students/hostel-detail';
-import SMNewProperty from '@/pages/Agent/components/sm-add-new-property';
+import { StudentDashboard, Hostels, Hostel, Help } from '@/pages/students';
+import Booking from '@/pages/booking/booking';
 
 const router = createBrowserRouter([
   {
@@ -20,22 +25,36 @@ const router = createBrowserRouter([
   },
   {
     path: '/auth',
-    element: <AuthLayout />,
+    element: (
+      <PublicRoute>
+        <AuthLayout />
+      </PublicRoute>
+    ),
     children: [
       { index: true, element: <Auth /> },
       { path: 'forgot-password', element: <ForgotPassword /> },
-      { path: 'Verify-Account', element: <VerifyAccount /> },
+      { path: 'verify-account', element: <VerifyAccount /> },
+      { path: 'verify-success', element: <VerifySuccess /> },
+      { path: 'verify-failed', element: <VerifyFailed /> },
       { path: 'reset-password', element: <ResetPassword /> },
       { path: 'reset-password-success', element: <ResetPasswordSuccess /> },
     ],
   },
   {
-    path: '/add-new-property',
-    element: <SMNewProperty />,
+    path: '/verify',
+    element: (
+      <PublicRoute>
+        <VerifyAccount />
+      </PublicRoute>
+    ),
   },
   {
     path: '/agent-dashboard',
-    element: <AgentLayout />,
+    element: (
+      <ProtectedRoute>
+        <AgentLayout />
+      </ProtectedRoute>
+    ),
     children: [
       {
         index: true,
@@ -44,12 +63,22 @@ const router = createBrowserRouter([
     ],
   },
   {
-    path: '/student-dashboard',
-    element: <StudentDashboardLayout />,
+    path: '/students',
+    element: (
+      <ProtectedRoute>
+        <StudentDashboardLayout />
+      </ProtectedRoute>
+    ),
     children: [
-      { index: true, element: <StudentDashboard /> },
-      { path: 'find-hostels', element: <FindHostels /> },
-      { path: 'find-hostels/hostel-detail', element: <HostelDetail /> },
+      { index: true, element: <Navigate to="dashboard" replace /> },
+      { path: 'dashboard', element: <StudentDashboard /> },
+      { path: 'hostels', element: <Hostels /> },
+      { path: 'hostels/:id', element: <Hostel /> },
+      { path: 'help', element: <Help /> },
+      {
+        element: <BookingLayout />,
+        children: [{ path: 'booking', element: <Booking /> }],
+      },
     ],
   },
 ]);

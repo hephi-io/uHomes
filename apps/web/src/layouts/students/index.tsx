@@ -1,18 +1,18 @@
 import { Outlet } from 'react-router-dom';
 
-import { Navbar } from '@uhomes/ui-kit';
+import { Navbar } from '../../components/navbar';
 
-const Index = () => {
+const StudentLayout = () => {
+  const navItems = [
+    { id: 1, label: 'Dashboard', path: '/students/dashboard' },
+    { id: 2, label: 'Find Hostels', path: '/students/hostels' },
+    { id: 3, label: 'Help', path: '/students/help' },
+  ];
+
   return (
     <div className="p-4 md:p-6 lg:p-0">
-      <Navbar
-        userName="Brian F"
-        navButtons={[
-          { id: 1, label: 'Dashboard', link: '/student-dashboard' },
-          { id: 2, label: 'Find Hostels', link: '/find-hostels' },
-          { id: 3, label: 'Help', link: '/help' },
-        ]}
-      />
+      <Navbar navItems={navItems} />
+
       <div className="mt-7 md:mt-8 lg:mt-0">
         <Outlet />
       </div>
@@ -20,4 +20,4 @@ const Index = () => {
   );
 };
 
-export default Index;
+export default StudentLayout;

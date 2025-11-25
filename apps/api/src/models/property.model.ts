@@ -30,7 +30,7 @@ const propertySchema = new Schema<IProperty>(
     amenities: [{ type: String }],
     rating: { type: Number, default: 0 },
     isAvailable: { type: Boolean, default: true },
-    agentId: [{ type: Schema.Types.ObjectId, ref: 'Agent', required: true }],
+    agentId: [{ type: Schema.Types.ObjectId, ref: 'User', required: true }],
   },
   { timestamps: true }
 );

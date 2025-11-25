@@ -1,8 +1,12 @@
-import cloudinary from '../config/cloudinary';
-import Property, { IProperty } from '../models/property.model';
 import mongoose from 'mongoose';
-import Agent from '../models/agent.model';
+
+import Property, { IProperty } from '../models/property.model';
+import User from '../models/user.model';
+import UserType from '../models/user-type.model';
+
 import { BadRequestError, NotFoundError, UnauthorizedError } from '../middlewares/error.middlewere';
+
+import cloudinary from '../config/cloudinary';
 
 interface CloudinaryImage {
   url: string;
@@ -16,6 +20,12 @@ export class PropertyService {
     files?: Express.Multer.File[]
   ): Promise<IProperty> {
     if (!agentId) throw new UnauthorizedError('Unauthorized agent');
+
+    // Validate agent type
+    const agentType = await UserType.findOne({ userId: agentId });
+    if (!agentType || agentType.type !== 'agent') {
+      throw new UnauthorizedError('Only agents can create properties');
+    }
 
     if (!files || files.length === 0) throw new BadRequestError('At least one image is required');
 
@@ -35,17 +45,101 @@ export class PropertyService {
       agentId: [agentId],
     });
 
-    await Agent.findByIdAndUpdate(agentId, {
+    // Update user's properties array
+    await User.findByIdAndUpdate(agentId, {
       $push: { properties: newProperty._id },
     });
 
     return newProperty;
   }
 
-  async getAllProperties(): Promise<IProperty[]> {
-    const properties = await Property.find().populate('agentId', '-password');
-    if (!properties.length) throw new NotFoundError('No properties found');
-    return properties;
+  async getAllProperties(filters: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    minPrice?: number;
+    maxPrice?: number;
+    location?: string;
+    amenities?: string[];
+    agentId?: string;
+    sortBy?: string;
+  }): Promise<{
+    properties: IProperty[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  }> {
+    const {
+      page = 1,
+      limit = 10,
+      search,
+      minPrice,
+      maxPrice,
+      location,
+      amenities,
+      agentId,
+      sortBy = 'createdAt',
+    } = filters;
+
+    // Build query object
+    const query: any = { isAvailable: true };
+
+    // Search filter (title or description)
+    if (search) {
+      query.$or = [
+        { title: { $regex: search, $options: 'i' } },
+        { description: { $regex: search, $options: 'i' } },
+      ];
+    }
+
+    // Price range filter
+    if (minPrice !== undefined || maxPrice !== undefined) {
+      query.price = {};
+      if (minPrice !== undefined) {
+        query.price.$gte = minPrice;
+      }
+      if (maxPrice !== undefined) {
+        query.price.$lte = maxPrice;
+      }
+    }
+
+    // Location filter
+    if (location) {
+      query.location = { $regex: location, $options: 'i' };
+    }
+
+    // Amenities filter (must contain all specified amenities)
+    if (amenities && amenities.length > 0) {
+      query.amenities = { $all: amenities };
+    }
+
+    // Agent filter
+    if (agentId && mongoose.Types.ObjectId.isValid(agentId)) {
+      query.agentId = { $in: [new mongoose.Types.ObjectId(agentId)] };
+    }
+
+    // Calculate pagination
+    const skip = (page - 1) * limit;
+    const total = await Property.countDocuments(query);
+    const totalPages = Math.ceil(total / limit);
+
+    // Build sort object
+    let sort: any = { [sortBy]: -1 };
+    if (sortBy === 'price') {
+      sort = { price: 1 }; // Ascending for price
+    } else if (sortBy === 'rating') {
+      sort = { rating: -1 }; // Descending for rating
+    }
+
+    // Execute query with pagination
+    const properties = await Property.find(query)
+      .populate('agentId', 'fullName email phoneNumber')
+      .sort(sort)
+      .skip(skip)
+      .limit(limit);
+
+    return { properties, total, page, limit, totalPages };
   }
 
   async getPropertyById(id: string): Promise<IProperty> {
@@ -61,6 +155,12 @@ export class PropertyService {
     limit = 10
   ): Promise<{ properties: IProperty[]; total: number; page: number; limit: number }> {
     if (!mongoose.Types.ObjectId.isValid(agentId)) throw new NotFoundError('Invalid agent ID');
+
+    // Validate agent type
+    const agentType = await UserType.findOne({ userId: agentId });
+    if (!agentType || agentType.type !== 'agent') {
+      throw new BadRequestError('Invalid agent ID');
+    }
 
     const skip = (page - 1) * limit;
     const total = await Property.countDocuments({ agentId });
@@ -125,5 +225,81 @@ export class PropertyService {
     property.images = property.images.filter((img) => img.cloudinary_id !== cloudinaryId);
     await property.save();
     return property;
+  }
+
+  async getSavedProperties(
+    userId: string,
+    page = 1,
+    limit = 10
+  ): Promise<{
+    properties: IProperty[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  }> {
+    // Validate user type
+    const userType = await UserType.findOne({ userId });
+    if (!userType) throw new NotFoundError('User type not found');
+    if (userType.type !== 'student') {
+      throw new UnauthorizedError('Only students can access saved properties');
+    }
+
+    const user = await User.findById(userId);
+    if (!user) throw new NotFoundError('User not found');
+
+    const savedPropertyIds = user.savedProperties || [];
+    const skip = (page - 1) * limit;
+    const total = savedPropertyIds.length;
+    const totalPages = Math.ceil(total / limit);
+
+    // Get paginated property IDs
+    const paginatedIds = savedPropertyIds.slice(skip, skip + limit);
+
+    const properties = await Property.find({ _id: { $in: paginatedIds } })
+      .populate('agentId', 'fullName email phoneNumber')
+      .sort({ createdAt: -1 });
+
+    return { properties, total, page, limit, totalPages };
+  }
+
+  async saveProperty(userId: string, propertyId: string): Promise<void> {
+    if (!mongoose.Types.ObjectId.isValid(propertyId)) {
+      throw new BadRequestError('Invalid property ID');
+    }
+
+    // Validate user type
+    const userType = await UserType.findOne({ userId });
+    if (!userType) throw new NotFoundError('User type not found');
+    if (userType.type !== 'student') {
+      throw new UnauthorizedError('Only students can save properties');
+    }
+
+    // Check if property exists
+    const property = await Property.findById(propertyId);
+    if (!property) throw new NotFoundError('Property not found');
+
+    // Add property to user's saved properties if not already saved
+    await User.findByIdAndUpdate(userId, {
+      $addToSet: { savedProperties: propertyId },
+    });
+  }
+
+  async unsaveProperty(userId: string, propertyId: string): Promise<void> {
+    if (!mongoose.Types.ObjectId.isValid(propertyId)) {
+      throw new BadRequestError('Invalid property ID');
+    }
+
+    // Validate user type
+    const userType = await UserType.findOne({ userId });
+    if (!userType) throw new NotFoundError('User type not found');
+    if (userType.type !== 'student') {
+      throw new UnauthorizedError('Only students can unsave properties');
+    }
+
+    // Remove property from user's saved properties
+    await User.findByIdAndUpdate(userId, {
+      $pull: { savedProperties: propertyId },
+    });
   }
 }

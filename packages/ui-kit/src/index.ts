@@ -63,6 +63,7 @@ export { Tabs, TabsList, TabsTrigger, TabsContent } from './components/ui/tabs';
 export * from './components/ui/input-otp';
 export { Checkbox } from '@/components/ui/checkbox';
 export { Textarea } from '@/components/ui/textarea';
+export * from './components/ui/dropdown-menu';
 
 // Shared Components
 export { default as TextField } from './components/shared/text-field';

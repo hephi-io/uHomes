@@ -1,3 +1,9 @@
+import { useState } from 'react';
+import { Loader2 } from 'lucide-react';
+import { register } from '@/services/auth';
+import { useNavigate } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+
 import {
   Button,
   TextField,
@@ -8,61 +14,65 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@uhomes/ui-kit';
-import { useForm } from 'react-hook-form';
+
 import { SVGs } from '@/assets/svgs/Index';
-import { useState } from 'react';
-import { Loader2 } from 'lucide-react';
-import { agentSignup } from '@/services/auth';
-import { AxiosError } from 'axios';
 
 interface SignupForm {
-  role: string;
+  type: 'student' | 'agent' | 'admin';
   name: string;
   email: string;
   phone: string;
   password: string;
   confirmPassword: string;
+  university?: string;
+  yearOfStudy?: '100' | '200' | '300' | '400' | '500';
 }
 
 const Signup = () => {
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
   const {
     control,
     handleSubmit,
-    // register,
     watch,
     setValue,
     formState: { errors },
   } = useForm<SignupForm>({
     defaultValues: {
-      role: '',
+      type: 'agent',
       name: '',
       email: '',
       phone: '',
       password: '',
       confirmPassword: '',
+      university: '',
+      yearOfStudy: undefined,
     },
   });
 
   const password = watch('password');
+  const selectedType = watch('type');
 
-  const onSubmit = async (Iuser: SignupForm) => {
-    const { name, email, phone, password } = Iuser;
-    const payload = { fullName: name, email, phoneNumber: phone, password };
+  const onSubmit = async (user: SignupForm) => {
+    const { name, email, phone, password, type, university, yearOfStudy } = user;
+    const payload = {
+      fullName: name,
+      email,
+      phoneNumber: phone,
+      password,
+      type,
+      ...(type === 'student' && { university, yearOfStudy }),
+    };
 
-    console.log(payload);
     try {
       setLoading(true);
-      const { data } = await agentSignup(payload);
-      console.log('successful:', data);
+      await register(payload);
+      // Store email for verification page
+      localStorage.setItem('signupEmail', email);
+      navigate('/auth/verify-account');
     } catch (error) {
-      setLoading(false);
-      if (error instanceof AxiosError) {
-        console.error('Uh oh! Something went wrong:', error.response?.data?.error || error.message);
-      } else {
-        console.error('Unexpected error:', error);
-      }
-      return;
+      console.log(error);
     } finally {
       setLoading(false);
     }
@@ -77,31 +87,73 @@ const Signup = () => {
         </p>
       </div>
       <div className="pt-9 space-y-6">
-        {/* Role Select */}
+        {/* Type Select */}
         <div>
           <label className="font-normal text-sm text-zinc-950 leading-[100%] mb-2.5 block">
             I want to join as:
           </label>
-          <Select onValueChange={(value) => setValue('role', value)} value={watch('role')}>
+          <Select
+            onValueChange={(value) => setValue('type', value as 'student' | 'agent' | 'admin')}
+            value={watch('type')}
+          >
             <SelectTrigger className="w-full py-1 px-3 rounded-md border border-zinc-200 flex justify-between items-center bg-white">
               {' '}
               <div className="flex gap-2 items-center">
                 {' '}
-                <SVGs.UserView /> <SelectValue placeholder="Select your role" />{' '}
+                <SVGs.UserView /> <SelectValue placeholder="Select your type" />{' '}
               </div>{' '}
             </SelectTrigger>{' '}
             <SelectContent className="border bg-white border-zinc-200">
               {' '}
               <SelectGroup>
                 {' '}
-                <SelectItem value="owner">Property Owner</SelectItem>{' '}
                 <SelectItem value="agent">Agent</SelectItem>{' '}
-                <SelectItem value="tenant">Tenant</SelectItem>{' '}
+                <SelectItem value="student">Student</SelectItem>{' '}
               </SelectGroup>{' '}
             </SelectContent>
           </Select>
-          {errors.role && <p className="text-xs text-red-500 mt-1">{errors.role.message}</p>}
+          {errors.type && <p className="text-xs text-red-500 mt-1">{errors.type.message}</p>}
         </div>
+
+        {/* Student-specific fields */}
+        {selectedType === 'student' && (
+          <>
+            <TextField
+              name="university"
+              control={control}
+              label="University"
+              placeholder="Enter your university"
+              rules={{ required: 'University is required for students' }}
+            />
+            <div>
+              <label className="font-normal text-sm text-zinc-950 leading-[100%] mb-2.5 block">
+                Year of Study
+              </label>
+              <Select
+                onValueChange={(value) =>
+                  setValue('yearOfStudy', value as '100' | '200' | '300' | '400' | '500')
+                }
+                value={watch('yearOfStudy')}
+              >
+                <SelectTrigger className="w-full py-1 px-3 rounded-md border border-zinc-200 flex justify-between items-center bg-white">
+                  <SelectValue placeholder="Select year of study" />
+                </SelectTrigger>
+                <SelectContent className="border bg-white border-zinc-200">
+                  <SelectGroup>
+                    <SelectItem value="100">100 Level</SelectItem>
+                    <SelectItem value="200">200 Level</SelectItem>
+                    <SelectItem value="300">300 Level</SelectItem>
+                    <SelectItem value="400">400 Level</SelectItem>
+                    <SelectItem value="500">500 Level</SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+              {errors.yearOfStudy && (
+                <p className="text-xs text-red-500 mt-1">{errors.yearOfStudy.message}</p>
+              )}
+            </div>
+          </>
+        )}
         {/* Full Name */}
         <TextField
           name="name"
