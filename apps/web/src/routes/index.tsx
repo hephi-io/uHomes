@@ -11,6 +11,7 @@ import StudentDashboardLayout from '@/layouts/students/index';
 import StudentDashboard from '@/pages/students/student-dashboard';
 import FindHostels from '@/pages/students/find-hostels';
 import HostelDetail from '@/pages/students/hostel-detail';
+import SMNewProperty from '@/pages/Agent/components/sm-add-new-property';
 
 const router = createBrowserRouter([
   {
@@ -27,6 +28,10 @@ const router = createBrowserRouter([
       { path: 'reset-password', element: <ResetPassword /> },
       { path: 'reset-password-success', element: <ResetPasswordSuccess /> },
     ],
+  },
+  {
+    path: '/add-new-property',
+    element: <SMNewProperty />
   },
   {
     path: '/agent-dashboard',

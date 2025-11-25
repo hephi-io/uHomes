@@ -1,5 +1,5 @@
 import UHome from '@/assets/svgs/u-home.svg?react';
-import { Button, InputOTP, InputOTPGroup, InputOTPSlot, InputOTPSeparator } from '@uhomes/ui-kit';
+import { Button, InputOTP, InputOTPGroup, InputOTPSlot } from '@uhomes/ui-kit';
 import { useNavigate } from 'react-router-dom';
 import Refreshcircle from '@/assets/svgs/refresh-circle.svg?react';
 
@@ -21,24 +21,26 @@ const VerifyAccount = () => {
             </p>
           </div>
 
-          <div>
-            <InputOTP maxLength={6}>
-              <InputOTPGroup>
-                <InputOTPSlot index={0} />
-                <InputOTPSlot index={1} />
-                <InputOTPSlot index={2} />
-              </InputOTPGroup>
-              <InputOTPSeparator />
-              <InputOTPGroup>
-                <InputOTPSlot index={3} />
-                <InputOTPSlot index={4} />
-                <InputOTPSlot index={5} />
-              </InputOTPGroup>
-            </InputOTP>
-          </div>
+
+
 
           <div className="py-9 space-y-6">
-            <div></div>
+            <div className="flex justify-center">
+              <InputOTP
+                maxLength={6}
+                // pattern={/^\d{6}$/}
+                className="gap-2"
+              >
+                <InputOTPGroup className="flex gap-3">
+                  <InputOTPSlot index={0} className="h-12 w-12 rounded-md border text-xl" />
+                  <InputOTPSlot index={1} className="h-12 w-12 rounded-md border text-xl" />
+                  <InputOTPSlot index={2} className="h-12 w-12 rounded-md border text-xl" />
+                  <InputOTPSlot index={3} className="h-12 w-12 rounded-md border text-xl" />
+                  <InputOTPSlot index={4} className="h-12 w-12 rounded-md border text-xl" />
+                  <InputOTPSlot index={5} className="h-12 w-12 rounded-md border text-xl" />
+                </InputOTPGroup>
+              </InputOTP>
+            </div>
             <Button
               onClick={() => navigate('/auth/reset-password')}
               type="submit"
@@ -52,7 +54,7 @@ const VerifyAccount = () => {
           <div className="flex justify-between items-center">
             <Button
               variant="outline"
-              className="flex items-center gap-1 rounded-[10000px] bg-[#F4F4F4]  "
+              className="flex items-center gap-1 rounded-[10000px] bg-[#F4F4F4]  cursor-pointer "
             >
               <Refreshcircle />
               <span className="text-[#26203B] font-normal text-xs">Resend code</span>

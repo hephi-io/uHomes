@@ -1,10 +1,35 @@
 import profile from '@/assets/pngs/profile.png';
+import {
+  Button,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
 
-import { Button, Tabs, TabsContent, TabsList, TabsTrigger } from '@uhomes/ui-kit';
-import Listing from './Listing';
+} from '@uhomes/ui-kit';
 import { SVGs } from '@/assets/svgs/Index';
+import { columns } from '@/shared/columns';
+import { data } from '../students/constants';
+import { useState } from 'react';
+import Grid from './grid';
+import List from './components/List';
+import AddNewProperty from './components/add-new-property';
+
+
 
 const Dashboard = () => {
+ 
+
+  const [activeView, setActiveView] = useState<"list" | "grid">("grid");
+
+  const tabTriggers = [
+    { id: 1, name: 'My Listings' },
+    { id: 2, name: 'Bookings' },
+    { id: 2, name: 'Transactions' },
+  ];
+
+ 
+
   return (
     <div className="">
       <div className="hidden md:block border-b border-[#E4E4E4] py-5 px-8">
@@ -95,168 +120,135 @@ const Dashboard = () => {
         </div>
 
         {/* listing */}
-        <div className="border border-[#E4E7EC] rounded-[12px]">
-          <div className="border-b border-[#FFFFFF] border-8 md:px-4 py-3">
-            <div className="">
-              {/* ---------- Tabs ---------- */}
-              <div className="">
-                <div className=" flex items-center gap-[54px] mb-4 md:hidden">
-                  <div className="flex items-center gap-1 lg:hidden ">
-                    <Button
-                      variant="outline"
-                      className=" lg:flex cursor-pointer gap-x-2 rounded border border-[#E4E4E4EE] bg-white px-3 py-2"
-                    >
-                      <SVGs.Filter />
-                      {/* <span className="font-medium text-sm text-[#404D61]">Sort By</span> */}
-                    </Button>
+        <div className="rounded-xl border border-[#E4E7EC] bg-white shadow-[0px_1px_2px_0px_#1018280D] lg:p-0 mt-4 md:mt-9 lg:mt-4 overflow-hidden">
+          <div className=" flex items-center gap-[54px] mb-4 md:hidden px-4 pt-4">
+            <div className="flex items-center gap-1 lg:hidden ">
+              <Button
+                variant="outline"
+                className=" lg:flex cursor-pointer gap-x-2 rounded border border-[#E4E4E4EE] bg-white px-3 py-2"
+              >
+                <SVGs.Filter />
+              </Button>
 
-                    <Button
-                      variant="outline"
-                      className=" lg:flex cursor-pointer gap-x-2 rounded border border-[#E4E4E4EE] bg-white px-3 py-2"
-                    >
-                      <SVGs.FunnelSimple />
-                      <span className="font-medium text-sm text-[#404D61]">Filter</span>
-                    </Button>
-                  </div>
+              <Button
+                variant="outline"
+                className=" lg:flex cursor-pointer gap-x-2 rounded border border-[#E4E4E4EE] bg-white px-3 py-2"
+              >
+                <SVGs.FunnelSimple />
+                <span className="font-medium text-sm text-[#404D61]">Filter</span>
+              </Button>
+            </div>
 
-                  <div className="flex items-center gap-1 md:hidden">
-                    <div className="border-b-2 border-[#09090B] py-2 px-3 flex items-center gap-2 cursor-pointer">
-                      <SVGs.ListIcon />
-                      <span className="text-[#09090B] font-medium text-sm">List</span>
-                    </div>
+            <div className="flex items-center gap-1 md:hidden">
+              <div onClick={() => setActiveView("list")} className={` py-2 px-3 flex items-center gap-2 cursor-pointer  ${activeView === "list" ? "border-b-2 border-[#09090B]" : ""} ?`}>
+                <SVGs.ListIcon />
+                <span className="text-[#09090B] font-medium text-sm">List</span>
+              </div>
 
-                    <div className="py-2 px-3 flex items-center gap-2 cursor-pointer">
-                      <SVGs.GridView />
-                      <span className="text-[#09090B] font-medium text-sm">Grid</span>
-                    </div>
-                  </div>
-                </div>
-
-                <Tabs defaultValue="My Listings" className="w-full">
-                  <div className="flex items-center md:gap-[117px] lg:gap-[100px]">
-                    <TabsList className="flex  p-1 rounded-md bg-[#F4F4F5] w-[596px] h-10">
-                      <TabsTrigger
-                        className="flex-1 rounded-sm px-3 py-2 text-sm font-medium text-[#0F172A] 
-              data-[state=active]:bg-white data-[state=active]:shadow-[0px_3px_1px_0px_#0000000A,0px_3px_8px_0px_#0000001F]"
-                        value="My Listings"
-                      >
-                        My Listings
-                      </TabsTrigger>
-
-                      <TabsTrigger
-                        className="flex-1 rounded-sm px-3 py-2 text-sm font-medium text-[#09090B] 
-              data-[state=active]:bg-white"
-                        value="Bookings"
-                      >
-                        Bookings
-                      </TabsTrigger>
-
-                      <TabsTrigger
-                        className="flex-1 rounded-sm px-3 py-2 text-sm font-medium text-[#09090B] 
-              data-[state=active]:bg-white"
-                        value="Transactions"
-                      >
-                        Transactions
-                      </TabsTrigger>
-                    </TabsList>
-                    <div className="hidden md:flex items-center gap-4 lg:hidden ">
-                      <Button
-                        variant="outline"
-                        className=" lg:flex cursor-pointer gap-x-2 rounded border border-[#E4E4E4EE] bg-white px-3 py-2"
-                      >
-                        <SVGs.Filter />
-                        <span className="font-medium text-sm text-[#404D61]">Sort By</span>
-                      </Button>
-
-                      <Button
-                        variant="outline"
-                        className=" lg:flex cursor-pointer gap-x-2 rounded border border-[#E4E4E4EE] bg-white px-3 py-2"
-                      >
-                        <SVGs.FunnelSimple />
-                        <span className="font-medium text-sm text-[#404D61]">Filter</span>
-                      </Button>
-                    </div>
-
-                    {/* ---------- List / Grid Toggle ---------- */}
-                    <div className="hidden lg:flex items-center gap-3 ">
-                      <div className="border-b-2 border-[#09090B] py-2 px-3 flex items-center gap-2 cursor-pointer">
-                        <SVGs.ListIcon />
-                        <span className="text-[#09090B] font-medium text-sm">List</span>
-                      </div>
-
-                      <div className="py-2 px-3 flex items-center gap-2 cursor-pointer">
-                        <SVGs.GridView />
-                        <span className="text-[#09090B] font-medium text-sm">Grid</span>
-                      </div>
-                    </div>
-
-                    {/* ---------- Sort / Filter / Add Property ---------- */}
-                    <div className=" hidden lg:flex items-center gap-4 ">
-                      <Button
-                        variant="outline"
-                        className="hidden lg:flex cursor-pointer gap-x-2 rounded border border-[#E4E4E4EE] bg-white px-3 py-2"
-                      >
-                        <SVGs.Filter />
-                        <span className="font-medium text-sm text-[#404D61]">Sort By</span>
-                      </Button>
-
-                      <Button
-                        variant="outline"
-                        className="hidden lg:flex cursor-pointer gap-x-2 rounded border border-[#E4E4E4EE] bg-white px-3 py-2"
-                      >
-                        <SVGs.FunnelSimple />
-                        <span className="font-medium text-sm text-[#404D61]">Filter</span>
-                      </Button>
-
-                      <div className="w-px h-[37px] bg-[#E4E4E4]" />
-
-                      <Button
-                        variant="outline"
-                        className="hidden lg:flex gap-x-2 rounded border border-[#E4E4E4EE] bg-[#3E78FF] hover:bg-[#3E78FF] px-4 py-2"
-                      >
-                        <SVGs.AddProperty />
-                        <span className="font-medium text-sm text-white">Add Property</span>
-                      </Button>
-                    </div>
-                  </div>
-
-                  <div className=" hidden md:flex justify-between items-center mt-4 lg:hidden">
-                    <div className="flex items-center gap-3">
-                      <div className="border-b-2 border-[#09090B] py-2 px-3 flex items-center gap-2 cursor-pointer">
-                        <SVGs.ListIcon />
-                        <span className="text-[#09090B] font-medium text-sm">List</span>
-                      </div>
-
-                      <div className="py-2 px-3 flex items-center gap-2 cursor-pointer">
-                        <SVGs.GridView />
-                        <span className="text-[#09090B] font-medium text-sm">Grid</span>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-4 lg:hidden">
-                      <Button
-                        variant="outline"
-                        className="flex gap-x-2 rounded border border-[#E4E4E4EE] bg-[#3E78FF] hover:bg-[#3E78FF] px-4 py-2"
-                      >
-                        <SVGs.AddProperty />
-                        <span className="font-medium text-sm text-white">Add Property</span>
-                      </Button>
-                    </div>
-                  </div>
-
-                  <TabsContent value="My Listings" className="bg-[#FDFDFD]">
-                    <Listing />
-                  </TabsContent>
-                  <TabsContent value="Bookings" className="">
-                    {/* <Login /> */}
-                  </TabsContent>
-                  <TabsContent value="Transactions" className="">
-                    {/* <Signup /> */}
-                  </TabsContent>
-                </Tabs>
+              <div onClick={() => setActiveView("grid")} className={` py-2 px-3 flex items-center gap-2 cursor-pointer  ${activeView === "grid" ? "border-b-2 border-[#09090B]" : ""} ?`}>
+                <SVGs.GridView />
+                <span className="text-[#09090B] font-medium text-sm">Grid</span>
               </div>
             </div>
           </div>
+
+
+          <Tabs defaultValue="My Listings" className="gap-0 mt-4 md:mt-0">
+            <div className="md:flex md:gap-[100px] md:items-center px-4 md:pt-4">
+              <TabsList className="w-full h-10 rounded-md bg-[#F4F4F5]  md:w-[596px] p-1 m-0">
+                {tabTriggers.map((tabTrigger) => (
+                  <TabsTrigger
+                    key={tabTrigger.id}
+                    value={tabTrigger.name}
+                    className="data-[state=active]:rounded data-[state=active]:bg-white data-[state=active]:shadow-[0px_1px_3px_0px_#0000001A,0px_1px_2px_-1px_#0000001A] data-[state=active]:text-[#09090B] font-medium text-sm leading-5 tracking-[0%] text-center align-middle text-[#71717A]"
+                  >
+                    {tabTrigger.name}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+              <div className="hidden md:flex items-center gap-4 lg:hidden ">
+                <Button
+                  variant="outline"
+                  className=" lg:flex cursor-pointer gap-x-2 rounded border border-[#E4E4E4EE] bg-white px-3 py-2"
+                >
+                  <SVGs.Filter />
+                  <span className="font-medium text-sm text-[#404D61]">Sort By</span>
+                </Button>
+
+                <Button
+                  variant="outline"
+                  className=" lg:flex cursor-pointer gap-x-2 rounded border border-[#E4E4E4EE] bg-white px-3 py-2"
+                >
+                  <SVGs.FunnelSimple />
+                  <span className="font-medium text-sm text-[#404D61]">Filter</span>
+                </Button>
+              </div>
+
+              {/* ---------- List / Grid Toggle ---------- */}
+              <div className="hidden lg:flex items-center gap-3 ">
+                <div onClick={() => setActiveView("list")} className={` py-2 px-3 flex items-center gap-2 cursor-pointer  ${activeView === "list" ? "border-b-2 border-[#09090B]" : ""} ?`}>
+                  <SVGs.ListIcon />
+                  <span className="text-[#09090B] font-medium text-sm">List</span>
+                </div>
+
+                <div onClick={() => setActiveView("grid")} className={`py-2 px-3 flex items-center gap-2 cursor-pointer ${activeView === "grid" ? "border-b-2 border-[#09090B]" : ""}`}>
+                  <SVGs.GridView />
+                  <span className="text-[#09090B] font-medium text-sm">Grid</span>
+                </div>
+              </div>
+
+              {/* ---------- Sort / Filter / Add Property ---------- */}
+              <div className=" hidden lg:flex items-center gap-4 ">
+                <Button
+                  variant="outline"
+                  className="hidden lg:flex cursor-pointer gap-x-2 rounded border border-[#E4E4E4EE] bg-white px-3 py-2"
+                >
+                  <SVGs.Filter />
+                  <span className="font-medium text-sm text-[#404D61]">Sort By</span>
+                </Button>
+
+                <Button
+                  variant="outline"
+                  className="hidden lg:flex cursor-pointer gap-x-2 rounded border border-[#E4E4E4EE] bg-white px-3 py-2"
+                >
+                  <SVGs.FunnelSimple />
+                  <span className="font-medium text-sm text-[#404D61]">Filter</span>
+                </Button>
+
+                <div className="w-px h-[37px] bg-[#E4E4E4]" />
+
+                <AddNewProperty />
+              </div>
+            </div>
+
+            <div className=" hidden md:flex justify-between items-center mt-4 lg:hidden mb-4 px-4">
+              <div className="flex items-center gap-3 ">
+                <div onClick={() => setActiveView("list")} className={` py-2 px-3 flex items-center gap-2 cursor-pointer  ${activeView === "list" ? "border-b-2 border-[#09090B]" : ""} ?`}>
+                  <SVGs.ListIcon />
+                  <span className="text-[#09090B] font-medium text-sm">List</span>
+                </div>
+
+                <div onClick={() => setActiveView("grid")} className={` py-2 px-3 flex items-center gap-2 cursor-pointer  ${activeView === "grid" ? "border-b-2 border-[#09090B]" : ""} ?`}>
+                  <SVGs.GridView />
+                  <span className="text-[#09090B] font-medium text-sm">Grid</span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-4 lg:hidden">
+                <AddNewProperty/>
+              </div>
+            </div>
+
+            <div className="hidden lg:block lg:border-t lg:border-t-[#E4E7EC] lg:mt-4"></div>
+            <TabsContent value="My Listings" className="">
+              {activeView === "list" ? <List columns={columns} data={data} /> : <Grid />}
+            </TabsContent>
+            <TabsContent value="Bookings" className="">
+              
+            </TabsContent>
+            <TabsContent value="Transactions" className="">
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
     </div>
