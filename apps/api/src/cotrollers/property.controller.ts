@@ -113,6 +113,55 @@ export class PropertyController {
       return next(error);
     }
   }
+
+  async getSavedProperties(req: Request, res: Response, next: NextFunction) {
+    try {
+      if (!req.user) return ResponseHelper.unauthorized(res, 'Unauthorized');
+
+      const userId = req.user.id;
+      const page = Number(req.query.page) || 1;
+      const limit = Number(req.query.limit) || 10;
+
+      const result = await this.propertyService.getSavedProperties(userId, page, limit);
+
+      return ResponseHelper.success(res, {
+        message: 'Saved properties fetched successfully',
+        ...result,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async saveProperty(req: Request, res: Response, next: NextFunction) {
+    try {
+      if (!req.user) return ResponseHelper.unauthorized(res, 'Unauthorized');
+
+      const userId = req.user.id;
+      const { id } = req.params;
+
+      await this.propertyService.saveProperty(userId, id);
+
+      return ResponseHelper.success(res, { message: 'Property saved successfully' });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async unsaveProperty(req: Request, res: Response, next: NextFunction) {
+    try {
+      if (!req.user) return ResponseHelper.unauthorized(res, 'Unauthorized');
+
+      const userId = req.user.id;
+      const { id } = req.params;
+
+      await this.propertyService.unsaveProperty(userId, id);
+
+      return ResponseHelper.success(res, { message: 'Property unsaved successfully' });
+    } catch (err) {
+      next(err);
+    }
+  }
 }
 
 export default new PropertyController();

@@ -11,6 +11,7 @@ export interface IUser extends Document {
   // Student-specific fields
   university?: string;
   yearOfStudy?: '100' | '200' | '300' | '400' | '500';
+  savedProperties?: mongoose.Types.ObjectId[]; // ref: 'Property'
 
   // Agent-specific fields
   properties?: mongoose.Types.ObjectId[]; // ref: 'Property'
@@ -59,6 +60,12 @@ const userSchema: Schema<IUser> = new Schema(
       type: String,
       enum: ['100', '200', '300', '400', '500'],
     },
+    savedProperties: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'Property',
+      },
+    ],
     // Agent-specific fields
     properties: [
       {

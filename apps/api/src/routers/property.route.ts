@@ -197,6 +197,113 @@ router.get('/agent', authenticate, controller.getPropertiesByAgent.bind(controll
 
 /**
  * @swagger
+ * /api/property/saved:
+ *   get:
+ *     summary: Get saved properties for authenticated student
+ *     tags: [Properties]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number for pagination
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Number of properties per page
+ *     responses:
+ *       200:
+ *         description: Saved properties fetched successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     message:
+ *                       type: string
+ *                       example: Saved properties fetched successfully
+ *                     properties:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/Property'
+ *                     total:
+ *                       type: integer
+ *                       example: 15
+ *                     page:
+ *                       type: integer
+ *                       example: 1
+ *                     limit:
+ *                       type: integer
+ *                       example: 10
+ *                     totalPages:
+ *                       type: integer
+ *                       example: 2
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ */
+router.get('/saved', authenticate, controller.getSavedProperties.bind(controller));
+
+/**
+ * @swagger
+ * /api/property/{id}/save:
+ *   post:
+ *     summary: Save a property
+ *     tags: [Properties]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Property ID to save
+ *     responses:
+ *       200:
+ *         description: Property saved successfully
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Property not found
+ */
+router.post('/:id/save', authenticate, controller.saveProperty.bind(controller));
+
+/**
+ * @swagger
+ * /api/property/{id}/save:
+ *   delete:
+ *     summary: Unsave a property
+ *     tags: [Properties]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Property ID to unsave
+ *     responses:
+ *       200:
+ *         description: Property unsaved successfully
+ *       401:
+ *         description: Unauthorized
+ */
+router.delete('/:id/save', authenticate, controller.unsaveProperty.bind(controller));
+
+/**
+ * @swagger
  * /api/property/{id}:
  *   get:
  *     summary: Get a single property by its ID

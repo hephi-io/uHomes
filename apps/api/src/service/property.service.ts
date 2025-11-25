@@ -143,4 +143,80 @@ export class PropertyService {
     await property.save();
     return property;
   }
+
+  async getSavedProperties(
+    userId: string,
+    page = 1,
+    limit = 10
+  ): Promise<{
+    properties: IProperty[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  }> {
+    // Validate user type
+    const userType = await UserType.findOne({ userId });
+    if (!userType) throw new NotFoundError('User type not found');
+    if (userType.type !== 'student') {
+      throw new UnauthorizedError('Only students can access saved properties');
+    }
+
+    const user = await User.findById(userId);
+    if (!user) throw new NotFoundError('User not found');
+
+    const savedPropertyIds = user.savedProperties || [];
+    const skip = (page - 1) * limit;
+    const total = savedPropertyIds.length;
+    const totalPages = Math.ceil(total / limit);
+
+    // Get paginated property IDs
+    const paginatedIds = savedPropertyIds.slice(skip, skip + limit);
+
+    const properties = await Property.find({ _id: { $in: paginatedIds } })
+      .populate('agentId', 'fullName email phoneNumber')
+      .sort({ createdAt: -1 });
+
+    return { properties, total, page, limit, totalPages };
+  }
+
+  async saveProperty(userId: string, propertyId: string): Promise<void> {
+    if (!mongoose.Types.ObjectId.isValid(propertyId)) {
+      throw new BadRequestError('Invalid property ID');
+    }
+
+    // Validate user type
+    const userType = await UserType.findOne({ userId });
+    if (!userType) throw new NotFoundError('User type not found');
+    if (userType.type !== 'student') {
+      throw new UnauthorizedError('Only students can save properties');
+    }
+
+    // Check if property exists
+    const property = await Property.findById(propertyId);
+    if (!property) throw new NotFoundError('Property not found');
+
+    // Add property to user's saved properties if not already saved
+    await User.findByIdAndUpdate(userId, {
+      $addToSet: { savedProperties: propertyId },
+    });
+  }
+
+  async unsaveProperty(userId: string, propertyId: string): Promise<void> {
+    if (!mongoose.Types.ObjectId.isValid(propertyId)) {
+      throw new BadRequestError('Invalid property ID');
+    }
+
+    // Validate user type
+    const userType = await UserType.findOne({ userId });
+    if (!userType) throw new NotFoundError('User type not found');
+    if (userType.type !== 'student') {
+      throw new UnauthorizedError('Only students can unsave properties');
+    }
+
+    // Remove property from user's saved properties
+    await User.findByIdAndUpdate(userId, {
+      $pull: { savedProperties: propertyId },
+    });
+  }
 }
