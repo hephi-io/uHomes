@@ -83,7 +83,17 @@ export class BookingService {
       .sort({ createdAt: -1 });
   }
 
-  async getAllBookings(user: { id: string; type?: string }): Promise<IBooking[]> {
+  async getAllBookings(
+    user: { id: string; type?: string },
+    page = 1,
+    limit = 10
+  ): Promise<{
+    bookings: IBooking[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  }> {
     // Get user type
     const userType = await UserType.findOne({ userId: user.id });
     if (!userType) throw new NotFoundError('User type not found');
@@ -97,11 +107,19 @@ export class BookingService {
     }
     // Admin sees all (empty query)
 
-    return await Booking.find(query)
-      .populate('property', 'title location price')
+    const skip = (page - 1) * limit;
+    const total = await Booking.countDocuments(query);
+    const totalPages = Math.ceil(total / limit);
+
+    const bookings = await Booking.find(query)
+      .populate('property', 'title location price images')
       .populate('tenant', 'fullName email phoneNumber')
       .populate('agent', 'fullName email phoneNumber')
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    return { bookings, total, page, limit, totalPages };
   }
 
   async updateBookingStatus(
@@ -137,5 +155,42 @@ export class BookingService {
 
     await booking.deleteOne();
     return booking;
+  }
+
+  async getActiveBookingsSummary(userId: string): Promise<{ count: number; totalAmount: number }> {
+    // Get user type to ensure it's a student
+    const userType = await UserType.findOne({ userId });
+    if (!userType) throw new NotFoundError('User type not found');
+    if (userType.type !== 'student') {
+      throw new UnauthorizedError('Only students can access this endpoint');
+    }
+
+    // Use aggregation to calculate count and totalAmount in a single query
+    const result = await Booking.aggregate([
+      {
+        $match: {
+          tenant: new mongoose.Types.ObjectId(userId),
+          status: 'confirmed',
+          paymentStatus: 'paid',
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          count: { $sum: 1 },
+          totalAmount: { $sum: '$amount' },
+        },
+      },
+    ]);
+
+    // If no results, return zeros
+    if (result.length === 0) {
+      return { count: 0, totalAmount: 0 };
+    }
+
+    return {
+      count: result[0].count,
+      totalAmount: result[0].totalAmount,
+    };
   }
 }

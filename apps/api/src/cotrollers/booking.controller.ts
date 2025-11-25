@@ -41,8 +41,20 @@ export class BookingController {
   getAllBookings = async (req: Request, res: Response, next: NextFunction) => {
     const user = req.user as { id: string; role: string };
     try {
-      const bookings = await this.bookingService.getAllBookings(user);
-      return ResponseHelper.success(res, bookings);
+      const page = Number(req.query.page) || 1;
+      const limit = Number(req.query.limit) || 10;
+      const result = await this.bookingService.getAllBookings(user, page, limit);
+      return ResponseHelper.success(res, result);
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  getActiveBookingsSummary = async (req: Request, res: Response, next: NextFunction) => {
+    const user = req.user as { id: string };
+    try {
+      const summary = await this.bookingService.getActiveBookingsSummary(user.id);
+      return ResponseHelper.success(res, summary);
     } catch (err) {
       next(err);
     }

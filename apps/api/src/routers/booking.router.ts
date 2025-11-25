@@ -97,6 +97,40 @@ router.get('/agent/:agentId', authenticate, bookingController.getAgentBookings);
 
 /**
  * @swagger
+ * /api/booking/student/active-summary:
+ *   get:
+ *     summary: Get active bookings summary for student
+ *     description: Returns count and total amount of active bookings (status='confirmed' AND paymentStatus='paid')
+ *     tags: [Booking]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Active bookings summary retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     count:
+ *                       type: number
+ *                       example: 4
+ *                     totalAmount:
+ *                       type: number
+ *                       example: 500000
+ *       401:
+ *         description: Unauthorized access
+ */
+router.get('/student/active-summary', authenticate, bookingController.getActiveBookingsSummary);
+
+/**
+ * @swagger
  * /api/bookings:
  *   get:
  *     summary: Get all bookings
