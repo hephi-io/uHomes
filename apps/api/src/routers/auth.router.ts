@@ -13,6 +13,8 @@ import {
   forgotPasswordSchema,
   resetPasswordSchema,
   resendResetTokenSchema,
+  verifyAccountSchema,
+  verifyUrlSchema,
 } from '../validation/user.validation';
 
 const router = express.Router();
@@ -121,6 +123,61 @@ router.post(
   validate(resendVerificationSchema),
   controller.resendVerification.bind(controller)
 );
+
+/**
+ * @openapi
+ * /api/auth/verify-account:
+ *   post:
+ *     summary: Verify account using 6-digit code
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - code
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: user@example.com
+ *               code:
+ *                 type: string
+ *                 length: 6
+ *                 example: "123456"
+ *     responses:
+ *       200:
+ *         description: Account verified successfully
+ *       400:
+ *         description: Invalid code, expired, or max attempts exceeded
+ */
+router.post(
+  '/verify-account',
+  validate(verifyAccountSchema),
+  controller.verifyAccount.bind(controller)
+);
+
+/**
+ * @openapi
+ * /api/auth/verify:
+ *   get:
+ *     summary: Verify account via signed URL
+ *     tags: [Auth]
+ *     parameters:
+ *       - in: query
+ *         name: token
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Signed verification token from email
+ *     responses:
+ *       302:
+ *         description: Redirects to frontend success or failure page
+ */
+router.get('/verify', validate(verifyUrlSchema), controller.verifyAccountViaUrl.bind(controller));
 
 /**
  * @swagger

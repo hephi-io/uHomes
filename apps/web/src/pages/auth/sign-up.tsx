@@ -68,6 +68,8 @@ const Signup = () => {
     try {
       setLoading(true);
       await register(payload);
+      // Store email for verification page
+      localStorage.setItem('signupEmail', email);
       navigate('/auth/verify-account');
     } catch (error) {
       console.log(error);

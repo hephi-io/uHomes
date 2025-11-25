@@ -7,7 +7,7 @@ import { Loader2 } from 'lucide-react';
 import { Button, TextField } from '@uhomes/ui-kit';
 
 import { login } from '@/services/auth';
-import { token } from '@/utils';
+import { useAuth } from '@/contexts/auth-context';
 
 interface LoginForm {
   name: string;
@@ -19,6 +19,7 @@ interface LoginForm {
 
 const Login = () => {
   const navigate = useNavigate();
+  const { login: loginAuth } = useAuth();
   const [loading, setLoading] = useState(false);
   const { control, handleSubmit } = useForm<LoginForm>({
     defaultValues: { email: '', password: '' },
@@ -30,7 +31,9 @@ const Login = () => {
     try {
       setLoading(true);
       const { data } = await login({ email, password });
-      token.login(data.data.token);
+
+      // Use auth context login
+      loginAuth(data.data.token, data.data.user);
 
       // Navigate based on user type
       const userType = data.data.user?.userType?.type;

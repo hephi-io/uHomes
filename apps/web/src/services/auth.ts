@@ -21,7 +21,7 @@ type TUserType = {
   type: 'student' | 'agent' | 'admin';
 };
 
-type TUser = {
+export type TUser = {
   _id: string;
   fullName: string;
   email: string;
@@ -34,6 +34,8 @@ const endpoints = {
   login: '/api/auth/login',
   register: '/api/auth/register',
   verifyEmail: (token: string) => `/api/auth/verify-email/${token}`,
+  verifyAccount: '/api/auth/verify-account',
+  verifyUrl: '/api/auth/verify',
   resendVerification: '/api/auth/resend-verification',
   getCurrentUser: '/api/auth/me',
   getUserById: (id: string) => `/api/auth/${id}`,
@@ -64,6 +66,19 @@ export const login = (payload: { email: string; password: string }) => {
 
 export const verifyEmail = (token: string) => {
   return API.get<TResponse<{ message: string }>>(endpoints.verifyEmail(token));
+};
+
+export const verifyAccount = (email: string, code: string) => {
+  return API.post<TResponse<{ token: string; user: TUser; message: string }>>(
+    endpoints.verifyAccount,
+    { email, code }
+  );
+};
+
+export const verifyAccountViaUrl = (token: string) => {
+  return API.get<TResponse<{ token: string; user: TUser; message: string }>>(endpoints.verifyUrl, {
+    params: { token },
+  });
 };
 
 export const resendVerification = (email: string) => {
