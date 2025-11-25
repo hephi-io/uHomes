@@ -4,6 +4,8 @@ import AuthLayout from '@/layouts/auth/index';
 import AgentLayout from '@/layouts/agent/index';
 import StudentDashboardLayout from '@/layouts/students/index';
 import BookingLayout from '@/layouts/booking/index';
+import ProtectedRoute from '../components/protected-route';
+import { PublicRoute } from '../components/public-route';
 
 import Auth from '@/pages/auth/auth';
 import ForgotPassword from '@/pages/auth/forgot-password';
@@ -23,7 +25,11 @@ const router = createBrowserRouter([
   },
   {
     path: '/auth',
-    element: <AuthLayout />,
+    element: (
+      <PublicRoute>
+        <AuthLayout />
+      </PublicRoute>
+    ),
     children: [
       { index: true, element: <Auth /> },
       { path: 'forgot-password', element: <ForgotPassword /> },
@@ -36,11 +42,19 @@ const router = createBrowserRouter([
   },
   {
     path: '/verify',
-    element: <VerifyAccount />,
+    element: (
+      <PublicRoute>
+        <VerifyAccount />
+      </PublicRoute>
+    ),
   },
   {
     path: '/agent-dashboard',
-    element: <AgentLayout />,
+    element: (
+      <ProtectedRoute>
+        <AgentLayout />
+      </ProtectedRoute>
+    ),
     children: [
       {
         index: true,
@@ -50,7 +64,11 @@ const router = createBrowserRouter([
   },
   {
     path: '/students',
-    element: <StudentDashboardLayout />,
+    element: (
+      <ProtectedRoute>
+        <StudentDashboardLayout />
+      </ProtectedRoute>
+    ),
     children: [
       { index: true, element: <Navigate to="dashboard" replace /> },
       { path: 'dashboard', element: <StudentDashboard /> },

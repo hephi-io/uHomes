@@ -1,13 +1,14 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import { token } from '@/utils';
-import { getCurrentUser, type TUser } from '@/services/auth';
+import { getCurrentUser, logout as logoutApi, type TUser } from '@/services/auth';
 
 interface AuthContextType {
   user: TUser | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  isLoggingOut: boolean;
   login: (tokenValue: string, userData: TUser) => void;
-  logout: () => void;
+  logout: (onComplete?: () => void) => Promise<void>;
   setUser: (user: TUser | null) => void;
   refreshUser: () => Promise<void>;
 }
@@ -29,6 +30,7 @@ interface AuthProviderProps {
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<TUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   // Check if user is authenticated on mount
   useEffect(() => {
@@ -57,9 +59,27 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setUser(userData);
   };
 
-  const logout = () => {
-    token.logout();
-    setUser(null);
+  const logout = async (onComplete?: () => void) => {
+    setIsLoggingOut(true);
+    try {
+      // Try to call logout API, but don't fail if it errors (offline support)
+      try {
+        await logoutApi();
+      } catch (error) {
+        // Network error or token already invalid - still proceed with local logout
+        console.warn('Logout API call failed, proceeding with local logout:', error);
+      }
+    } finally {
+      // Always clear local state regardless of API call result
+      token.clearAll();
+      setUser(null);
+      setIsLoggingOut(false);
+
+      // Execute callback if provided (e.g., for navigation)
+      if (onComplete) {
+        onComplete();
+      }
+    }
   };
 
   const refreshUser = async () => {
@@ -68,7 +88,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setUser(data.data);
     } catch (error) {
       console.error('Error refreshing user:', error);
-      logout();
+      await logout();
     }
   };
 
@@ -76,6 +96,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     user,
     isAuthenticated: !!user && !!token.getToken(),
     isLoading,
+    isLoggingOut,
     login,
     logout,
     setUser,

@@ -44,6 +44,7 @@ const endpoints = {
   forgotPassword: '/api/auth/forgot-password',
   resetPassword: (otp: string) => `/api/auth/reset-password/${otp}`,
   resendResetToken: '/api/auth/resend-reset-token',
+  logout: '/api/auth/logout',
 };
 
 export const API = axios.create({ baseURL: import.meta.env.VITE_API_BASE_URL });
@@ -114,4 +115,8 @@ export const resetPassword = (otp: string, newPassword: string, confirmPassword:
 
 export const resendResetToken = (email: string) => {
   return API.post<TResponse<{ message: string }>>(endpoints.resendResetToken, { email });
+};
+
+export const logout = () => {
+  return API.post<TResponse<{ message: string }>>(endpoints.logout);
 };
