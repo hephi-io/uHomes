@@ -6,7 +6,7 @@ import { SVGs } from '@/assets/svgs/Index';
 
 export default function BookingLayout() {
   return (
-    <>
+    <div className="md:px-8">
       <div className="flex gap-x-9 items-center mt-4">
         <Button variant="outline" className="size-11 rounded-full border-[#E5E5E5]">
           <SVGs.ChevronLeft />
@@ -44,6 +44,6 @@ export default function BookingLayout() {
           <Outlet />
         </div>
       </div>
-    </>
+    </div>
   );
 }
