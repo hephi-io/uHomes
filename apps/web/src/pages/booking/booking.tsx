@@ -13,7 +13,7 @@ import { SVGs } from '@/assets/svgs/Index';
 
 export default function Booking() {
   return (
-    <>
+    <div className="lg:w-[680px] lg:rounded-xl lg:border lg:border-[#EAEAEA] lg:bg-white lg:shadow-[0px_2px_3px_1px_#0000001A] lg:p-4.5 lg:mx-auto">
       <h1 className="font-semibold text-lg leading-[130%] tracking-[0%] text-[#101828] mb-1">
         Secure Your Space
       </h1>
@@ -80,6 +80,6 @@ export default function Booking() {
           Proceed To Payment
         </span>
       </Button>
-    </>
+    </div>
   );
 }
