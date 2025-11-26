@@ -200,18 +200,18 @@ const VerifyAccount = () => {
           <div className="mt-9 mb-6">
             <InputOTP
               maxLength={6}
-              className="w-full"
+              className="w-full gap-2"
               value={code}
               onChange={handleOTPChange}
               disabled={loading}
             >
-              <InputOTPGroup className="w-full">
-                <InputOTPSlot index={0} className="w-1/6" />
-                <InputOTPSlot index={1} className="w-1/6" />
-                <InputOTPSlot index={2} className="w-1/6" />
-                <InputOTPSlot index={3} className="w-1/6" />
-                <InputOTPSlot index={4} className="w-1/6" />
-                <InputOTPSlot index={5} className="w-1/6" />
+              <InputOTPGroup className="w-full flex gap-3">
+                <InputOTPSlot index={0} className="h-12 w-12 rounded-md border text-xl" />
+                <InputOTPSlot index={1} className="h-12 w-12 rounded-md border text-xl" />
+                <InputOTPSlot index={2} className="h-12 w-12 rounded-md border text-xl" />
+                <InputOTPSlot index={3} className="h-12 w-12 rounded-md border text-xl" />
+                <InputOTPSlot index={4} className="h-12 w-12 rounded-md border text-xl" />
+                <InputOTPSlot index={5} className="h-12 w-12 rounded-md border text-xl" />
               </InputOTPGroup>
             </InputOTP>
           </div>

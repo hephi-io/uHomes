@@ -1,7 +1,7 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 
-import AuthLayout from '@/layouts/auth/Index';
-import AgentLayout from '@/layouts/agent/Index';
+import AuthLayout from '@/layouts/auth/index';
+import AgentLayout from '@/layouts/agent/index';
 import StudentDashboardLayout from '@/layouts/students/index';
 import BookingLayout from '@/layouts/booking/index';
 import ProtectedRoute from '../components/protected-route';
