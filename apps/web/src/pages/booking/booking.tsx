@@ -20,27 +20,37 @@ export default function Booking() {
       <span className="font-medium text-sm leading-[120%] tracking-[0%] text-[#475467]">
         Fill in your details below to reserve a room.
       </span>
-      <Label className="text-sm leading-[100%] tracking-[0%] text-[#09090B] mt-9 mb-2">
-        Move-In Date *
-      </Label>
-      <DatePicker />
-      <Label className="text-sm leading-[100%] tracking-[0%] text-[#09090B] mt-6 mb-2">
-        Move-Out Date *
-      </Label>
-      <DatePicker />
-      <Label className="text-sm leading-[100%] tracking-[0%] text-[#09090B] mt-9 mb-2">
-        Gender*
-      </Label>
-      <Combobox />
-      <Label className="text-sm leading-[100%] tracking-[0%] text-[#09090B] mt-6 mb-2">
-        Duration
-      </Label>
-      <Input
-        disabled
-        type="text"
-        placeholder="auto-calculated"
-        className="rounded-md border border-[#E4E4E7] bg-[#F9F9F9] shadow-[0px_1px_2px_0px_#0000000D] px-3 py-1"
-      />
+      <div className="md:grid md:grid-cols-2 md:gap-x-6 md:gap-y-9 md:mt-9">
+        <div>
+          <Label className="text-sm leading-[100%] tracking-[0%] text-[#09090B] mt-9 mb-2 md:mt-0">
+            Move-In Date *
+          </Label>
+          <DatePicker />
+        </div>
+        <div>
+          <Label className="text-sm leading-[100%] tracking-[0%] text-[#09090B] mt-6 mb-2 md:mt-0">
+            Move-Out Date *
+          </Label>
+          <DatePicker />
+        </div>
+        <div>
+          <Label className="text-sm leading-[100%] tracking-[0%] text-[#09090B] mt-9 mb-2 md:mt-0">
+            Gender*
+          </Label>
+          <Combobox />
+        </div>
+        <div>
+          <Label className="text-sm leading-[100%] tracking-[0%] text-[#09090B] mt-6 mb-2 md:mt-0">
+            Duration
+          </Label>
+          <Input
+            disabled
+            type="text"
+            placeholder="auto-calculated"
+            className="rounded-md border border-[#E4E4E7] bg-[#F9F9F9] shadow-[0px_1px_2px_0px_#0000000D] px-3 py-1"
+          />
+        </div>
+      </div>
       <Label className="text-sm leading-[100%] tracking-[0%] text-[#09090B] mt-9 mb-2">
         Property Type*
       </Label>

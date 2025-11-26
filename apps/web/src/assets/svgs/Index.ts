@@ -56,6 +56,7 @@ import Exclamation from './exclamation.svg?react';
 import Bed from './bed.svg?react';
 import Star from './star.svg?react';
 import AiLock from './ai-lock.svg?react';
+import DashesMedium from './dashes-medium.svg?react';
 
 export const SVGs = {
   AddProperty,
@@ -116,4 +117,5 @@ export const SVGs = {
   Bed,
   Star,
   AiLock,
+  DashesMedium,
 };

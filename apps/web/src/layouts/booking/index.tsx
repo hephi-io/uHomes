@@ -15,22 +15,24 @@ export default function BookingLayout() {
           Booking
         </h1>
       </div>
-      <div className="flex justify-between items-center mt-9">
-        <div>
+      <div className="flex justify-between items-center md:w-[86.70%] md:mx-auto mt-9">
+        <div className="md:flex md:gap-x-3 md:items-center">
           <SVGs.ContactBook className="text-[#3E78FF] mx-auto mb-1" />
           <span className="text-xs leading-5 tracking-[0%] align-middle text-[#3E78FF]">
             Booking
           </span>
         </div>
-        <SVGs.Dashes className="text-[#A7A7A7]" />
-        <div>
+        <SVGs.Dashes className="text-[#A7A7A7] md:hidden" />
+        <SVGs.DashesMedium className="hidden text-[#A7A7A7] md:block" />
+        <div className="md:flex md:gap-x-3 md:items-center">
           <SVGs.CreditCard className="mx-auto mb-1 text-[#A7A7A7]" />
           <span className="text-xs leading-5 tracking-[0%] align-middle text-[#A7A7A7]">
             Payment
           </span>
         </div>
-        <SVGs.Dashes className="text-[#A7A7A7]" />
-        <div>
+        <SVGs.Dashes className="text-[#A7A7A7] md:hidden" />
+        <SVGs.DashesMedium className="hidden text-[#A7A7A7] md:block" />
+        <div className="md:flex md:gap-x-3 md:items-center">
           <SVGs.CheckmarkCircle className="mx-auto mb-1 text-[#A7A7A7]" />
           <span className="text-xs leading-5 tracking-[0%] align-middle text-[#A7A7A7]">
             Complete
