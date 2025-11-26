@@ -18,6 +18,7 @@ import Dashboard from '@/pages/Agent/dashboard';
 import { StudentDashboard, Hostels, Hostel, Help } from '@/pages/students';
 import Booking from '@/pages/booking/booking';
 import Checkout from '@/pages/booking/checkout';
+import CheckoutSuccess from '@/pages/booking/checkout-success';
 
 const router = createBrowserRouter([
   {
@@ -77,10 +78,12 @@ const router = createBrowserRouter([
       { path: 'hostels/:id', element: <Hostel /> },
       { path: 'help', element: <Help /> },
       {
+        path: 'booking',
         element: <BookingLayout />,
         children: [
-          { path: 'booking', element: <Booking /> },
-          { path: 'booking/checkout', element: <Checkout /> },
+          { index: true, element: <Booking /> },
+          { path: 'checkout', element: <Checkout /> },
+          { path: 'checkout-success', element: <CheckoutSuccess /> },
         ],
       },
     ],
