@@ -1,4 +1,6 @@
 import { SVGs } from '@/assets/svgs/Index';
+import type { IBooking } from '@/shared/booking';
+import type { ITransaction } from '@/shared/transactions';
 
 export const hostelDetails = [
   {
@@ -230,5 +232,96 @@ export const frameworks2 = [
   {
     value: 'astro',
     label: 'Astro',
+  },
+];
+
+export const bookingData: IBooking[] = [
+  {
+    bookingID: 'BK20251104-108',
+    studentName: 'Cynthia Themoon',
+    apartment: 'Emerates Lodge',
+    roomType: 'Shared Room',
+    duration: '12m',
+    bookingStatus: 'Pending',
+    MoveInDate: '12/12/2025',
+  },
+  {
+    bookingID: 'BK20251104-109',
+    studentName: 'Paul Micheal',
+    apartment: 'Royal Lodge',
+    roomType: 'Single Room',
+    duration: '6m',
+    bookingStatus: 'Cancelled',
+    MoveInDate: '04/12/2025',
+  },
+  {
+    bookingID: 'BK20251104-110',
+    studentName: 'Oluchi Sarah',
+    apartment: 'Elite Lodge',
+    roomType: 'Single Room',
+    duration: '2yr',
+    bookingStatus: 'Pending',
+    MoveInDate: '23/12/2025',
+  },
+  {
+    bookingID: 'BK20251104-111',
+    studentName: 'Godwin Martins',
+    apartment: 'Founders Lodge',
+    roomType: 'Self Contain',
+    duration: '12m',
+    bookingStatus: 'Accepted',
+    MoveInDate: '18/12/2025',
+  },
+  {
+    bookingID: 'BK20251104-112',
+    studentName: 'Ada Jeremiah',
+    apartment: 'Chidi Lodge',
+    roomType: 'Shared Room',
+    duration: '2yr',
+    bookingStatus: 'Pending',
+    MoveInDate: '10/01/2026',
+  },
+];
+
+export const transactionData: ITransaction[] = [
+  {
+    transactionRef: 'TXN-20251104-108',
+    studentName: 'Cynthia Themoon',
+    paymentType: 'Bank Transfer',
+    amount: 'Shared Room',
+    date: '12/10/2025',
+    statusBadge: 'Escrow Held',
+  },
+  {
+    transactionRef: 'TXN-20251104-108',
+    studentName: 'Paul Micheal',
+    paymentType: 'Bank Transfer',
+    amount: 'Single Room',
+    date: '04/11/2025',
+    statusBadge: 'Refunded',
+  },
+  {
+    transactionRef: 'TXN-20251104-108',
+    studentName: 'Oluchi Sarah',
+    paymentType: 'Card Payment',
+    amount: 'Single Room',
+    date: '11/11/2025',
+    statusBadge: 'Escrow Held',
+  },
+  {
+    transactionRef: 'TXN-20251104-108',
+    studentName: 'Godwin Martins',
+    paymentType: 'Bank Transfer',
+    amount: 'Self Contain',
+    date: '18/09/2025',
+    statusBadge: 'Successful',
+  },
+  {
+    transactionRef: 'TXN-20251104-108',
+    studentName: 'Ada Jeremiah',
+    paymentType: 'Card Payment',
+    amount: 'Shared Room',
+    date: '10/10/2025',
+    statusBadge: 'Escrow Held',
   },
 ];

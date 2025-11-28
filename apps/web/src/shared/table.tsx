@@ -7,7 +7,7 @@ interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
 }
-const List = <TData, TValue>({ columns, data }: DataTableProps<TData, TValue>) => {
+const Tableshared = <TData, TValue>({ columns, data }: DataTableProps<TData, TValue>) => {
   const table = useReactTable({
     data,
     columns,
@@ -60,4 +60,4 @@ const List = <TData, TValue>({ columns, data }: DataTableProps<TData, TValue>) =
     </div>
   );
 };
-export default List;
+export default Tableshared;

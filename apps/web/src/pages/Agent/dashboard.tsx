@@ -2,11 +2,13 @@ import profile from '@/assets/pngs/profile.png';
 import { Button, Tabs, TabsContent, TabsList, TabsTrigger } from '@uhomes/ui-kit';
 import { SVGs } from '@/assets/svgs/Index';
 import { columns } from '@/shared/columns';
-import { data } from '../students/constants';
+import { bookingData, data, transactionData } from '../students/constants';
 import { useState } from 'react';
 import Grid from './grid';
-import List from './components/List';
 import AddNewProperty from './components/add-new-property';
+import { bookingColumns } from '@/shared/booking';
+import { transactionColumn } from '@/shared/transactions';
+import Tableshared from '@/shared/table';
 
 const Dashboard = () => {
   const [activeView, setActiveView] = useState<'list' | 'grid'>('grid');
@@ -245,10 +247,14 @@ const Dashboard = () => {
 
             <div className="hidden lg:block lg:border-t lg:border-t-[#E4E7EC] lg:mt-4"></div>
             <TabsContent value="My Listings" className="">
-              {activeView === 'list' ? <List columns={columns} data={data} /> : <Grid />}
+              {activeView === 'list' ? <Tableshared columns={columns} data={data} /> : <Grid />}
             </TabsContent>
-            <TabsContent value="Bookings" className=""></TabsContent>
-            <TabsContent value="Transactions" className=""></TabsContent>
+            <TabsContent value="Bookings" className="">
+              <Tableshared columns={bookingColumns} data={bookingData} />
+            </TabsContent>
+            <TabsContent value="Transactions" className="">
+              <Tableshared columns={transactionColumn} data={transactionData} />
+            </TabsContent>
           </Tabs>
         </div>
       </div>
