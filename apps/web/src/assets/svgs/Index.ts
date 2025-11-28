@@ -52,6 +52,11 @@ import Dashes from './dashes.svg?react';
 import CreditCard from './credit-card.svg?react';
 import CheckmarkCircle from './checkmark-circle.svg?react';
 import ChevronsUpDown from './chevrons-up-down.svg?react';
+import Exclamation from './exclamation.svg?react';
+import Bed from './bed.svg?react';
+import Star from './star.svg?react';
+import AiLock from './ai-lock.svg?react';
+import DashesMedium from './dashes-medium.svg?react';
 
 export const SVGs = {
   AddProperty,
@@ -108,4 +113,9 @@ export const SVGs = {
   CreditCard,
   CheckmarkCircle,
   ChevronsUpDown,
+  Exclamation,
+  Bed,
+  Star,
+  AiLock,
+  DashesMedium,
 };

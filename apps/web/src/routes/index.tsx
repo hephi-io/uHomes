@@ -1,9 +1,9 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 
-import AuthLayout from '@/layouts/auth';
-import AgentLayout from '@/layouts/agent';
-import StudentDashboardLayout from '@/layouts/students';
-import BookingLayout from '@/layouts/booking';
+import AuthLayout from '@/layouts/auth/index';
+import AgentLayout from '@/layouts/agent/index';
+import StudentDashboardLayout from '@/layouts/students/index';
+import BookingLayout from '@/layouts/booking/index';
 import ProtectedRoute from '../components/protected-route';
 import { PublicRoute } from '../components/public-route';
 
@@ -17,6 +17,8 @@ import ResetPasswordSuccess from '@/pages/auth/reset-password-success';
 import Dashboard from '@/pages/Agent/dashboard';
 import { StudentDashboard, Hostels, Hostel, Help } from '@/pages/students';
 import Booking from '@/pages/booking/booking';
+import Checkout from '@/pages/booking/checkout';
+import CheckoutSuccess from '@/pages/booking/checkout-success';
 
 const router = createBrowserRouter([
   {
@@ -76,8 +78,13 @@ const router = createBrowserRouter([
       { path: 'hostels/:id', element: <Hostel /> },
       { path: 'help', element: <Help /> },
       {
+        path: 'booking',
         element: <BookingLayout />,
-        children: [{ path: 'booking', element: <Booking /> }],
+        children: [
+          { index: true, element: <Booking /> },
+          { path: 'checkout', element: <Checkout /> },
+          { path: 'checkout-success', element: <CheckoutSuccess /> },
+        ],
       },
     ],
   },
