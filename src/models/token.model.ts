@@ -9,11 +9,12 @@ export interface IToken extends Document {
   createdAt: Date;
 }
 
+
 const tokenSchema: Schema<IToken> = new Schema(
   {
     userId: {
       type: Schema.Types.ObjectId,
-      refPath: 'role', // dynamically refers to student or agent collection
+      ref: 'User',
       required: true,
     },
     types: {

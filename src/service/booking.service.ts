@@ -6,32 +6,28 @@ import {BookingPayload} from '../interface/user.paload';
 
 
 export class BookingService {
-  
+
     async createBooking(data: BookingPayload, user: { id: string, types: string }): Promise<IBooking> {
     const foundProperty = await property.findById(data.propertyid)
-    if (!foundProperty) {
-      throw new NotFoundError('Property not found')
-    }
+    if (!foundProperty) throw new NotFoundError('Property not found')
 
     const agentId = foundProperty.agentId
-      if (!agentId) {
-      throw new BadRequestError('Property has no assigned agent')
-    }
+    if (!agentId) throw new BadRequestError('Property has no assigned agent')
 
     let tenantId = data.tenant
+    if (user.types === 'Student') tenantId = user.id
+    if (user.types === 'Agent' && !tenantId) throw new BadRequestError('Tenant is required when an agent creates a booking')
 
-    if (user.types === 'Student') {
-      tenantId = user.id
-    }
-
-    if (user.types === 'Agent' && !tenantId) {
-      throw new BadRequestError('Tenant is required when an agent creates a booking')
-    }
+    if (!data.propertyType) throw new BadRequestError('propertyType is required')
+    if (!data.gender) throw new BadRequestError('gender is required')
 
     const booking = new Booking({
       propertyid: data.propertyid,
       tenant: tenantId,
       agent: agentId,
+      propertyType: data.propertyType,
+      gender: data.gender,
+      specialRequest: data.specialRequest,
       moveInDate: data.moveInDate,
       moveOutDate: data.moveOutDate,
       duration: data.duration,
@@ -43,7 +39,7 @@ export class BookingService {
     return await booking.save()
   }
 
-    async getBookingById(bookingId: string, user: { id: string; types: string }): Promise<IBooking> {
+  async getBookingById(bookingId: string, user: { id: string; types: string }): Promise<IBooking> {
   if (!mongoose.Types.ObjectId.isValid(bookingId)) {
     throw new BadRequestError('Invalid booking ID')
   }
@@ -56,6 +52,7 @@ export class BookingService {
   if (!booking) {
     throw new NotFoundError('Booking not found')
   }
+
 
   const userIsAgent = booking.agent?._id.toString() === user.id
   const userIsTenant = booking.tenant?._id.toString() === user.id
@@ -73,7 +70,9 @@ export class BookingService {
     if (user.types === 'Agent') {
       query = { agent: user.id }
     } else if (user.types === 'Student') {
+
       query = { tenant: user.id }
+
     }
 
     const bookings = await Booking.find(query)
@@ -107,6 +106,7 @@ export class BookingService {
   }
 
 
+
 async updateBookingStatus(
   bookingId: string,
   status: BookingPayload['status'],
@@ -121,6 +121,8 @@ async updateBookingStatus(
   if (booking.agent.toString() !== user.id && user.types !== 'Admin') {
     throw new UnauthorizedError('Only the assigned agent can update this booking')
   }
+
+  if (status === undefined) throw new BadRequestError('Status is required')
 
   booking.status = status
   return await booking.save()

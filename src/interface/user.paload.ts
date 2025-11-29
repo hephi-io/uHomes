@@ -23,10 +23,14 @@ export interface VerifyOtpPayload {
 export interface BookingPayload {
   propertyid: string
   tenant?: string   // required ONLY if an Agent creates the booking
+  propertyType: string
   moveInDate: Date
   moveOutDate?: Date
   duration: string
+  gender: 'male' | 'female'
+  specialRequest?: string
   amount: number
   status?: 'pending' | 'confirmed' | 'cancelled' | 'completed'
   paymentStatus?: 'pending' | 'paid' | 'refunded'
 }
+

@@ -130,6 +130,8 @@ export class UserController {
       const { id } = req.params;
       if (!id) return ResponseHelper.badRequest(res, { error: 'User ID is required' });
 
+      if (!req.user) return ResponseHelper.unauthorized(res);
+
       const data = req.body;
       const updatedUser = await this.userService.updateUser(id, data, { id: req.user.id, types: req.user.types });
 
@@ -144,6 +146,8 @@ export class UserController {
     try {
       const { id } = req.params;
       if (!id) return ResponseHelper.badRequest(res, { error: 'User ID is required' })
+
+      if (!req.user) return ResponseHelper.unauthorized(res);
 
       await this.userService.deleteUser(id, {id: req.user.id, types: req.user.types})
       return ResponseHelper.success(res, { message: 'user deleted successfuly' })

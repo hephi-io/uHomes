@@ -41,8 +41,8 @@ app.get('/', (req: Request, res: Response) => {
 });
 
 app.use('/api/property', propertyRouter);
-app.use('/api/booking', bookingRouter)
-app.use('/api/users', userRouter)
+app.use('/api/booking', bookingRouter);
+app.use('/api/users', userRouter);
 
 swaggerDocs(app);
 

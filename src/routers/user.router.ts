@@ -4,7 +4,7 @@ import { validate } from '../middlewares/validate.middleware'
 import { signupSchema, loginSchema } from '../validation/user.validation'
 import { authenticate } from '../middlewares/auth.middleware'
 
-const router = Router();
+const router: Router = Router();
 const userController = new UserController();
 
 /**
@@ -453,7 +453,7 @@ router.delete('/user/:id', authenticate, userController.deleteUser.bind(userCont
  *             schema:
  *               $ref: '#/components/schemas/FailResponse'
  */
-router.delete('/user/:id', userController.deleteUser.bind(userController))
+
 
 
 export default router;

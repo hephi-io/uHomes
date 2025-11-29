@@ -17,10 +17,11 @@ const controller = new PropertyController();
 
 /**
  * @swagger
- * /api/property:
+ * api/property:
  *   post:
  *     summary: Create a new property
- *     tags: [Properties]
+ *     tags:
+ *       - Properties
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -31,51 +32,90 @@ const controller = new PropertyController();
  *             type: object
  *             required:
  *               - title
- *               - description
- *               - price
  *               - location
+ *               - pricePerSemester
+ *               - roomsAvailable
  *               - images
  *             properties:
  *               title:
  *                 type: string
- *                 example: "Luxury Apartment"
- *               description:
- *                 type: string
- *                 example: "Spacious 3-bedroom apartment in the city center"
- *               price:
- *                 type: number
- *                 example: 250000
+ *                 example: Modern School Hostel
  *               location:
  *                 type: string
- *                 example: "Downtown, New York"
+ *                 example: University of Lagos
+ *               pricePerSemester:
+ *                 type: number
+ *                 example: 150000
+ *               description:
+ *                 type: string
+ *                 example: A secure and clean student hostel
+ *               roomTypes:
+ *                 type: object
+ *                 properties:
+ *                   single:
+ *                     type: object
+ *                     properties:
+ *                       price:
+ *                         type: number
+ *                         example: 150000
+ *                   shared:
+ *                     type: object
+ *                     properties:
+ *                       price:
+ *                         type: number
+ *                         example: 90000
+ *                   selfContain:
+ *                     type: object
+ *                     properties:
+ *                       price:
+ *                         type: number
+ *                         example: 180000
+ *               roomsAvailable:
+ *                 type: number
+ *                 example: 12
+ *               amenities:
+ *                 type: object
+ *                 properties:
+ *                   wifi:
+ *                     type: boolean
+ *                   kitchen:
+ *                     type: boolean
+ *                   security:
+ *                     type: boolean
+ *                   parking:
+ *                     type: boolean
+ *                   power24_7:
+ *                     type: boolean
+ *                   gym:
+ *                     type: boolean
+ *                 example:
+ *                   wifi: true
+ *                   kitchen: true
+ *                   security: true
+ *                   parking: false
+ *                   power24_7: true
+ *                   gym: false
  *               images:
  *                 type: array
  *                 items:
  *                   type: string
  *                   format: binary
+ *                 description: Upload up to 10 images
  *     responses:
  *       201:
  *         description: Property created successfully
  *       400:
- *         description: Validation error
- *       401:
- *         description: Unauthorized
+ *         description: Bad request
  */
 router.post('/', authenticate, upload.array('images'), controller.createProperty.bind(controller));
 
 /**
  * @swagger
- * tags:
- *   name: Properties
- *   description: Property management endpoints
- */
-
-/**
- * @swagger
- * /api/property/{id}:
+ * /property/{id}:
  *   put:
- *     summary: Update a property by ID
- *     tags: [Properties]
+ *     summary: Update an existing property
+ *     tags:
+ *       - Properties
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -86,7 +126,7 @@ router.post('/', authenticate, upload.array('images'), controller.createProperty
  *           type: string
  *         description: Property ID
  *     requestBody:
- *       required: true
+ *       required: false
  *       content:
  *         multipart/form-data:
  *           schema:
@@ -94,35 +134,56 @@ router.post('/', authenticate, upload.array('images'), controller.createProperty
  *             properties:
  *               title:
  *                 type: string
- *                 example: "Luxury Apartment Updated"
- *               description:
- *                 type: string
- *                 example: "Updated 3-bedroom apartment in the city center"
- *               price:
- *                 type: number
- *                 example: 260000
  *               location:
  *                 type: string
- *                 example: "Downtown, New York"
- *               replaceImages:
- *                 type: boolean
- *                 description: Replace existing images if true
+ *               description:
+ *                 type: string
+ *               pricePerSemester:
+ *                 type: number
+ *               roomsAvailable:
+ *                 type: number
+ *               roomTypes:
+ *                 type: object
+ *                 properties:
+ *                   single:
+ *                     type: object
+ *                     properties:
+ *                       price:
+ *                         type: number
+ *                   shared:
+ *                     type: object
+ *                     properties:
+ *                       price:
+ *                         type: number
+ *                   selfContain:
+ *                     type: object
+ *                     properties:
+ *                       price:
+ *                         type: number
+ *               amenities:
+ *                 type: object
+ *                 properties:
+ *                   wifi:
+ *                     type: boolean
+ *                   kitchen:
+ *                     type: boolean
+ *                   security:
+ *                     type: boolean
+ *                   parking:
+ *                     type: boolean
+ *                   power24_7:
+ *                     type: boolean
+ *                   gym:
+ *                     type: boolean
  *               images:
  *                 type: array
  *                 items:
  *                   type: string
  *                   format: binary
+ *                 description: Upload additional images
  *     responses:
  *       200:
  *         description: Property updated successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Property'
- *       400:
- *         description: Validation error
- *       401:
- *         description: Unauthorized
  *       404:
  *         description: Property not found
  */
@@ -251,10 +312,11 @@ router.delete('/:id', authenticate, controller.deleteProperty.bind(controller));
 
 /**
  * @swagger
- * /api/property/{id}/image:
+ * /property/image/{id}:
  *   delete:
- *     summary: Delete a single image from a property
- *     tags: [Properties]
+ *     summary: Delete a single property image by cloudinaryId
+ *     tags:
+ *       - Properties
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -263,15 +325,20 @@ router.delete('/:id', authenticate, controller.deleteProperty.bind(controller));
  *         required: true
  *         schema:
  *           type: string
- *         description: Property ID
+ *       - in: body
+ *         name: cloudinaryId
+ *         required: true
+ *         schema:
+ *           type: object
+ *           properties:
+ *             cloudinaryId:
+ *               type: string
  *     responses:
  *       200:
  *         description: Image deleted successfully
- *       401:
- *         description: Unauthorized
  *       404:
  *         description: Property or image not found
  */
-router.delete('/:id/image', authenticate, controller.deleteSingleImage.bind(controller));
+router.delete('/image/:id', authenticate, controller.deleteSingleImage.bind(controller));
 
 export default router;

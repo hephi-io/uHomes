@@ -3,25 +3,26 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 
 let mongoServer: MongoMemoryServer;
 
-// Runs before all tests
 beforeAll(async () => {
   mongoServer = await MongoMemoryServer.create();
   const uri = mongoServer.getUri();
 
+  // Connect to in-memory MongoDB
   await mongoose.connect(uri);
 });
 
-// Runs after each test (optional, but keeps DB clean)
-afterEach(async () => {
-  const collections = mongoose.connection.collections;
-  for (const key in collections) {
-    const collection = collections[key];
-    await collection.deleteMany({});
-  }
-});
-
-// Runs after all tests
 afterAll(async () => {
   await mongoose.disconnect();
   await mongoServer.stop();
+});
+
+afterEach(async () => {
+  // Clear all collections
+  const db = mongoose.connection.db;
+  if (!db) return;
+
+  const collections = await db.collections();
+  for (const collection of collections) {
+    await collection.deleteMany({});
+  }
 });

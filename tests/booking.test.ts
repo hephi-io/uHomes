@@ -1,4 +1,4 @@
-
+import mongoose from 'mongoose';
 import Booking from '../src/models/booking.model';
 import Property from '../src/models/property.model';
 import User from '../src/models/user.model';
@@ -29,15 +29,18 @@ describe('BookingService', () => {
       types: 'Agent',
     });
 
-    // Create property
+    // Create property with all required fields
     const property = await Property.create({
       title: 'Property',
+      description: 'Nice property',
       location: 'City',
-      price: 1000,
-      agentId: agent._id,
+      pricePerSemester: 1000,
+      roomsAvailable: 10,
+      roomTypes: { single: { price: 1000 } },
       images: [{ url: 'url', cloudinary_id: 'id' }],
-      amenities: ['pool'],
+      amenities: { wifi: true, kitchen: true, security: true, parking: true, power24_7: true, gym: true },
       isAvailable: true,
+      agentId: agent._id,
     });
     propertyId = property._id.toString();
 
@@ -61,6 +64,8 @@ describe('BookingService', () => {
       moveInDate: new Date(),
       duration: '6 months',
       amount: 500,
+      propertyType: 'single',
+      gender: 'male' as const, // ensure TS compatibility
     };
 
     const booking = await bookingService.createBooking(bookingData, {
@@ -78,6 +83,8 @@ describe('BookingService', () => {
       moveInDate: new Date(),
       duration: '6 months',
       amount: 500,
+      propertyType: 'single',
+      gender: 'male' as const,
     };
 
     await expect(
@@ -93,6 +100,8 @@ describe('BookingService', () => {
       moveInDate: new Date(),
       duration: '6 months',
       amount: 500,
+      propertyType: 'single',
+      gender: 'male' as const,
       status: 'pending',
       paymentStatus: 'pending',
     });

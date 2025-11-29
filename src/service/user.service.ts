@@ -22,7 +22,7 @@ export class UserService {
 
       const hashedPassword = await bcrypt.hash(password, 10)
 
-      let user: IUser
+    let user: IUser | null = null
 
       try {
         const userData: Partial<IUser> = {

@@ -4,7 +4,7 @@ import User from '../src/models/user.model';
 import User_type from '../src/models/user-type.model';
 import { PropertyService } from '../src/service/property.service';
 import cloudinary from '../src/config/cloudinary';
-import {  NotFoundError } from '../src/middlewares/error.middlewere';
+import { BadRequestError, NotFoundError } from '../src/middlewares/error.middlewere';
 
 jest.mock('../src/config/cloudinary', () => ({
   uploader: {
@@ -15,69 +15,112 @@ jest.mock('../src/config/cloudinary', () => ({
 
 describe('PropertyService', () => {
   let propertyService: PropertyService;
-  let agentId: string;
 
   beforeAll(async () => {
     propertyService = new PropertyService();
+  });
 
+  afterEach(async () => {
+    jest.clearAllMocks();
+    await Property.deleteMany({});
+    await User.deleteMany({});
+    await User_type.deleteMany({});
+  });
+
+  it('should create a property', async () => {
     const agent = await User.create({
       fullName: 'Test Agent',
       email: 'agent@test.com',
       password: 'password',
       phoneNumber: '08123456789',
     });
-    agentId = agent._id.toString();
 
-    await User_type.create({
-      userId: agent._id,
-      types: 'Agent',
-    });
-  });
+    await User_type.create({ userId: agent._id, types: 'Agent' });
 
-  afterEach(async () => {
-    jest.clearAllMocks();
-    await Property.deleteMany({});
-  });
-
-  it('should create a property', async () => {
     const data = {
       title: 'Test Property',
-      location: 'City',
-      price: 1000,
       description: 'Nice property',
-      amenities: ['pool', 'gym'],
-      isAvailable: true,
+      location: 'City',
+      pricePerSemester: 1000,
+      roomsAvailable: 2,
+      roomTypes: { single: { price: 1000 } },
+      amenities: {
+        wifi: true,
+        kitchen: true,
+        security: true,
+        parking: false,
+        power24_7: false,
+        gym: true,
+      },
     };
+
     const files = [{ path: 'path/to/file.jpg' }];
 
-    const property = await propertyService.createProperty(
-      agentId,
-      data,
-      files as unknown as Express.Multer.File[]
-    );
+    const property = await propertyService.createProperty(agent._id.toString(), data, files as any);
 
     expect(property.title).toBe('Test Property');
     expect(property.images).toHaveLength(1);
     expect(cloudinary.uploader.upload).toHaveBeenCalled();
   });
 
-  it('should throw error if no files', async () => {
-    await expect(
-    propertyService.createProperty(agentId, { title: 'Test', location: 'City', price: 500 } as any, [])
-  ).rejects.toThrow(NotFoundError);
+  it('should throw BadRequestError if no files are provided', async () => {
+    const agent = await User.create({
+      fullName: 'Agent No Files',
+      email: 'nofiles@test.com',
+      password: 'password',
+      phoneNumber: '08123456780',
+    });
 
+    await User_type.create({ userId: agent._id, types: 'Agent' });
+
+    const data = {
+      title: 'Test Property',
+      description: 'Some description',
+      location: 'City',
+      pricePerSemester: 1000,
+      roomsAvailable: 1,
+      roomTypes: { single: { price: 1000 } },
+      amenities: {
+        wifi: false,
+        kitchen: false,
+        security: false,
+        parking: false,
+        power24_7: false,
+        gym: false,
+      },
+    };
+
+    await expect(propertyService.createProperty(agent._id.toString(), data, []))
+      .rejects.toThrow(BadRequestError);
   });
 
   it('should get property by id', async () => {
+    const agent = await User.create({
+      fullName: 'Fetch Agent',
+      email: 'fetch@test.com',
+      password: 'password',
+      phoneNumber: '08123456781',
+    });
+    await User_type.create({ userId: agent._id, types: 'Agent' });
+
     const property = await Property.create({
-      title: 'Test',
+      title: 'Fetch Property',
+      description: 'Description',
       location: 'City',
-      price: 1000,
-      description: 'Desc',
-      amenities: [],
-      isAvailable: true,
+      pricePerSemester: 1000,
+      roomsAvailable: 2,
+      roomTypes: { single: { price: 1000 } },
+      amenities: {
+        wifi: true,
+        kitchen: false,
+        security: true,
+        parking: false,
+        power24_7: false,
+        gym: false,
+      },
       images: [{ url: 'url', cloudinary_id: 'id' }],
-      agentId: new mongoose.Types.ObjectId(agentId),
+      agentId: agent._id,
+      isAvailable: true,
     });
 
     const fetched = await propertyService.getPropertyById(property._id.toString());
@@ -85,15 +128,32 @@ describe('PropertyService', () => {
   });
 
   it('should delete property and images', async () => {
+    const agent = await User.create({
+      fullName: 'Delete Agent',
+      email: 'delete@test.com',
+      password: 'password',
+      phoneNumber: '08123456782',
+    });
+    await User_type.create({ userId: agent._id, types: 'Agent' });
+
     const property = await Property.create({
       title: 'Delete Me',
-      location: 'City',
-      price: 1000,
       description: 'Desc',
-      amenities: [],
-      isAvailable: true,
+      location: 'City',
+      pricePerSemester: 1000,
+      roomsAvailable: 1,
+      roomTypes: { single: { price: 1000 } },
+      amenities: {
+        wifi: true,
+        kitchen: false,
+        security: false,
+        parking: false,
+        power24_7: false,
+        gym: false,
+      },
       images: [{ url: 'url', cloudinary_id: 'id' }],
-      agentId: new mongoose.Types.ObjectId(agentId),
+      agentId: agent._id,
+      isAvailable: true,
     });
 
     await propertyService.deleteProperty(property._id.toString());

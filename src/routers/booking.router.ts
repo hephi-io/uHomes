@@ -97,7 +97,7 @@ router.get('/agent/:agentId', authenticate, bookingController.getAgentBookings);
 
 /**
  * @swagger
- * /api/bookings:
+ * /api/booking:
  *   get:
  *     summary: Get all bookings
  *     description:
@@ -105,7 +105,7 @@ router.get('/agent/:agentId', authenticate, bookingController.getAgentBookings);
  *       - **Admin:** Can view all bookings.
  *       - **Agent:** Can view only their assigned bookings.
  *       - **Student:** Can view only their own bookings.
- *     tags: [Bookings]
+ *     tags: [Booking]
  *     security:
  *       - bearerAuth: []
  *     responses:
@@ -202,7 +202,7 @@ router.patch(
  *       - **Admin:** Can delete any booking.
  *       - **Agent:** Can delete only their assigned bookings.
  *       - **Student:** Can delete only their own bookings.
- *     tags: [Bookings]
+ *     tags: [Booking]
  *     security:
  *       - bearerAuth: []
  *     parameters:
