@@ -52,3 +52,35 @@ export const paginationPlaceholders = [
   { id: 3, content: '3...' },
   { id: 4, content: '84' },
 ];
+
+export const commentButtons = [
+  { id: 1, text: 'The room was exactly as described!' },
+  { id: 2, text: 'Clean' },
+  { id: 3, text: 'safe and peaceful' },
+  { id: 4, text: 'Great Room mates' },
+  { id: 5, text: 'Quick maintenance support.' },
+];
+
+export const receiptDetails = [
+  {
+    id: 1,
+    header: 'Sender details',
+    textOne: 'Cynthia Themoon',
+    textTwo: '9014184551 / Moniepoint MFB',
+  },
+  {
+    id: 2,
+    header: 'Recipient Details',
+    textOne: 'UHomes property',
+    textTwo: '0123456789 / Paystack Titans',
+  },
+  { id: 3, header: 'Payment Reference', textOne: 'BK20251104-108', textTwo: '' },
+  { id: 4, header: 'Payment Date', textOne: 'Tuesday, November 11th, 2025 | 01:55pm', textTwo: '' },
+];
+
+export const breakdowns = [
+  { id: 1, name: 'Rent', value: '₦240,000' },
+  { id: 2, name: 'Service charge', value: '₦10,000' },
+  { id: 3, name: 'Caution fee', value: '₦20,000' },
+  { id: 4, name: 'Agreement fee (one-time)', value: '₦10,000' },
+];

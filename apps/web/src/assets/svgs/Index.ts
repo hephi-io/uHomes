@@ -57,6 +57,9 @@ import Bed from './bed.svg?react';
 import Star from './star.svg?react';
 import AiLock from './ai-lock.svg?react';
 import DashesMedium from './dashes-medium.svg?react';
+import StarBlank from './star-blank.svg?react';
+import Invoice from './invoice.svg?react';
+import Copy from './copy.svg?react';
 
 export const SVGs = {
   AddProperty,
@@ -118,4 +121,7 @@ export const SVGs = {
   Star,
   AiLock,
   DashesMedium,
+  StarBlank,
+  Invoice,
+  Copy,
 };
