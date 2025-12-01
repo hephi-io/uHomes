@@ -17,6 +17,7 @@ import ResetPasswordSuccess from '@/pages/auth/reset-password-success';
 import Dashboard from '@/pages/Agent/dashboard';
 import { StudentDashboard, Hostels, Hostel, Help } from '@/pages/students';
 import Booking from '@/pages/booking/booking';
+import SMNewProperty from '@/pages/Agent/components/sm-add-new-property';
 
 const router = createBrowserRouter([
   {
@@ -47,6 +48,10 @@ const router = createBrowserRouter([
         <VerifyAccount />
       </PublicRoute>
     ),
+  },
+  {
+    path: 'SMNewProperty',
+    element: <SMNewProperty />,
   },
   {
     path: '/agent-dashboard',
