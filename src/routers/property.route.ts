@@ -1,12 +1,12 @@
-import express from 'express';
-import { PropertyController } from '../cotrollers/property.controller';
-import multer from 'multer';
-import { authenticate } from '../middlewares/auth.middleware';
+import express from 'express'
+import { PropertyController } from '../cotrollers/property.controller'
+import multer from 'multer'
+import { authenticate } from '../middlewares/auth.middleware'
 
-const router = express.Router();
-const upload = multer({ dest: 'uploads/' });
+const router = express.Router()
+const upload = multer({ dest: 'uploads/' })
 
-const controller = new PropertyController();
+const controller = new PropertyController()
 
 
 /**

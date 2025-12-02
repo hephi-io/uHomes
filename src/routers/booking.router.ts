@@ -1,11 +1,11 @@
-import express from 'express';
-import { BookingController } from '../cotrollers/booking.controller';
-import { validate } from '../middlewares/validate.middleware';
-import { authenticate } from '../middlewares/auth.middleware';
-import { bookingSchema, updateBookingStatusSchema } from '../validation/booking.validation';
+import express from 'express'
+import { BookingController } from '../cotrollers/booking.controller'
+import { validate } from '../middlewares/validate.middleware'
+import { authenticate } from '../middlewares/auth.middleware'
+import { bookingSchema, updateBookingStatusSchema } from '../validation/booking.validation'
 
-const router = express.Router();
-const bookingController = new BookingController();
+const router = express.Router()
+const bookingController = new BookingController()
 
 /**
  * @swagger
@@ -224,7 +224,7 @@ router.patch(
   authenticate,
    validate({ body: updateBookingStatusSchema }),
   bookingController.updateBookingStatus
-);
+)
 
 /**
  * @swagger

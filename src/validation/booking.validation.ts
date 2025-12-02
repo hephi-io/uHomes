@@ -33,10 +33,10 @@ export const bookingSchema = z.object({
   ),
   status: z.enum(["pending", "confirmed", "cancelled", "completed"]).optional(),
   paymentStatus: z.enum(["pending", "paid", "refunded"]).optional(),
-});
+})
 
 
 
 export const updateBookingStatusSchema = z.object({
   status: z.enum(['pending', 'confirmed', 'cancelled', 'completed'])
-});
+})

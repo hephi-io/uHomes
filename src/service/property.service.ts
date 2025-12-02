@@ -36,19 +36,19 @@ export class PropertyService {
       uploadedImages.push({
         url: result.secure_url,
         cloudinary_id: result.public_id,
-      });
+      })
     }
 
     const newProperty = await Property.create({
       ...data,
       images: uploadedImages,
       agentId: [agentId],
-    });
+    })
 
     // Update user's properties array
     await User.findByIdAndUpdate(agentId, {
       $push: { properties: newProperty._id },
-    });
+    })
 
     return newProperty;
   }
@@ -83,24 +83,24 @@ export class PropertyService {
     } = filters;
 
     // Build query object
-    const query: any = { isAvailable: true };
+    const query: any = { isAvailable: true }
 
     // Search filter (title or description)
     if (search) {
       query.$or = [
         { title: { $regex: search, $options: 'i' } },
         { description: { $regex: search, $options: 'i' } },
-      ];
+      ]
     }
 
     // Price range filter
     if (minPrice !== undefined || maxPrice !== undefined) {
       query.price = {};
       if (minPrice !== undefined) {
-        query.price.$gte = minPrice;
+        query.price.$gte = minPrice
       }
       if (maxPrice !== undefined) {
-        query.price.$lte = maxPrice;
+        query.price.$lte = maxPrice
       }
     }
 
@@ -172,7 +172,7 @@ export class PropertyService {
       .limit(limit)
       .populate('agentId', '-password');
 
-    return { properties, total, page, limit };
+    return { properties, total, page, limit }
   }
 
   async updateProperty(
@@ -180,14 +180,14 @@ export class PropertyService {
     data: Partial<IProperty> & { replaceImages?: boolean },
     files?: Express.Multer.File[]
   ): Promise<IProperty> {
-    const property = await Property.findById(id);
-    if (!property) throw new NotFoundError('Property not found');
+    const property = await Property.findById(id)
+    if (!property) throw new NotFoundError('Property not found')
 
 
     // Parse JSON strings if they exist (for multipart/form-data)
     if (data.roomTypes && typeof data.roomTypes === 'string') {
       try {
-        data.roomTypes = JSON.parse(data.roomTypes);
+        data.roomTypes = JSON.parse(data.roomTypes)
       } catch (err) {
         throw new BadRequestError('Invalid roomTypes format');
       }
@@ -195,14 +195,14 @@ export class PropertyService {
 
     if (data.amenities && typeof data.amenities === 'string') {
       try {
-        data.amenities = JSON.parse(data.amenities);
+        data.amenities = JSON.parse(data.amenities)
       } catch (err) {
-        throw new BadRequestError('Invalid amenities JSON');
+        throw new BadRequestError('Invalid amenities JSON')
       }
     }
 
     if (files && files.length > 0) {
-      const uploadedImages: CloudinaryImage[] = [];
+      const uploadedImages: CloudinaryImage[] = []
 
       for (const file of files) {
         const result = await cloudinary.uploader.upload(file.path);

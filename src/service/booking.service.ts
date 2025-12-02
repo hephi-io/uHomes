@@ -26,24 +26,24 @@ export class BookingService {
   user: { id: string; type?: string }
 ): Promise<IBooking> {
   // Check if logged-in user is a student
-  const userType = await UserType.findOne({ userId: user.id });
-  if (!userType) throw new NotFoundError('User type not found');
+  const userType = await UserType.findOne({ userId: user.id })
+  if (!userType) throw new NotFoundError('User type not found')
   if (userType.type !== 'student') {
-    throw new UnauthorizedError('Only students can create bookings');
+    throw new UnauthorizedError('Only students can create bookings')
   }
 
   // Find the property
-  const foundProperty = await property.findById(data.propertyid);
-  if (!foundProperty) throw new NotFoundError('Property not found');
+  const foundProperty = await property.findById(data.propertyid)
+  if (!foundProperty) throw new NotFoundError('Property not found')
 
   // Use the agent assigned to the property
-  const agentId = foundProperty.agentId;
-  if (!agentId) throw new BadRequestError('Property has no agent assigned');
+  const agentId = foundProperty.agentId
+  if (!agentId) throw new BadRequestError('Property has no agent assigned')
 
   // Validate that the agent is actually an agent
-  const agentType = await UserType.findOne({ userId: agentId });
+  const agentType = await UserType.findOne({ userId: agentId })
   if (!agentType || agentType.type !== 'agent') {
-    throw new BadRequestError('Invalid agent assigned to property');
+    throw new BadRequestError('Invalid agent assigned to property')
   }
 
   // Create booking
@@ -60,9 +60,9 @@ export class BookingService {
     paymentStatus: data.paymentStatus || 'pending',
     tenant: user.id,
     agent: agentId
-  });
+  })
 
-  return await booking.save();
+  return await booking.save()
 }
   async getBookingById(bookingId: string, userId: string): Promise<IBooking> {
     if (!mongoose.Types.ObjectId.isValid(bookingId)) {
