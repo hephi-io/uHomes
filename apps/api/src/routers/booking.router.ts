@@ -31,7 +31,7 @@ const bookingController = new BookingController();
  *       400:
  *         description: Bad request (missing or invalid fields)
  */
-router.post('/', authenticate, validate(bookingSchema), bookingController.createBooking);
+router.post('/', authenticate, validate({ body: bookingSchema }), bookingController.createBooking);
 
 /**
  * @swagger
@@ -222,7 +222,7 @@ router.get('/', authenticate, bookingController.getAllBookings);
 router.patch(
   '/:id/status',
   authenticate,
-  validate(updateBookingStatusSchema),
+  validate({ body: updateBookingStatusSchema }),
   bookingController.updateBookingStatus
 );
 
