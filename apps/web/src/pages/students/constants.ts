@@ -235,6 +235,17 @@ export const frameworks2 = [
   },
 ];
 
+export interface IAddNewProperty {
+  propertyTitle: string;
+  location: string;
+  roomTypes: string;
+  singleRoom: string;
+  roomsAvailable: string;
+  description: string;
+  propertyImages: File[];
+  amenities: string[];
+}
+
 export const bookingData: IBooking[] = [
   {
     bookingID: 'BK20251104-108',
