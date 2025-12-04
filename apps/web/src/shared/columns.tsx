@@ -12,7 +12,12 @@ export type Property = {
   rating: string;
 };
 
-export const columns: ColumnDef<Property>[] = [
+interface ColumnsProps {
+  onEdit?: (propertyId: string) => void;
+  onDelete?: (propertyId: string) => void;
+}
+
+export const createColumns = ({ onEdit, onDelete }: ColumnsProps = {}): ColumnDef<Property>[] => [
   {
     id: 'select',
     header: ({ table }) => (
@@ -89,15 +94,26 @@ export const columns: ColumnDef<Property>[] = [
   {
     id: 'actions',
     header: 'Actions',
-    cell: () => (
+    cell: ({ row }) => (
       <div className="flex items-center">
-        <button className="py-4 px-6">
+        <button
+          onClick={() => onEdit?.(row.original.id)}
+          className="py-4 px-6 hover:text-blue-600 transition"
+          title="Edit property"
+        >
           <SVGs.Pencil />
         </button>
-        <button className="py-4 px-6">
+        <button
+          onClick={() => onDelete?.(row.original.id)}
+          className="py-4 px-6 hover:text-red-600 transition"
+          title="Delete property"
+        >
           <SVGs.Trash />
         </button>
       </div>
     ),
   },
 ];
+
+// Default export for backward compatibility
+export const columns = createColumns();

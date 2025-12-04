@@ -16,10 +16,26 @@ export interface SavedProperty {
   _id: string;
   title: string;
   description: string;
-  price: number;
+  pricePerSemester: number;
+  price?: number; // Legacy field for backward compatibility
   location: string;
   images: PropertyImage[];
-  amenities: string[];
+  amenities:
+    | {
+        wifi: boolean;
+        kitchen: boolean;
+        security: boolean;
+        parking: boolean;
+        power24_7: boolean;
+        gym: boolean;
+      }
+    | string[]; // Can be object or array for backward compatibility
+  roomTypes?: {
+    single?: { price: number };
+    shared?: { price: number };
+    selfContain?: { price: number };
+  };
+  roomsAvailable?: number;
   rating?: number;
   isAvailable: boolean;
   agentId: PropertyAgent[] | string[];
@@ -58,12 +74,17 @@ export interface PropertyFilters {
 const endpoints = {
   getAllProperties: '/api/property',
   getSavedProperties: '/api/property/saved',
+  getAgentProperties: '/api/property/agent',
+  createProperty: '/api/property',
+  updateProperty: (id: string) => `/api/property/${id}`,
+  deleteProperty: (id: string) => `/api/property/${id}`,
+  getPropertyById: (id: string) => `/api/property/${id}`,
   saveProperty: (id: string) => `/api/property/${id}/save`,
   unsaveProperty: (id: string) => `/api/property/${id}/save`,
 };
 
 export const getAllProperties = (filters: PropertyFilters = {}) => {
-  const params: Record<string, any> = {
+  const params: Record<string, string | number> = {
     page: filters.page || 1,
     limit: filters.limit || 10,
   };
@@ -95,4 +116,55 @@ export const saveProperty = (propertyId: string) => {
 
 export const unsaveProperty = (propertyId: string) => {
   return API.delete<TResponse<{ message: string }>>(endpoints.unsaveProperty(propertyId));
+};
+
+export const getAgentProperties = (page = 1, limit = 10) => {
+  return API.get<TResponse<PaginatedProperties>>(endpoints.getAgentProperties, {
+    params: { page, limit },
+  });
+};
+
+export interface AgentDashboardStats {
+  totalProperties: number;
+  availableRooms: number;
+  pendingBookings: number;
+  totalRevenue: number;
+}
+
+export const getAgentDashboardStats = () => {
+  return API.get<TResponse<AgentDashboardStats>>('/api/agent/dashboard/stats');
+};
+
+export interface CreatePropertyResponse {
+  message: string;
+  property: SavedProperty;
+}
+
+export const createProperty = (formData: FormData) => {
+  return API.post<TResponse<CreatePropertyResponse>>(endpoints.createProperty, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+};
+
+export interface UpdatePropertyResponse {
+  message: string;
+  property: SavedProperty;
+}
+
+export const updateProperty = (id: string, formData: FormData) => {
+  return API.put<TResponse<UpdatePropertyResponse>>(endpoints.updateProperty(id), formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+};
+
+export const deleteProperty = (id: string) => {
+  return API.delete<TResponse<{ message: string }>>(endpoints.deleteProperty(id));
+};
+
+export const getPropertyById = (id: string) => {
+  return API.get<TResponse<{ property: SavedProperty }>>(endpoints.getPropertyById(id));
 };

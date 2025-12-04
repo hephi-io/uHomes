@@ -1,5 +1,8 @@
 import Agent, { IAgent } from '../models/agent.model';
 import Token from '../models/token.model';
+import Property from '../models/property.model';
+import Booking from '../models/booking.model';
+import mongoose from 'mongoose';
 import { randomBytes } from 'crypto';
 import { sendEmail } from '../utils/sendEmail';
 import bcrypt from 'bcryptjs';
@@ -288,5 +291,46 @@ export class AgentService {
     await sendEmail(agent.email, 'New OTP for Password Reset', html);
 
     return { message: 'New OTP sent to your email.' };
+  }
+
+  async getDashboardStats(agentId: string) {
+    const totalProperties = await Property.countDocuments({
+      agentId: new mongoose.Types.ObjectId(agentId),
+    });
+
+    const properties = await Property.find({ agentId: new mongoose.Types.ObjectId(agentId) });
+    const availableRooms = properties.reduce(
+      (sum, property) => sum + (property.roomsAvailable || 0),
+      0
+    );
+
+    const pendingBookings = await Booking.countDocuments({
+      agent: new mongoose.Types.ObjectId(agentId),
+      status: 'pending',
+    });
+
+    const revenueResult = await Booking.aggregate([
+      {
+        $match: {
+          agent: new mongoose.Types.ObjectId(agentId),
+          paymentStatus: 'paid',
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalRevenue: { $sum: '$amount' },
+        },
+      },
+    ]);
+
+    const totalRevenue = revenueResult.length > 0 ? revenueResult[0].totalRevenue : 0;
+
+    return {
+      totalProperties,
+      availableRooms,
+      pendingBookings,
+      totalRevenue,
+    };
   }
 }

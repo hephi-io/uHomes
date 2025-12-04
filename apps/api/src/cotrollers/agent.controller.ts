@@ -147,4 +147,19 @@ export class AgentController {
       next(err);
     }
   }
+
+  async getDashboardStats(req: Request, res: Response, next: NextFunction) {
+    try {
+      const agentId = req.user?.id;
+
+      if (!agentId) {
+        return ResponseHelper.unauthorized(res, 'Unauthorized');
+      }
+
+      const stats = await this.agentService.getDashboardStats(agentId);
+      return ResponseHelper.success(res, stats);
+    } catch (err) {
+      next(err);
+    }
+  }
 }
