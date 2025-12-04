@@ -1,4 +1,4 @@
-import { Button } from '@uhomes/ui-kit';
+import { Button, Textarea } from '@uhomes/ui-kit';
 
 import Badge from '@/shared/badge';
 import LikeButton from '@/shared/like-button';
@@ -7,7 +7,26 @@ import { badges, topBadges } from '@/pages/students/constants';
 import { SVGs } from '@/assets/svgs/Index';
 import HostelImage from '@/assets/pngs/hostel-image-3.png';
 import { useNavigate } from 'react-router-dom';
-import { availableRooms, studentReviews, paginationPlaceholders } from './mocks';
+import {
+  availableRooms,
+  studentReviews,
+  paginationPlaceholders,
+  commentButtons,
+  receiptDetails,
+  breakdowns,
+} from './mocks';
+
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 
 export function Hostel() {
   const navigate = useNavigate();
@@ -35,8 +54,8 @@ export function Hostel() {
       <div className="border-t border-t-[#E4E4E4] mt-5"></div>
 
       <div className="lg:p-8">
-        <div className="lg:flex lg:gap-x-[25px] lg:items-start">
-          <div className="grow">
+        <div className="lg:flex lg:gap-x-[25px] justify-between lg:items-start">
+          <div className="lg:w-[68.09%] lg:grow">
             <div className="flex justify-between mt-12 lg:mt-3">
               <div>
                 <h1 className="font-semibold text-xl leading-[120%] tracking-[0%] text-black">
@@ -139,8 +158,125 @@ export function Hostel() {
                 Book Now
               </span>
             </Button>
+            <AlertDialog>
+              <AlertDialogTrigger className="hidden w-full mt-4">
+                <Button
+                  variant="outline"
+                  className="w-full h-10 gap-x-2 rounded-lg border-[#DCDCDC] bg-[#F8F8F9]"
+                >
+                  <SVGs.Invoice />
+                  <span className="font-medium text-sm leading-[150%] tracking-[0%] text-[#09090B]">
+                    View Receipt
+                  </span>
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent className="w-[510px] max-h-screen rounded-[10px] bg-white gap-0 p-6 overflow-y-scroll">
+                <AlertDialogHeader className="gap-0">
+                  <AlertDialogTitle className="flex gap-x-2 justify-center items-center">
+                    <SVGs.UHome />
+                    <span className="font-bold text-lg leading-6 tracking-normal align-middle text-[#1F1E1E]">
+                      HOMES
+                    </span>
+                  </AlertDialogTitle>
+                  <div className="border-t-[0.5px] border-t-[#DCDCDC] mt-2" />
+                  <AlertDialogDescription className="mt-3">
+                    <h1 className="font-medium text-lg leading-7 tracking-[0%] text-black text-center">
+                      Booking Payment Receipt
+                    </h1>
+                    <div className="font-medium text-2xl leading-7 tracking-[0%] text-black text-center mt-4">
+                      ₦280,000.00
+                    </div>
+                    <div className="w-fit flex gap-x-2.5 items-center rounded-md bg-[#1DB4691F] px-2 py-0.5 mx-auto mt-4">
+                      <div className="size-2 rounded-full bg-[#11A75C]" />
+                      <span className="text-sm leading-5.5 tracking-[0%] text-[#11A75C]">
+                        Successful
+                      </span>
+                    </div>
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <div className="bg-[#F9FBFF] p-4 mt-6">
+                  {receiptDetails.map((receiptDetail) => (
+                    <div key={receiptDetail.id} className={receiptDetail.id === 1 ? '' : 'mt-6'}>
+                      <h4 className="font-light text-sm leading-[100%] tracking-[0%] text-[#727272]">
+                        {receiptDetail.header}
+                      </h4>
+                      <div className="flex gap-x-2.5 items-center font-Bricolage font-medium text-sm leading-[100%] tracking-[0%] text-[#09090B] mt-2">
+                        <span>{receiptDetail.textOne}</span>
+                        <span
+                          className={
+                            receiptDetail.id === 3 || receiptDetail.id === 4 ? 'hidden' : ''
+                          }
+                        >
+                          -
+                        </span>
+                        <span
+                          className={
+                            receiptDetail.id === 3 || receiptDetail.id === 4 ? 'hidden' : ''
+                          }
+                        >
+                          {receiptDetail.textTwo}
+                        </span>
+                        <Button
+                          variant="ghost"
+                          className={`size-4 ${receiptDetail.id === 3 ? '' : 'hidden'}`}
+                        >
+                          <SVGs.Copy />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                  <div className="border-t border-t-[#DCDCDC] mt-6" />
+                  <h3 className="font-medium text-sm leading-6 tracking-[0%] align-middle text-[#09090B] text-center mt-6">
+                    Cost breakdown
+                  </h3>
+                  {breakdowns.map((breakdown) => (
+                    <div key={breakdown.id} className="flex justify-between items-center mt-4">
+                      <span className="font-medium text-sm leading-7 tracking-[0%] align-middle text-[#09090B]">
+                        {breakdown.name}
+                      </span>
+                      <span className="text-sm leading-7 tracking-[0%] text-right align-middle text-[#09090B]">
+                        {breakdown.value}
+                      </span>
+                    </div>
+                  ))}
+                  <div className="flex gap-x-2.5 rounded-lg bg-[#EFF3FD] px-3 py-2 mt-6">
+                    <SVGs.Exclamation />
+                    <div>
+                      <h3 className="font-semibold text-sm leading-[150%] tracking-[0%] align-middle text-[#3E78FF]">
+                        Rent is due in 12 months
+                      </h3>
+                      <p className="text-sm leading-[120%] tracking-[0%] align-middle text-[#3E78FF] mt-2.5">
+                        Your current rent expires on December 26, 2026. Renew early to keep your
+                        room secured.
+                      </p>
+                    </div>
+                  </div>
+                  <Button
+                    variant="outline"
+                    className="w-full h-10 gap-x-2 rounded-[5px] border-[#E4E4E4] mt-4"
+                  >
+                    <SVGs.CreditCard />
+                    <span className="font-medium text-sm leading-[150%] tracking-[0%] text-[#141B34]">
+                      Renew
+                    </span>
+                  </Button>
+                </div>
+                <AlertDialogFooter className="mt-15">
+                  <AlertDialogCancel className="h-[37px] rounded-md border border-[#E5E5E5] md:w-[131px]">
+                    <span className="font-medium text-sm leading-[100%] tracking-[0%] text-[#09090B]">
+                      Close
+                    </span>
+                  </AlertDialogCancel>
+                  <AlertDialogAction className="h-[37px] rounded-[5px] border border-[#E4E4E4EE] bg-[#3E78FF] px-4">
+                    <span className="font-medium text-sm leading-[150%] tracking-[0%] text-white">
+                      Download Receipt
+                    </span>
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
-          <div className="rounded-[10px] border border-[#93A2C30D] shadow-[1px_1px_8px_0px_#00000014] lg:w-[409px] p-10 pt-3 md:px-4 lg:px-10 lg:pt-3 lg:pb-10 mt-[41px] lg:mt-0">
+          <div className="rounded-[10px] border border-[#93A2C30D] shadow-[1px_1px_8px_0px_#00000014] lg:w-[30.07%] lg:max-w-[409px] lg:shrink-0 p-10 pt-3 md:px-4 lg:px-10 lg:pt-3 lg:pb-10 mt-[41px] lg:mt-0">
             <div className="flex justify-between items-center">
               <h1 className="font-semibold text-lg leading-[100%] tracking-[0%] text-black">
                 Students Review
@@ -169,7 +305,6 @@ export function Hostel() {
                 </p>
               </div>
             ))}
-
             <div className="w-fit flex gap-x-5 items-center lg:w-full mx-auto mt-8">
               <Button variant="ghost">
                 <SVGs.ChevronLeft />
@@ -193,6 +328,42 @@ export function Hostel() {
 
               <Button variant="ghost">
                 <SVGs.ChevronLeft className="rotate-180" />
+              </Button>
+            </div>
+            <div className="hidden mt-8">
+              <h1 className="font-semibold text-base leading-[120%] tracking-[0%] text-[#09090B]">
+                Rate Your Stay Experience
+              </h1>
+              <p className="text-sm leading-[120%] tracking-[0%] text-[#09090B] mt-2">
+                Your feedback helps us improve and guide other students in choosing the right hostel
+                or apartment.
+              </p>
+              <div className="flex justify-between items-center rounded-[5px] border border-[#E4E4E4EE] bg-white md:gap-x-9 md:justify-center p-4 mt-6">
+                {[...Array(5)].map((_, i) => (
+                  <SVGs.StarBlank key={i} className="text-[#141B34] hover:cursor-pointer" />
+                ))}
+              </div>
+              <div className="flex flex-wrap gap-4 items-center md:w-[95%] lg:w-full mt-4">
+                {commentButtons.map((commentButton) => (
+                  <Button
+                    key={commentButton.id}
+                    variant="secondary"
+                    className="rounded-full bg-[#F4F4F5] hover:cursor-pointer px-2 py-1"
+                  >
+                    <span className="text-sm leading-[150%] tracking-[0%] text-[#3D3D3D]">
+                      {commentButton.text}
+                    </span>
+                  </Button>
+                ))}
+              </div>
+              <Textarea
+                placeholder="Share your thoughts"
+                className="h-[106px] rounded-[5px] border-[#E4E4E4EE] bg-white bricolage-grotesque text-sm leading-[150%] tracking-[0%] text-[#AFAFAF] focus:text-black px-4 py-2 mt-4"
+              />
+              <Button className="w-full h-[37px] rounded-[5px] bg-[#3E78FF] mt-4">
+                <span className="font-medium text-sm leading-[150%] tracking-[0%] text-white">
+                  Comment
+                </span>
               </Button>
             </div>
           </div>
