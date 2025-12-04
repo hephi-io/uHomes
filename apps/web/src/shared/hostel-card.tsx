@@ -93,11 +93,14 @@ export function HostelCard({ property }: HostelCardProps) {
           </div>
         </div>
 
-        {propertyAmenities.length > 0 && (
+        {Array.isArray(propertyAmenities) && propertyAmenities.length > 0 && (
           <div className="w-[70%] flex flex-wrap gap-2 items-center md:w-[80%] lg:w-full mt-6">
-            {propertyAmenities.slice(0, 3).map((amenity, index) => (
-              <Badge key={index} Icon={SVGs.CheckmarkBadge} text={amenity} />
-            ))}
+            {Array.isArray(propertyAmenities) &&
+              propertyAmenities
+                .slice(0, 3)
+                .map((amenity, index) => (
+                  <Badge key={index} Icon={SVGs.CheckmarkBadge} text={amenity} />
+                ))}
           </div>
         )}
 
