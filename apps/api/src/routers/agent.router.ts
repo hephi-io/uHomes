@@ -173,6 +173,47 @@ router.get('/', authenticate, controller.getAll.bind(controller));
 
 /**
  * @openapi
+ * /api/agent/dashboard/stats:
+ *   get:
+ *     summary: Get agent dashboard statistics
+ *     tags: [Agent]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Dashboard statistics retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     totalProperties:
+ *                       type: number
+ *                       example: 20
+ *                     availableRooms:
+ *                       type: number
+ *                       example: 3
+ *                     pendingBookings:
+ *                       type: number
+ *                       example: 4
+ *                     totalRevenue:
+ *                       type: number
+ *                       example: 2000000
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       500:
+ *         $ref: '#/components/responses/ServerError'
+ */
+router.get('/dashboard/stats', authenticate, controller.getDashboardStats.bind(controller));
+
+/**
+ * @openapi
  * /api/agent/{id}:
  *   get:
  *     summary: Get an agent by ID
