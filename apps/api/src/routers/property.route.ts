@@ -10,13 +10,6 @@ const controller = new PropertyController();
 
 /**
  * @swagger
- * tags:
- *   name: Properties
- *   description: Property management endpoints
- */
-
-/**
- * @swagger
  * /api/property:
  *   post:
  *     summary: Create a new property
@@ -31,44 +24,49 @@ const controller = new PropertyController();
  *             type: object
  *             required:
  *               - title
- *               - description
- *               - price
  *               - location
+ *               - pricePerSemester
+ *               - roomsAvailable
  *               - images
  *             properties:
  *               title:
  *                 type: string
- *                 example: "Luxury Apartment"
+ *                 example: Modern School Hostel
  *               description:
  *                 type: string
- *                 example: "Spacious 3-bedroom apartment in the city center"
- *               price:
- *                 type: number
- *                 example: 250000
+ *                 example: A secure and clean student hostel
  *               location:
  *                 type: string
- *                 example: "Downtown, New York"
+ *                 example: University of Lagos
+ *               pricePerSemester:
+ *                 type: number
+ *                 example: 150000
+ *               roomTypes:
+ *                 $ref: '#/components/schemas/RoomTypes'
+ *               roomsAvailable:
+ *                 type: number
+ *                 example: 12
+ *               amenities:
+ *                 $ref: '#/components/schemas/Amenities'
  *               images:
  *                 type: array
  *                 items:
  *                   type: string
  *                   format: binary
+ *                 description: Upload up to 10 images
  *     responses:
  *       201:
  *         description: Property created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Property'
  *       400:
- *         description: Validation error
+ *         $ref: '#/components/responses/BadRequest'
  *       401:
- *         description: Unauthorized
+ *         $ref: '#/components/responses/Unauthorized'
  */
 router.post('/', authenticate, upload.array('images'), controller.createProperty.bind(controller));
-
-/**
- * @swagger
- * tags:
- *   name: Properties
- *   description: Property management endpoints
- */
 
 /**
  * @swagger
@@ -94,16 +92,23 @@ router.post('/', authenticate, upload.array('images'), controller.createProperty
  *             properties:
  *               title:
  *                 type: string
- *                 example: "Luxury Apartment Updated"
+ *                 example: Luxury Apartment Updated
  *               description:
  *                 type: string
- *                 example: "Updated 3-bedroom apartment in the city center"
- *               price:
- *                 type: number
- *                 example: 260000
+ *                 example: Updated 3-bedroom apartment in the city center
  *               location:
  *                 type: string
- *                 example: "Downtown, New York"
+ *                 example: Downtown, New York
+ *               pricePerSemester:
+ *                 type: number
+ *                 example: 260000
+ *               roomTypes:
+ *                 $ref: '#/components/schemas/RoomTypes'
+ *               roomsAvailable:
+ *                 type: number
+ *                 example: 8
+ *               amenities:
+ *                 $ref: '#/components/schemas/Amenities'
  *               replaceImages:
  *                 type: boolean
  *                 description: Replace existing images if true
@@ -120,11 +125,11 @@ router.post('/', authenticate, upload.array('images'), controller.createProperty
  *             schema:
  *               $ref: '#/components/schemas/Property'
  *       400:
- *         description: Validation error
+ *         $ref: '#/components/responses/BadRequest'
  *       401:
- *         description: Unauthorized
+ *         $ref: '#/components/responses/Unauthorized'
  *       404:
- *         description: Property not found
+ *         $ref: '#/components/responses/NotFound'
  */
 router.put(
   '/:id',
@@ -231,6 +236,8 @@ router.get('/', controller.getAllProperties.bind(controller));
  *   get:
  *     summary: Get properties for the authenticated agent with pagination
  *     tags: [Properties]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: query
  *         name: page
@@ -279,7 +286,7 @@ router.get('/agent', authenticate, controller.getPropertiesByAgent.bind(controll
  * @swagger
  * /api/property/saved:
  *   get:
- *     summary: Get saved properties for authenticated student
+ *     summary: Get saved properties for the authenticated student
  *     tags: [Properties]
  *     security:
  *       - bearerAuth: []
@@ -379,6 +386,8 @@ router.post('/:id/save', authenticate, controller.saveProperty.bind(controller))
  *         description: Property unsaved successfully
  *       401:
  *         description: Unauthorized
+ *       404:
+ *         description: Property not found
  */
 router.delete('/:id/save', authenticate, controller.unsaveProperty.bind(controller));
 
@@ -438,7 +447,7 @@ router.delete('/:id', authenticate, controller.deleteProperty.bind(controller));
 
 /**
  * @swagger
- * /api/property/{id}/image:
+ * /api/property/{id}/image/{cloudinaryId}:
  *   delete:
  *     summary: Delete a single image from a property
  *     tags: [Properties]
@@ -451,14 +460,28 @@ router.delete('/:id', authenticate, controller.deleteProperty.bind(controller));
  *         schema:
  *           type: string
  *         description: Property ID
+ *       - in: path
+ *         name: cloudinaryId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Cloudinary ID of the image to delete
  *     responses:
  *       200:
  *         description: Image deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Property'
  *       401:
  *         description: Unauthorized
  *       404:
  *         description: Property or image not found
  */
-router.delete('/:id/image', authenticate, controller.deleteSingleImage.bind(controller));
+router.delete(
+  '/:id/image/:cloudinaryId',
+  authenticate,
+  controller.deleteSingleImage.bind(controller)
+);
 
 export default router;

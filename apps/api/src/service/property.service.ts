@@ -183,6 +183,23 @@ export class PropertyService {
     const property = await Property.findById(id);
     if (!property) throw new NotFoundError('Property not found');
 
+    // Parse JSON strings if they exist (for multipart/form-data)
+    if (data.roomTypes && typeof data.roomTypes === 'string') {
+      try {
+        data.roomTypes = JSON.parse(data.roomTypes);
+      } catch {
+        throw new BadRequestError('Invalid roomTypes format');
+      }
+    }
+
+    if (data.amenities && typeof data.amenities === 'string') {
+      try {
+        data.amenities = JSON.parse(data.amenities);
+      } catch {
+        throw new BadRequestError('Invalid amenities JSON');
+      }
+    }
+
     if (files && files.length > 0) {
       const uploadedImages: CloudinaryImage[] = [];
 
@@ -199,6 +216,13 @@ export class PropertyService {
       } else {
         property.images.push(...uploadedImages);
       }
+    }
+
+    if (data.images && Array.isArray(data.images)) {
+      property.images = data.images.map((img) => {
+        if (typeof img === 'string') return { url: img, cloudinary_id: '' };
+        return img;
+      });
     }
 
     Object.assign(property, data);

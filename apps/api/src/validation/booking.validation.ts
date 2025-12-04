@@ -1,23 +1,42 @@
 import { z } from 'zod';
 
+// Booking status enums
+export enum BookingStatus {
+  pending = 'pending',
+  confirmed = 'confirmed',
+  cancelled = 'cancelled',
+  completed = 'completed',
+}
+
+// Booking schema
 export const bookingSchema = z.object({
-  property: z.string().min(1, 'Property is required'),
-  tenantName: z.string().min(1, 'Tenant name is required'),
-  tenantEmail: z.string().email('Invalid email address'),
-  tenantPhone: z.string().min(1, 'Tenant phone is required'),
-  moveInDate: z.string().min(1, 'Move-in date is required'),
+  propertyid: z.string().min(1, 'Property ID is required'),
+  propertyType: z.string().min(1, 'Property type is required'),
+  moveInDate: z
+    .string()
+    .transform((str) => new Date(str))
+    .refine((date) => !isNaN(date.getTime()), { message: 'Move-in date is required' }),
+  moveOutDate: z
+    .string()
+    .optional()
+    .transform((str) => (str && str.trim() !== '' ? new Date(str) : undefined)),
   duration: z.string().min(1, 'Duration is required'),
-  amount: z.number({ message: 'Amount must be a number' }),
+  gender: z.enum(['male', 'female']),
+  specialRequest: z.string().optional(),
+  amount: z.preprocess(
+    (val) => {
+      if (typeof val === 'string' || typeof val === 'number') {
+        const num = Number(val);
+        return isNaN(num) ? undefined : num;
+      }
+      return undefined;
+    },
+    z.number({ message: 'Amount must be a number' })
+  ),
   status: z.enum(['pending', 'confirmed', 'cancelled', 'completed']).optional(),
   paymentStatus: z.enum(['pending', 'paid', 'refunded']).optional(),
-  notes: z.string().optional(),
 });
 
 export const updateBookingStatusSchema = z.object({
-  body: z.object({
-    status: z.enum(['pending', 'confirmed', 'cancelled', 'completed']),
-    params: z.object({
-      id: z.string({ message: 'Booking ID is required' }),
-    }),
-  }),
+  status: z.enum(['pending', 'confirmed', 'cancelled', 'completed']),
 });

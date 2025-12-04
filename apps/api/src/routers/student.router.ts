@@ -33,7 +33,11 @@ const Controller = new StudentController();
  *       400:
  *         $ref: '#/components/responses/BadRequestError'
  */
-router.post('/register', validate(createStudentSchema), Controller.register.bind(Controller));
+router.post(
+  '/register',
+  validate({ body: createStudentSchema }),
+  Controller.register.bind(Controller)
+);
 
 /**
  * @openapi
@@ -137,7 +141,7 @@ router.post('/resend-verification', Controller.resendVerification.bind(Controlle
  *       404:
  *         description: Student not found
  */
-router.post('/login', validate(loginSchema), Controller.login.bind(Controller));
+router.post('/login', validate({ body: loginSchema }), Controller.login.bind(Controller));
 
 /**
  * @openapi
@@ -172,7 +176,7 @@ router.get('/', authenticate, Controller.getAll.bind(Controller));
 router.get(
   '/:id',
   authenticate,
-  validate(getStudentByIdSchema),
+  validate({ params: getStudentByIdSchema }),
   Controller.getById.bind(Controller)
 );
 
@@ -203,7 +207,7 @@ router.get(
 router.put(
   '/:id',
   authenticate,
-  validate(updateStudentSchema),
+  validate({ params: updateStudentSchema }),
   Controller.updateStudent.bind(Controller)
 );
 
@@ -228,7 +232,7 @@ router.put(
 router.delete(
   '/:id',
   authenticate,
-  validate(deleteStudentSchema),
+  validate({ params: deleteStudentSchema }),
   Controller.delete.bind(Controller)
 );
 
@@ -269,7 +273,7 @@ router.delete(
  */
 router.post(
   '/forgot-password',
-  validate(forgotPasswordSchema),
+  validate({ body: forgotPasswordSchema }),
   Controller.forgotPassword.bind(Controller)
 );
 
@@ -310,7 +314,7 @@ router.post(
  */
 router.post(
   '/reset-password/:otp',
-  validate(resetPasswordSchema),
+  validate({ params: resetPasswordSchema }),
   Controller.resetPassword.bind(Controller)
 );
 
