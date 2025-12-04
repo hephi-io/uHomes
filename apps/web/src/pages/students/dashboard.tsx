@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { Button } from '@uhomes/ui-kit';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@uhomes/ui-kit';
 import { HostelCard } from '@/shared/hostel-card';
@@ -9,6 +10,60 @@ import HostelImageTwo from '@/assets/pngs/hostel-image-2.png';
 import { useAuth } from '@/contexts/auth-context';
 import { getActiveBookingsSummary, getMyBookings, type Booking } from '@/services/booking';
 import { getSavedProperties, type SavedProperty } from '@/services/property';
+
+// Animation variants
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.2,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.5,
+    },
+  },
+};
+
+const fadeVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      duration: 0.4,
+    },
+  },
+};
+
+const staggerContainerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.08,
+    },
+  },
+};
+
+const staggerItemVariants = {
+  hidden: { opacity: 0, y: 10 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.4,
+    },
+  },
+};
 
 export function StudentDashboard() {
   const { user } = useAuth();
@@ -134,8 +189,13 @@ export function StudentDashboard() {
       <div className="hidden lg:block lg:border-t lg:border-[#E4E4E4]"></div>
 
       <div className="lg:p-8 lg:pt-11">
-        <div className="flex justify-between items-center">
-          <div className="flex gap-x-4 items-center">
+        <motion.div
+          className="flex justify-between items-center"
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          <motion.div className="flex gap-x-4 items-center" variants={itemVariants}>
             <SVGs.ProfilePic />
 
             <div>
@@ -147,18 +207,27 @@ export function StudentDashboard() {
                 Ready to find your next hostel?
               </p>
             </div>
-          </div>
+          </motion.div>
 
-          <div className="w-10 h-10 flex justify-center items-center rounded-full border border-[#00000033] bg-[#F8F8F8] lg:hidden">
+          <motion.div
+            className="w-10 h-10 flex justify-center items-center rounded-full border border-[#00000033] bg-[#F8F8F8] lg:hidden"
+            variants={itemVariants}
+          >
             <SVGs.Notification />
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
         <div className="hidden lg:block lg:border-t lg:border-[#E4E4E4] lg:mt-8"></div>
-        <div className="md:grid md:grid-cols-2 md:gap-x-4 lg:w-[696px] md:mt-9 lg:mt-4">
+        <motion.div
+          className="md:grid md:grid-cols-2 md:gap-x-4 lg:w-[696px] md:mt-9 lg:mt-4"
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
           {cards.map((card) => (
-            <div
+            <motion.div
               key={card.id}
               className={`h-[200px] flex flex-col justify-between rounded border bg-linear-to-b to-[#FFFFFF] ${card.cardStyle} p-6`}
+              variants={itemVariants}
             >
               <div className="flex justify-between items-center">
                 <h2 className="font-semibold text-sm leading-[150%] tracking-[0%] text-[#727272]">
@@ -176,11 +245,19 @@ export function StudentDashboard() {
                   {card.headingThree}
                 </h3>
               </div>
-            </div>
+            </motion.div>
           ))}
-        </div>
-        <div className="rounded-xl border border-[#E4E7EC] bg-white shadow-[0px_1px_2px_0px_#1018280D] lg:p-0 mt-4 md:mt-9 lg:mt-4">
-          <div className="flex justify-between items-center md:hidden px-4 pt-4">
+        </motion.div>
+        <motion.div
+          className="rounded-xl border border-[#E4E7EC] bg-white shadow-[0px_1px_2px_0px_#1018280D] lg:p-0 mt-4 md:mt-9 lg:mt-4"
+          variants={fadeVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          <motion.div
+            className="flex justify-between items-center md:hidden px-4 pt-4"
+            variants={itemVariants}
+          >
             <div className="flex gap-x-2 items-center">
               {funnelIcons.map((funnelIcon) => (
                 <Button
@@ -193,7 +270,7 @@ export function StudentDashboard() {
               ))}
             </div>
             <FindHostels />
-          </div>
+          </motion.div>
           <Tabs defaultValue="My Bookings" className="gap-0 mt-4 md:mt-0">
             <div className="md:flex md:justify-between md:items-center px-4 md:pt-4">
               <TabsList className="w-full h-10 rounded-md bg-[#F4F4F5] md:w-[316px] p-1 m-0">
@@ -228,13 +305,23 @@ export function StudentDashboard() {
 
             <TabsContent value="My Bookings">
               {bookingsLoading ? (
-                <div className="px-4 pb-4 lg:pt-4">
+                <motion.div
+                  className="px-4 pb-4 lg:pt-4"
+                  variants={fadeVariants}
+                  initial="hidden"
+                  animate="visible"
+                >
                   <div className="rounded border border-[#F4F4F4] bg-[#FDFDFD] p-6 mt-4 lg:mt-0">
                     <p className="text-center text-[#878FA1]">Loading bookings...</p>
                   </div>
-                </div>
+                </motion.div>
               ) : bookings.length === 0 ? (
-                <div className="px-4 pb-4 lg:pt-4">
+                <motion.div
+                  className="px-4 pb-4 lg:pt-4"
+                  variants={fadeVariants}
+                  initial="hidden"
+                  animate="visible"
+                >
                   <div className="rounded border border-[#F4F4F4] bg-[#FDFDFD] md:h-[475px] md:flex md:flex-col md:items-center md:justify-center lg:h-[390px] p-6 mt-4 lg:m-0">
                     <img
                       src={NoBookings}
@@ -248,18 +335,30 @@ export function StudentDashboard() {
                       <FindHostels />
                     </div>
                   </div>
-                </div>
+                </motion.div>
               ) : (
                 <>
                   <div className="overflow-x-scroll lg:overflow-hidden px-4 pb-4 lg:pt-4">
-                    <div className="w-[1337px] grid grid-cols-1 gap-4 rounded border border-[#F4F4F4] bg-[#FDFDFD] lg:w-full p-4 mt-4 lg:mt-0">
+                    <motion.div
+                      className="w-[1337px] grid grid-cols-1 gap-4 rounded border border-[#F4F4F4] bg-[#FDFDFD] lg:w-full p-4 mt-4 lg:mt-0"
+                      variants={staggerContainerVariants}
+                      initial="hidden"
+                      animate="visible"
+                    >
                       {bookings.map((booking) => (
-                        <HostelDetail key={booking._id} booking={booking} />
+                        <motion.div key={booking._id} variants={staggerItemVariants}>
+                          <HostelDetail booking={booking} />
+                        </motion.div>
                       ))}
-                    </div>
+                    </motion.div>
                   </div>
                   {bookingsTotalPages > 1 && (
-                    <div className="flex justify-center items-center gap-x-2 px-4 pb-4">
+                    <motion.div
+                      className="flex justify-center items-center gap-x-2 px-4 pb-4"
+                      variants={fadeVariants}
+                      initial="hidden"
+                      animate="visible"
+                    >
                       <Button
                         variant="outline"
                         onClick={() => setBookingsPage((p) => Math.max(1, p - 1))}
@@ -279,7 +378,7 @@ export function StudentDashboard() {
                       >
                         Next
                       </Button>
-                    </div>
+                    </motion.div>
                   )}
                 </>
               )}
@@ -287,11 +386,21 @@ export function StudentDashboard() {
 
             <TabsContent value="Saved Properties">
               {savedPropertiesLoading ? (
-                <div className="rounded-2xl border border-[#F4F4F4] bg-[#FDFDFD] p-4">
+                <motion.div
+                  className="rounded-2xl border border-[#F4F4F4] bg-[#FDFDFD] p-4"
+                  variants={fadeVariants}
+                  initial="hidden"
+                  animate="visible"
+                >
                   <p className="text-center text-[#878FA1]">Loading saved properties...</p>
-                </div>
+                </motion.div>
               ) : savedProperties.length === 0 ? (
-                <div className="px-4 pb-4 lg:pt-4">
+                <motion.div
+                  className="px-4 pb-4 lg:pt-4"
+                  variants={fadeVariants}
+                  initial="hidden"
+                  animate="visible"
+                >
                   <div className="rounded border border-[#F4F4F4] bg-[#FDFDFD] md:h-[475px] md:flex md:flex-col md:items-center md:justify-center lg:h-[390px] p-6 mt-4 lg:m-0">
                     <img
                       src={NoBookings}
@@ -305,16 +414,28 @@ export function StudentDashboard() {
                       <FindHostels />
                     </div>
                   </div>
-                </div>
+                </motion.div>
               ) : (
                 <>
-                  <div className="rounded-2xl border border-[#F4F4F4] bg-[#FDFDFD] md:grid md:grid-cols-2 md:gap-6 lg:grid-cols-3 p-4">
+                  <motion.div
+                    className="rounded-2xl border border-[#F4F4F4] bg-[#FDFDFD] md:grid md:grid-cols-2 md:gap-6 lg:grid-cols-3 p-4"
+                    variants={staggerContainerVariants}
+                    initial="hidden"
+                    animate="visible"
+                  >
                     {savedProperties.map((property) => (
-                      <HostelCard key={property._id} property={property} />
+                      <motion.div key={property._id} variants={staggerItemVariants}>
+                        <HostelCard property={property} />
+                      </motion.div>
                     ))}
-                  </div>
+                  </motion.div>
                   {savedPropertiesTotalPages > 1 && (
-                    <div className="flex justify-center items-center gap-x-2 mt-4">
+                    <motion.div
+                      className="flex justify-center items-center gap-x-2 mt-4"
+                      variants={fadeVariants}
+                      initial="hidden"
+                      animate="visible"
+                    >
                       <Button
                         variant="outline"
                         onClick={() => setSavedPropertiesPage((p) => Math.max(1, p - 1))}
@@ -336,13 +457,13 @@ export function StudentDashboard() {
                       >
                         Next
                       </Button>
-                    </div>
+                    </motion.div>
                   )}
                 </>
               )}
             </TabsContent>
           </Tabs>
-        </div>
+        </motion.div>
       </div>
     </>
   );

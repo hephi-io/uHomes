@@ -2,11 +2,15 @@ import express from 'express';
 import { PropertyController } from '../cotrollers/property.controller';
 import multer from 'multer';
 import { authenticate } from '../middlewares/auth.middleware';
+import reviewRouter from './review.router';
 
 const router = express.Router();
 const upload = multer({ dest: 'uploads/' });
 
 const controller = new PropertyController();
+
+// Mount review routes before :id routes to avoid conflicts
+router.use('/', reviewRouter);
 
 /**
  * @swagger
