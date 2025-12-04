@@ -13,6 +13,7 @@
     "@uhomes/shared": "workspace:*",
     "@uhomes/ui-kit": "workspace:*",
     "axios": "1.13.2",
+    "framer-motion": "12.23.25",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-hook-form": "^7.65.0",

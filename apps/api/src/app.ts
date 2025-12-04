@@ -52,6 +52,7 @@ app.use('/api/student', studentRouter);
 
 app.use('/api/property', propertyRouter);
 app.use('/api/booking', bookingRouter);
+// Review routes are nested under property routes, so they're handled by propertyRouter
 
 swaggerDocs(app);
 

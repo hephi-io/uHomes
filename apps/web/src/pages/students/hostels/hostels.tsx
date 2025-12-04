@@ -11,6 +11,7 @@ import {
 
 import { SVGs } from '@/assets/svgs/Index';
 import { HostelCard } from '@/shared/hostel-card';
+import { HostelCardSkeleton } from '@/shared/hostel-card-skeleton';
 import { getAllProperties, type SavedProperty } from '@/services/property';
 
 interface PriceRange {
@@ -245,8 +246,10 @@ export function Hostels() {
 
           <div className="lg:p-4">
             {loading && properties.length === 0 ? (
-              <div className="rounded-2xl border border-[#F4F4F4] bg-[#FDFDFD] p-4">
-                <p className="text-center text-[#878FA1] py-8">Loading hostels...</p>
+              <div className="rounded-2xl border border-[#F4F4F4] bg-[#FDFDFD] md:grid md:grid-cols-2 md:gap-6 lg:grid-cols-3 p-4">
+                {Array.from({ length: 6 }).map((_, index) => (
+                  <HostelCardSkeleton key={index} />
+                ))}
               </div>
             ) : properties.length === 0 ? (
               <div className="rounded-2xl border border-[#F4F4F4] bg-[#FDFDFD] p-4">
