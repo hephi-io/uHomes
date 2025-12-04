@@ -37,7 +37,11 @@ const controller = new AgentController();
  *       500:
  *         $ref: '#/components/responses/ServerError'
  */
-router.post('/register', validate(createAgentSchema), controller.register.bind(controller));
+router.post(
+  '/register',
+  validate({ body: createAgentSchema }),
+  controller.register.bind(controller)
+);
 
 /**
  * @openapi
@@ -141,7 +145,7 @@ router.post('/resend-verification', controller.resendVerification.bind(controlle
  *       404:
  *         description: agent not found
  */
-router.post('/login', validate(loginSchema), controller.login.bind(controller));
+router.post('/login', validate({ body: loginSchema }), controller.login.bind(controller));
 
 /**
  * @openapi
@@ -200,7 +204,12 @@ router.get('/', authenticate, controller.getAll.bind(controller));
  *       404:
  *         $ref: '#/components/responses/NotFound'
  */
-router.get('/:id', authenticate, validate(getAgentByIdSchema), controller.getById.bind(controller));
+router.get(
+  '/:id',
+  authenticate,
+  validate({ body: getAgentByIdSchema }),
+  controller.getById.bind(controller)
+);
 
 /**
  * @openapi
@@ -261,7 +270,7 @@ router.get('/:id', authenticate, validate(getAgentByIdSchema), controller.getByI
 router.put(
   '/:id',
   authenticate,
-  validate(updateAgentSchema),
+  validate({ body: updateAgentSchema }),
   controller.updateAgent.bind(controller)
 );
 
@@ -302,7 +311,7 @@ router.put(
 router.delete(
   '/:id',
   authenticate,
-  validate(deleteAgentSchema),
+  validate({ body: deleteAgentSchema }),
   controller.delete.bind(controller)
 );
 
@@ -328,7 +337,7 @@ router.delete(
  */
 router.post(
   '/forgot-password',
-  validate(forgotPasswordSchema),
+  validate({ body: forgotPasswordSchema }),
   controller.forgotPassword.bind(controller)
 );
 
@@ -369,7 +378,7 @@ router.post(
  */
 router.post(
   '/reset-password/:otp',
-  validate(resetPasswordSchema),
+  validate({ body: resetPasswordSchema, params: resetPasswordSchema }),
   controller.resetPassword.bind(controller)
 );
 
@@ -397,7 +406,7 @@ router.post(
  */
 router.post(
   '/resend-reset-token',
-  validate(resetPasswordSchema),
+  validate({ body: resetPasswordSchema, params: resetPasswordSchema }),
   controller.resendResetToken.bind(controller)
 );
 

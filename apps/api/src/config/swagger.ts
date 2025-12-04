@@ -12,7 +12,7 @@ const options: swaggerJsdoc.Options = {
     },
     servers: [
       {
-        url: process.env.BASE_URL || 'https://localhost:7000',
+        url: process.env.BASE_URL || 'http://localhost:7000',
         description: 'Development Server',
       },
     ],
