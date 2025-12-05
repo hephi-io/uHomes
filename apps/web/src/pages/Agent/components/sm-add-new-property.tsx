@@ -568,6 +568,7 @@ const SMNewProperty = ({ propertyId, onSuccess, mode = 'create' }: AddNewPropert
 
         <div className="flex items-center justify-between ">
           <Button
+            onClick={() => navigate(-1)}
             variant="outline"
             className="w-[131px] border border-[#E5E5E5] rounded-[6px] font-inter py-2 px-4"
           >
