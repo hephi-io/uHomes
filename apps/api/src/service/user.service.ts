@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import User, { IUser } from '../models/user.model';
 import UserType from '../models/user-type.model';
 import Token from '../models/token.model';
@@ -7,6 +8,8 @@ import { TokenService } from './token.service';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { BadRequestError, NotFoundError, UnauthorizedError } from '../middlewares/error.middlewere';
+import Property from '../models/property.model';
+import Booking from '../models/booking.model';
 
 interface RegisterData {
   fullName: string;
@@ -438,5 +441,46 @@ export class UserService {
     await sendEmail(user.email, 'New OTP for Password Reset', html);
 
     return { message: 'New OTP sent to your email.' };
+  }
+
+  async getAgentDashboardStats(agentId: string) {
+    const totalProperties = await Property.countDocuments({
+      agentId: new mongoose.Types.ObjectId(agentId),
+    });
+
+    const properties = await Property.find({ agentId: new mongoose.Types.ObjectId(agentId) });
+    const availableRooms = properties.reduce(
+      (sum, property) => sum + (property.roomsAvailable || 0),
+      0
+    );
+
+    const pendingBookings = await Booking.countDocuments({
+      agent: new mongoose.Types.ObjectId(agentId),
+      status: 'pending',
+    });
+
+    const revenueResult = await Booking.aggregate([
+      {
+        $match: {
+          agent: new mongoose.Types.ObjectId(agentId),
+          paymentStatus: 'paid',
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalRevenue: { $sum: '$amount' },
+        },
+      },
+    ]);
+
+    const totalRevenue = revenueResult.length > 0 ? revenueResult[0].totalRevenue : 0;
+
+    return {
+      totalProperties,
+      availableRooms,
+      pendingBookings,
+      totalRevenue,
+    };
   }
 }

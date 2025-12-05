@@ -32,20 +32,25 @@ const options: swaggerJsdoc.Options = {
     ],
     tags: [
       {
-        name: 'Students',
-        description: 'Endpoints related to student registration, login, and profile management',
+        name: 'Auth',
+        description:
+          'Authentication and authorization endpoints (register, login, password reset, etc.)',
       },
       {
-        name: 'Agents',
-        description: 'Endpoints related to agent registration, login, and dashboard access',
+        name: 'Users',
+        description: 'User management and dashboard endpoints',
       },
       {
-        name: 'Admins',
-        description: 'Endpoints for admin management, user oversight, and system control',
+        name: 'Properties',
+        description: 'Property management endpoints',
       },
       {
-        name: 'Authentication',
-        description: 'Shared authentication routes for password reset, email verification, etc.',
+        name: 'Bookings',
+        description: 'Booking management endpoints',
+      },
+      {
+        name: 'Reviews',
+        description: 'Property review endpoints',
       },
     ],
   },

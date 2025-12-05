@@ -132,7 +132,7 @@ export interface AgentDashboardStats {
 }
 
 export const getAgentDashboardStats = () => {
-  return API.get<TResponse<AgentDashboardStats>>('/api/agent/dashboard/stats');
+  return API.get<TResponse<AgentDashboardStats>>('/api/user/dashboard/stats/agent');
 };
 
 export interface CreatePropertyResponse {

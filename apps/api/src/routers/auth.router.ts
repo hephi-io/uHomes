@@ -69,11 +69,7 @@ const controller = new UserController();
  *       400:
  *         description: Bad request / validation failed
  */
-router.post(
-  '/register',
-  validate({ body: createUserSchema }),
-  controller.register.bind(controller)
-);
+router.post('/register', validate(createUserSchema), controller.register.bind(controller));
 
 /**
  * @openapi
@@ -96,7 +92,7 @@ router.post(
  */
 router.get(
   '/verify-email/:token',
-  validate({ params: verifyEmailSchema }),
+  validate(verifyEmailSchema),
   controller.verifyEmail.bind(controller)
 );
 
@@ -124,7 +120,7 @@ router.get(
  */
 router.post(
   '/resend-verification',
-  validate({ body: resendVerificationSchema }),
+  validate(resendVerificationSchema),
   controller.resendVerification.bind(controller)
 );
 
@@ -160,7 +156,7 @@ router.post(
  */
 router.post(
   '/verify-account',
-  validate({ body: verifyAccountSchema }),
+  validate(verifyAccountSchema),
   controller.verifyAccount.bind(controller)
 );
 
@@ -181,11 +177,7 @@ router.post(
  *       302:
  *         description: Redirects to frontend success or failure page
  */
-router.get(
-  '/verify',
-  validate({ query: verifyUrlSchema }),
-  controller.verifyAccountViaUrl.bind(controller)
-);
+router.get('/verify', validate(verifyUrlSchema), controller.verifyAccountViaUrl.bind(controller));
 
 /**
  * @swagger
@@ -242,7 +234,7 @@ router.get(
  *       404:
  *         description: User not found
  */
-router.post('/login', validate({ body: loginSchema }), controller.login.bind(controller));
+router.post('/login', validate(loginSchema), controller.login.bind(controller));
 
 /**
  * @openapi
@@ -320,12 +312,7 @@ router.post('/logout', authenticate, controller.logout.bind(controller));
  *       404:
  *         description: User not found
  */
-router.get(
-  '/:id',
-  authenticate,
-  validate({ params: getUserByIdSchema }),
-  controller.getById.bind(controller)
-);
+router.get('/:id', authenticate, validate(getUserByIdSchema), controller.getById.bind(controller));
 
 /**
  * @openapi
@@ -376,7 +363,7 @@ router.get(
 router.put(
   '/:id',
   authenticate,
-  validate({ body: updateUserSchema }),
+  validate(updateUserSchema),
   controller.updateUser.bind(controller)
 );
 
@@ -403,12 +390,7 @@ router.put(
  *       404:
  *         description: User not found
  */
-router.delete(
-  '/:id',
-  authenticate,
-  validate({ params: deleteUserSchema }),
-  controller.delete.bind(controller)
-);
+router.delete('/:id', authenticate, validate(deleteUserSchema), controller.delete.bind(controller));
 
 /**
  * @openapi
@@ -430,7 +412,7 @@ router.delete(
  */
 router.post(
   '/forgot-password',
-  validate({ body: forgotPasswordSchema }),
+  validate(forgotPasswordSchema),
   controller.forgotPassword.bind(controller)
 );
 
@@ -471,10 +453,7 @@ router.post(
  */
 router.post(
   '/reset-password/:otp',
-  validate({
-    body: resetPasswordSchema.shape.body,
-    params: resetPasswordSchema.shape.params,
-  }),
+  validate(resetPasswordSchema),
   controller.resetPassword.bind(controller)
 );
 
@@ -502,7 +481,7 @@ router.post(
  */
 router.post(
   '/resend-reset-token',
-  validate({ body: resendResetTokenSchema }),
+  validate(resendResetTokenSchema),
   controller.resendResetToken.bind(controller)
 );
 

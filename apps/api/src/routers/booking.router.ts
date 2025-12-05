@@ -12,7 +12,7 @@ const bookingController = new BookingController();
  * /api/booking:
  *   post:
  *     summary: Create a new booking
- *     tags: [Booking]
+ *     tags: [Bookings]
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -38,7 +38,7 @@ router.post('/', authenticate, validate({ body: bookingSchema }), bookingControl
  * /api/booking/{id}:
  *   get:
  *     summary: Get booking by ID
- *     tags: [Booking]
+ *     tags: [Bookings]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -69,7 +69,7 @@ router.get('/:id', authenticate, bookingController.getBooking);
  * /api/booking/agent/{agentId}:
  *   get:
  *     summary: Get all bookings for an agent
- *     tags: [Booking]
+ *     tags: [Bookings]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -101,7 +101,7 @@ router.get('/agent/:agentId', authenticate, bookingController.getAgentBookings);
  *   get:
  *     summary: Get active bookings summary for student
  *     description: Returns count and total amount of active bookings (status='confirmed' AND paymentStatus='paid')
- *     tags: [Booking]
+ *     tags: [Bookings]
  *     security:
  *       - bearerAuth: []
  *     responses:
@@ -185,7 +185,7 @@ router.get('/', authenticate, bookingController.getAllBookings);
  * /api/booking/{id}/status:
  *   patch:
  *     summary: Update booking status
- *     tags: [Booking]
+ *     tags: [Bookings]
  *     security:
  *       - bearerAuth: []
  *     parameters:
