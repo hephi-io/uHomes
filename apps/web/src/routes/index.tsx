@@ -53,7 +53,11 @@ const router = createBrowserRouter([
   },
   {
     path: 'SMNewProperty',
-    element: <SMNewProperty />,
+    element: (
+      <ProtectedRoute>
+        <SMNewProperty />
+      </ProtectedRoute>
+    ),
   },
   {
     path: '/agent-dashboard',

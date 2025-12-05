@@ -25,16 +25,33 @@ import { Check, ChevronsUpDown, X } from 'lucide-react';
 import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
+import { createProperty, updateProperty, getPropertyById } from '@/services/property';
+import { useEffect } from 'react';
 
-const SMNewProperty = () => {
-  const navigate = useNavigate();
+interface AddNewPropertyProps {
+  propertyId?: string;
+  onSuccess?: () => void;
+  mode?: 'create' | 'edit';
+}
+
+const SMNewProperty = ({ propertyId, onSuccess, mode = 'create' }: AddNewPropertyProps) => {
   const [isDragging, setIsDragging] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
+  const [existingImages, setExistingImages] = useState<string[]>([]);
   const [open, setOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  // const [showSuccessDialog, setShowSuccessDialog] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  // Use controlled open state if provided, otherwise use internal state
+  const [loadingProperty, setLoadingProperty] = useState(false);
+
+  const navigate = useNavigate();
   const {
     control,
     register,
     handleSubmit,
+    reset,
     setValue,
     formState: { errors },
   } = useForm<IAddNewProperty>({
@@ -48,6 +65,75 @@ const SMNewProperty = () => {
       propertyImages: [],
     },
   });
+
+  useEffect(() => {
+    if (mode === 'edit' && propertyId) {
+      const loadProperty = async () => {
+        setLoadingProperty(true);
+        try {
+          const response = await getPropertyById(propertyId);
+          if (response.data.status === 'success') {
+            const property = response.data.data.property;
+
+            // Set form values
+            setValue('propertyTitle', property.title);
+            setValue('location', property.location);
+            setValue('description', property.description);
+
+            // Set room types
+            if (property.roomTypes) {
+              if (property.roomTypes.single) {
+                setValue('roomTypes', 'Single Room');
+              } else if (property.roomTypes.shared) {
+                setValue('roomTypes', 'Shared Room');
+              } else if (property.roomTypes.selfContain) {
+                setValue('roomTypes', 'Self Contain');
+              }
+            }
+
+            // Set rooms available
+            if (property.roomsAvailable) {
+              setValue('roomsAvailable', property.roomsAvailable.toString());
+            }
+
+            // Set amenities
+            if (
+              property.amenities &&
+              typeof property.amenities === 'object' &&
+              !Array.isArray(property.amenities)
+            ) {
+              const amenityArray: string[] = [];
+              if (property.amenities.wifi) amenityArray.push('Wifi');
+              if (property.amenities.kitchen) amenityArray.push('Kitchen');
+              if (property.amenities.parking) amenityArray.push('Parking');
+              if (property.amenities.security) amenityArray.push('Security');
+              if (property.amenities.power24_7) amenityArray.push('24/7 Power');
+              if (property.amenities.gym) amenityArray.push('Gym');
+              setValue('amenities', amenityArray);
+            }
+
+            // Set existing images
+            if (property.images && Array.isArray(property.images)) {
+              const imageUrls = property.images.map((img) =>
+                typeof img === 'string' ? img : img.url
+              );
+              setExistingImages(imageUrls);
+            }
+          }
+        } catch {
+          setErrorMessage('Failed to load property data');
+        } finally {
+          setLoadingProperty(false);
+        }
+      };
+      loadProperty();
+    } else if (mode === 'create') {
+      // Reset form for create mode
+      reset();
+      setFiles([]);
+      setExistingImages([]);
+    }
+  }, [propertyId, mode, setValue, reset]);
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -95,8 +181,117 @@ const SMNewProperty = () => {
     onChange(newFiles);
   };
 
-  const onSubmit = (data: IAddNewProperty) => {
-    console.log('FORM SUBMITTED', data);
+  const onSubmit = async (data: IAddNewProperty) => {
+    setIsSubmitting(true);
+    setErrorMessage(null);
+
+    try {
+      const formData = new FormData();
+
+      formData.append('title', data.propertyTitle);
+      formData.append('location', data.location);
+      formData.append('description', data.description);
+
+      const price = 150000;
+      formData.append('pricePerSemester', price.toString());
+
+      const roomTypesObj: Record<string, { price: number }> = {};
+      const roomTypeMap: Record<string, string> = {
+        'Single Room': 'single',
+        'Shared Room': 'shared',
+        'Self Contain': 'selfContain',
+      };
+      const selectedRoomType = roomTypeMap[data.roomTypes];
+      if (selectedRoomType) {
+        roomTypesObj[selectedRoomType] = { price };
+      }
+      formData.append('roomTypes', JSON.stringify(roomTypesObj));
+
+      let roomsAvailable = 1;
+      if (data.roomsAvailable) {
+        const parsed = parseInt(data.roomsAvailable, 10);
+        if (!isNaN(parsed)) {
+          roomsAvailable = parsed;
+        } else {
+          const framework = frameworks.find((f) => f.value === data.roomsAvailable);
+
+          if (framework) {
+            // Try to extract number from label (e.g., "5 rooms" -> 5)
+            const match = framework.label.match(/\d+/);
+            if (match) {
+              roomsAvailable = parseInt(match[0], 10);
+            }
+          }
+        }
+      }
+      formData.append('roomsAvailable', roomsAvailable.toString());
+
+      // Amenities - transform array of strings to object with boolean flags
+      const amenitiesObj = {
+        wifi: false,
+        kitchen: false,
+        security: false,
+        parking: false,
+        power24_7: false,
+        gym: false,
+      };
+
+      // Map amenity strings to object keys (case-insensitive)
+      const amenityMap: Record<string, keyof typeof amenitiesObj> = {
+        wifi: 'wifi',
+        kitchen: 'kitchen',
+        parking: 'parking',
+        security: 'security',
+        '24/7 power': 'power24_7',
+        gym: 'gym',
+      };
+
+      if (Array.isArray(data.amenities)) {
+        data.amenities.forEach((amenity) => {
+          const normalizedAmenity = amenity.toLowerCase().trim();
+          const key = amenityMap[normalizedAmenity];
+          if (key) {
+            amenitiesObj[key] = true;
+          }
+        });
+      }
+      formData.append('amenities', JSON.stringify(amenitiesObj));
+
+      // Images - append each file
+      if (data.propertyImages && data.propertyImages.length > 0) {
+        data.propertyImages.forEach((file) => {
+          formData.append('images', file);
+        });
+      }
+
+      // Call API
+      if (mode === 'edit' && propertyId) {
+        await updateProperty(propertyId, formData);
+      } else {
+        await createProperty(formData);
+      }
+
+      // Success - show success dialog and reset form
+      // setShowSuccessDialog(true);
+      reset();
+      setFiles([]);
+      setExistingImages([]);
+
+      // Call onSuccess callback if provided
+      if (onSuccess) {
+        onSuccess();
+      }
+    } catch (error: unknown) {
+      console.error('Error creating property:', error);
+      const errorMessage =
+        (error as { response?: { data?: { message?: string } }; message?: string })?.response?.data
+          ?.message ||
+        (error as { message?: string })?.message ||
+        `Failed to ${mode === 'edit' ? 'update' : 'create'} property. Please try again.`;
+      setErrorMessage(errorMessage);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -113,11 +308,28 @@ const SMNewProperty = () => {
       </div>
       <form onSubmit={handleSubmit(onSubmit)} className="px-6 pb-12 space-y-6">
         <div className="space-y-1">
-          <h2 className="text-[#101828] font-semibold text-lg leading-[130%]">Add New Property</h2>
+          <h2 className="font-semibold text-[18px] leading-[130%] text-[#101828]">
+            {mode === 'edit' ? 'Edit Property' : 'Add New Property'}
+          </h2>
           <p className="text-[#475467] font-medium text-sm leading-[120%]">
-            List a new property for students to book
+            {mode === 'edit'
+              ? 'Update your property listing details'
+              : 'List a new property for students to book'}
           </p>
         </div>
+
+        {loadingProperty && (
+          <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
+            <p className="text-sm text-blue-600">Loading property data...</p>
+          </div>
+        )}
+
+        {/* Error Message */}
+        {errorMessage && (
+          <div className="p-3 bg-red-50 border border-red-200 rounded-md">
+            <p className="text-sm text-red-600">{errorMessage}</p>
+          </div>
+        )}
 
         <TextField
           name="propertyTitle"
@@ -311,6 +523,25 @@ const SMNewProperty = () => {
                   ))}
                 </div>
               )}
+              {/* Preview - Existing Images (Edit Mode) */}
+              {existingImages.length > 0 && (
+                <div className="mt-4">
+                  <p className="text-sm text-gray-600 mb-2">Existing Images:</p>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+                    {existingImages.map((imageUrl, index) => (
+                      <div key={index} className="relative group">
+                        <div className="aspect-square rounded-lg overflow-hidden border-2 border-gray-200">
+                          <img
+                            src={imageUrl}
+                            alt={`Existing ${index + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
         />
@@ -337,6 +568,7 @@ const SMNewProperty = () => {
 
         <div className="flex items-center justify-between ">
           <Button
+            onClick={() => navigate(-1)}
             variant="outline"
             className="w-[131px] border border-[#E5E5E5] rounded-[6px] font-inter py-2 px-4"
           >
@@ -345,10 +577,19 @@ const SMNewProperty = () => {
           <Button
             type="submit"
             variant="outline"
+            disabled={isSubmitting || loadingProperty}
             className="flex gap-x-2 rounded border border-[#E4E4E4EE] bg-[#3E78FF] hover:bg-[#3E78FF] px-4 py-2"
           >
             <SVGs.AddProperty />
-            <span className="font-medium text-sm text-white">Add Property</span>
+            <span className="font-medium text-sm text-white">
+              {isSubmitting
+                ? mode === 'edit'
+                  ? 'Updating...'
+                  : 'Adding...'
+                : mode === 'edit'
+                  ? 'Update Property'
+                  : 'Add Property'}
+            </span>
           </Button>
         </div>
       </form>

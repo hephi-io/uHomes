@@ -327,7 +327,7 @@ const AddNewProperty = ({
           </Button>
         </DialogTrigger>
 
-        <DialogContent className="md:w-[674px] md:h-[90vh] overflow-auto md:rounded-xl md:p-6 bg-white md:space-y-12">
+        <DialogContent className="md: w-[674px] md:h-[90vh] overflow-auto md:rounded-xl md:p-6 bg-white md:space-y-12">
           {/*  FORM STARTS HERE  */}
           <form onSubmit={handleSubmit(onSubmit)} className="md:space-y-6">
             <div>
