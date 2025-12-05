@@ -8,6 +8,8 @@ import authRouter from './routers/auth.router';
 import userRouter from './routers/user.router';
 import propertyRouter from './routers/property.route';
 import bookingRouter from './routers/booking.router';
+import paymentRouter from './routers/payment.router';
+import transactionRouter from './routers/transaction.router';
 
 declare module 'express-serve-static-core' {
   interface Request {
@@ -48,6 +50,8 @@ app.use('/api/user', userRouter);
 
 app.use('/api/property', propertyRouter);
 app.use('/api/booking', bookingRouter);
+app.use('/api/payment', paymentRouter);
+app.use('/api/transaction', transactionRouter);
 // Review routes are nested under property routes, so they're handled by propertyRouter
 
 swaggerDocs(app);
