@@ -55,6 +55,16 @@ export {
   CommandShortcut,
 } from '@/components/ui/command';
 
+export {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
+
 export { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 export type { ColumnDef } from '@tanstack/react-table';

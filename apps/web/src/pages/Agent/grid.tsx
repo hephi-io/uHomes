@@ -96,9 +96,9 @@ const Grid = ({ properties, onRefresh }: GridProps) => {
                   <div className=" w-[226px] md:w-[651px]">
                     <div className="flex gap-6 flex-col md:flex-row ">
                       {/* Left: Image + Thumbnails */}
-                      <div className="flex flex-col ">
+                      <div className="flex flex-col">
                         {/* Main Image */}
-                        <div className="w-full md:w-[140px]  flex-1 rounded-lg">
+                        <div className="w-full md:w-[140px] flex-1 rounded-lg overflow-hidden">
                           {mainImage && (
                             <img
                               src={mainImage}
@@ -115,16 +115,17 @@ const Grid = ({ properties, onRefresh }: GridProps) => {
                               <button
                                 key={idx}
                                 onClick={() => setSelectedImage(property.id, idx)}
-                                className={`rounded-lg  overflow-hidden transition-all border ${
-                                  selectedImage === idx
-                                    ? 'border-blue-500 ring-1 ring-blue-300'
-                                    : 'border-transparent hover:border-gray-300'
-                                }`}
+                                className={`rounded-lg overflow-hidden transition-all border shrink-0
+            ${
+              selectedImage === idx
+                ? 'border-blue-500 ring-1 ring-blue-300'
+                : 'border-transparent hover:border-gray-300'
+            }`}
                               >
                                 <img
                                   src={image}
                                   alt={`${property.name} ${idx + 1}`}
-                                  className="w-full h-full md:w-8 md:h-8 object-cover"
+                                  className="w-10 h-10 md:w-8 md:h-8 object-cover"
                                 />
                               </button>
                             ))}
@@ -133,7 +134,8 @@ const Grid = ({ properties, onRefresh }: GridProps) => {
                             {remainingCount > 0 && (
                               <button
                                 onClick={() => setSelectedImage(property.id, 3)}
-                                className="relative rounded-lg  overflow-hidden bg-black/90 hover:bg-black/90 transition-all w-full h-10 md:w-8 md:h-8 flex items-center justify-center"
+                                className="relative rounded-lg overflow-hidden bg-black/90 hover:bg-black/90 transition-all
+            w-10 h-10 md:w-8 md:h-8 shrink-0 flex items-center justify-center"
                               >
                                 {thumbnailImages[3] && (
                                   <img
@@ -150,7 +152,6 @@ const Grid = ({ properties, onRefresh }: GridProps) => {
                           </div>
                         )}
                       </div>
-
                       {/* Right: Details */}
                       <div className="grid grid-cols-2 gap-8">
                         <div>

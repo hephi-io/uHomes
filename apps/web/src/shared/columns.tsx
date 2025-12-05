@@ -48,11 +48,15 @@ export const createColumns = ({ onEdit, onDelete }: ColumnsProps = {}): ColumnDe
       return (
         <div className="flex items-center gap-1">
           {imgs.slice(0, 3).map((src, idx) => (
-            <img key={idx} src={src} className="w-10 h-10 rounded-md object-cover" />
+            <img
+              key={idx}
+              src={src}
+              className="w-10 h-10 min-w-10 min-h-10 shrink rounded-md object-cover"
+            />
           ))}
 
           {imgs.length > 3 && (
-            <span className="w-10 h-10 rounded-md bg-black text-white text-xs flex items-center justify-center">
+            <span className="w-10 h-10 min-w-10 min-h-10 shrink rounded-md bg-black text-white text-xs flex items-center justify-center">
               +{imgs.length - 3}
             </span>
           )}

@@ -18,8 +18,10 @@ import {
 import { getMyBookings, type Booking } from '@/services/booking';
 import { Dialog, DialogContent } from '@uhomes/ui-kit';
 import { DialogFooter } from '@/components/ui/dialog';
+import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const [activeView, setActiveView] = useState<'list' | 'grid'>('grid');
 
@@ -411,6 +413,17 @@ const Dashboard = () => {
                 <span className="text-[#09090B] font-medium text-sm">Grid</span>
               </div>
             </div>
+          </div>
+
+          <div className="w-[90%] mx-auto md:hidden">
+            <Button
+              onClick={() => navigate('/SMNewProperty')}
+              variant="outline"
+              className="w-full flex gap-x-2 rounded border border-[#E4E4E4] bg-[#3E78FF] hover:bg-[#3E78FF] px-4 py-2"
+            >
+              <SVGs.AddProperty />
+              <span className="font-medium text-sm text-white">Add Property</span>
+            </Button>
           </div>
 
           <Tabs defaultValue="My Listings" className="gap-0 mt-4 md:mt-0">
