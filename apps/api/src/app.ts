@@ -4,9 +4,8 @@ import { swaggerDocs } from './config/swagger';
 import errorMiddleware from './middlewares/error.middlewere';
 import morgan from 'morgan';
 import { stream } from './utils/logger';
-import agentRouter from './routers/agent.router';
-import studentRouter from './routers/student.router';
 import authRouter from './routers/auth.router';
+import userRouter from './routers/user.router';
 import propertyRouter from './routers/property.route';
 import bookingRouter from './routers/booking.router';
 
@@ -45,10 +44,7 @@ app.get('/', (req: Request, res: Response) => {
 
 // New unified auth routes
 app.use('/api/auth', authRouter);
-
-// Legacy routes (kept for backward compatibility during migration)
-app.use('/api/agent', agentRouter);
-app.use('/api/student', studentRouter);
+app.use('/api/user', userRouter);
 
 app.use('/api/property', propertyRouter);
 app.use('/api/booking', bookingRouter);

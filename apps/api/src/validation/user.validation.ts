@@ -57,13 +57,17 @@ export const createUserSchema = z
 
 // Login schema
 export const loginSchema = z.object({
-  email: z.string().email('Valid email is required'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
+  body: z.object({
+    email: z.string().email('Valid email is required'),
+    password: z.string().min(6, 'Password must be at least 6 characters'),
+  }),
 });
 
 // Verify email schema
 export const verifyEmailSchema = z.object({
-  token: z.string().min(1, 'Verification token is required'),
+  params: z.object({
+    token: z.string().min(1, 'Verification token is required'),
+  }),
 });
 
 // Resend verification schema

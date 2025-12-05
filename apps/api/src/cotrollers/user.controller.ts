@@ -196,4 +196,19 @@ export class UserController {
       next(err);
     }
   }
+
+  async getAgentDashboardStats(req: Request, res: Response, next: NextFunction) {
+    try {
+      const agentId = req.user?.id;
+
+      if (!agentId) {
+        return ResponseHelper.unauthorized(res, 'Unauthorized');
+      }
+
+      const stats = await this.userService.getAgentDashboardStats(agentId);
+      return ResponseHelper.success(res, stats);
+    } catch (err) {
+      next(err);
+    }
+  }
 }
