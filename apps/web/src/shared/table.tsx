@@ -2,6 +2,7 @@ import { type ColumnDef } from '@uhomes/ui-kit';
 
 import { flexRender, getCoreRowModel, useReactTable } from '@uhomes/ui-kit';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@uhomes/ui-kit';
+import UHomesPagination from './pagination';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -57,6 +58,7 @@ const Tableshared = <TData, TValue>({ columns, data }: DataTableProps<TData, TVa
           )}
         </TableBody>
       </Table>
+      <UHomesPagination />
     </div>
   );
 };
