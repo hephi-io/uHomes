@@ -7,6 +7,8 @@
  *       required:
  *         - amount
  *         - email
+ *         - currency
+ *         - paymentMethod
  *       properties:
  *         amount:
  *           type: number
@@ -24,6 +26,10 @@
  *         paymentMethod:
  *           type: string
  *           example: paystack
+ *         bookingId:
+ *           type: string
+ *           description: Optional booking ID to link payment to a booking
+ *           example: 64a1c8f1e3b6a1a234567890
  *
  *     Payment:
  *       type: object
@@ -31,21 +37,28 @@
  *         _id:
  *           type: string
  *           example: 64a1c8f1e3b6a1a234567890
+ *         userId:
+ *           type: string
+ *           example: 64a1c5f1e3b6a1a234567888
+ *         bookingId:
+ *           type: string
+ *           description: Optional booking ID if payment is linked to a booking
+ *           example: 64a1c8f1e3b6a1a234567891
+ *         user_email:
+ *           type: string
+ *           example: user@example.com
  *         amount:
  *           type: number
  *           example: 15000
- *         email:
- *           type: string
- *           example: user@example.com
- *         description:
- *           type: string
- *           example: Payment for subscription
  *         currency:
  *           type: string
  *           example: NGN
  *         paymentMethod:
  *           type: string
  *           example: paystack
+ *         description:
+ *           type: string
+ *           example: Payment for subscription
  *         status:
  *           type: string
  *           enum: [pending, completed, failed, refunded]
@@ -53,9 +66,9 @@
  *         reference:
  *           type: string
  *           example: "PSK_123456789"
- *         authorization_url:
- *           type: string
- *           example: "https://paystack.com/pay/xyz123"
+ *         metadata:
+ *           type: object
+ *           example: {}
  *         createdAt:
  *           type: string
  *           format: date-time
@@ -78,27 +91,30 @@
  *     PaymentListResponse:
  *       type: object
  *       properties:
- *         message:
+ *         status:
  *           type: string
- *           example: Payments retrieved successfully
+ *           example: success
  *         data:
- *           type: array
- *           items:
- *             $ref: '#/components/schemas/Payment'
- *         pagination:
  *           type: object
  *           properties:
- *             total:
- *               type: number
- *               example: 25
- *             page:
- *               type: number
- *               example: 1
- *             pages:
- *               type: number
- *               example: 3
- *             limit:
- *               type: number
- *               example: 10
+ *             payments:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Payment'
+ *             pagination:
+ *               type: object
+ *               properties:
+ *                 total:
+ *                   type: number
+ *                   example: 25
+ *                 page:
+ *                   type: number
+ *                   example: 1
+ *                 pages:
+ *                   type: number
+ *                   example: 3
+ *                 limit:
+ *                   type: number
+ *                   example: 10
  *
  */

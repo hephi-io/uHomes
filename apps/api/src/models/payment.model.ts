@@ -2,6 +2,7 @@ import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IPayment extends Document {
   userId: mongoose.Types.ObjectId;
+  bookingId?: mongoose.Types.ObjectId;
   user_email?: string;
   amount: number;
   currency: string;
@@ -17,6 +18,7 @@ export interface IPayment extends Document {
 const paymentSchema = new Schema<IPayment>(
   {
     userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    bookingId: { type: Schema.Types.ObjectId, ref: 'Booking' },
     user_email: {
       type: String,
     },

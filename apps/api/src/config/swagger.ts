@@ -52,6 +52,10 @@ const options: swaggerJsdoc.Options = {
         name: 'Reviews',
         description: 'Property review endpoints',
       },
+      {
+        name: 'Notifications',
+        description: 'In-app notification management endpoints',
+      },
     ],
   },
   apis: ['./src/routers/*.ts', './src/docs/*.ts'],

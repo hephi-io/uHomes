@@ -7,6 +7,7 @@ export const createPaymentSchema = z.object({
   description: z.string().optional(),
   currency: z.string(),
   paymentMethod: z.string(),
+  bookingId: z.string().optional(),
 });
 
 // Update Payment Status

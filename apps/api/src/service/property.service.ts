@@ -22,7 +22,7 @@ export class PropertyService {
     if (!agentId) throw new UnauthorizedError('Unauthorized agent');
 
     // Validate agent type
-    const agentType = await UserType.findOne({ userId: agentId });
+    const agentType = await UserType.findOne({ userId: new mongoose.Types.ObjectId(agentId) });
     if (!agentType || agentType.type !== 'agent') {
       throw new UnauthorizedError('Only agents can create properties');
     }
@@ -58,7 +58,7 @@ export class PropertyService {
     const newProperty = await Property.create({
       ...data,
       images: uploadedImages,
-      agentId: [agentId],
+      agentId: agentId,
     });
 
     // Update user's properties array
