@@ -1,14 +1,14 @@
+import mongoose from 'mongoose';
 import { Transaction, ITransaction } from '../models/transaction.model';
 import { NotFoundError } from '../middlewares/error.middlewere';
 
 export class TransactionService {
   async getAllTransactions(userId: string, filters: any = {}) {
-    const query: any = { user_id: userId };
+    const query: any = { userId: userId };
 
     if (filters.status) query.status = filters.status;
-    if (filters.transaction_type) query.transaction_type = filters.transaction_type;
     if (filters.fromDate && filters.toDate) {
-      query.created_at = {
+      query.createdAt = {
         $gte: new Date(filters.fromDate),
         $lte: new Date(filters.toDate),
       };
@@ -30,7 +30,7 @@ export class TransactionService {
     const skip = (page - 1) * limit;
 
     const [transactions, total] = await Promise.all([
-      Transaction.find(query).sort({ created_at: -1 }).skip(skip).limit(limit),
+      Transaction.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit),
       Transaction.countDocuments(query),
     ]);
 
@@ -46,6 +46,11 @@ export class TransactionService {
   }
 
   async getTransactionById(transactionId: string): Promise<ITransaction> {
+    // Validate ObjectId format before querying
+    if (!mongoose.Types.ObjectId.isValid(transactionId)) {
+      throw new NotFoundError('Transaction not found');
+    }
+
     const transaction = await Transaction.findById(transactionId);
 
     if (!transaction) {

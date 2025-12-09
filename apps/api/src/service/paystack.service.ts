@@ -1,4 +1,5 @@
 import axios from 'axios';
+import crypto from 'crypto';
 import 'dotenv/config';
 import { nairaToKobo } from '../utils/amountConverstion';
 
@@ -39,33 +40,86 @@ export class PaystackService {
   }
 
   async verifyTransaction(reference: string) {
-    const response = await axios.get(`${PAYSTACK_BASE_URL}/transaction/verify/${reference}`, {
-      headers: { Authorization: `Bearer ${this.secretKey}` },
-    });
-    return response.data;
+    try {
+      const response = await axios.get(`${PAYSTACK_BASE_URL}/transaction/verify/${reference}`, {
+        headers: { Authorization: `Bearer ${this.secretKey}` },
+      });
+
+      if (response.data.status === false) {
+        throw new Error(response.data.message || 'Transaction verification failed');
+      }
+
+      return response.data;
+    } catch (err: any) {
+      if (err.response?.data?.message) {
+        throw new Error(err.response.data.message);
+      }
+      throw new Error('Failed to verify transaction');
+    }
   }
 
   async refundTransaction(reference: string, amount: number) {
-    const response = await axios.post(
-      `${PAYSTACK_BASE_URL}/refund`,
-      { transaction: reference, amount },
-      { headers: this.getHeaders() }
-    );
-    return response.data;
+    try {
+      const response = await axios.post(
+        `${PAYSTACK_BASE_URL}/refund`,
+        { transaction: reference, amount },
+        { headers: this.getHeaders() }
+      );
+
+      if (response.data.status === false) {
+        throw new Error(response.data.message || 'Refund failed');
+      }
+
+      return response.data;
+    } catch (err: any) {
+      if (err.response?.data?.message) {
+        throw new Error(err.response.data.message);
+      }
+      throw new Error('Failed to process refund');
+    }
   }
 
   async getTransaction(reference: string) {
-    const response = await axios.get(`${PAYSTACK_BASE_URL}/transaction/${reference}`, {
-      headers: { Authorization: `Bearer ${this.secretKey}` },
-    });
-    return response.data;
+    try {
+      const response = await axios.get(`${PAYSTACK_BASE_URL}/transaction/${reference}`, {
+        headers: { Authorization: `Bearer ${this.secretKey}` },
+      });
+
+      if (response.data.status === false) {
+        throw new Error(response.data.message || 'Failed to get transaction');
+      }
+
+      return response.data;
+    } catch (err: any) {
+      if (err.response?.data?.message) {
+        throw new Error(err.response.data.message);
+      }
+      throw new Error('Failed to get transaction');
+    }
   }
 
   async listTransactions(perPage: number = 50, page: number = 1) {
-    const response = await axios.get(
-      `${PAYSTACK_BASE_URL}/transaction?perPage=${perPage}&page=${page}`,
-      { headers: { Authorization: `Bearer ${this.secretKey}` } }
-    );
-    return response.data;
+    try {
+      const response = await axios.get(
+        `${PAYSTACK_BASE_URL}/transaction?perPage=${perPage}&page=${page}`,
+        { headers: { Authorization: `Bearer ${this.secretKey}` } }
+      );
+
+      if (response.data.status === false) {
+        throw new Error(response.data.message || 'Failed to list transactions');
+      }
+
+      return response.data;
+    } catch (err: any) {
+      if (err.response?.data?.message) {
+        throw new Error(err.response.data.message);
+      }
+      throw new Error('Failed to list transactions');
+    }
+  }
+
+  verifyWebhookSignature(payload: string, signature: string): boolean {
+    const hash = crypto.createHmac('sha512', this.secretKey).update(payload).digest('hex');
+    return hash === signature;
   }
 }

@@ -199,4 +199,27 @@ router.patch(
   paymentController.updatePaymentStatus.bind(paymentController)
 );
 
+/**
+ * @swagger
+ * /api/payment/webhook:
+ *   post:
+ *     summary: Paystack webhook endpoint for payment status updates
+ *     tags: [Payments]
+ *     description: This endpoint receives webhook events from Paystack when payment status changes
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *     responses:
+ *       200:
+ *         description: Webhook received and processed
+ */
+router.post(
+  '/webhook',
+  express.raw({ type: 'application/json' }),
+  paymentController.handleWebhook.bind(paymentController)
+);
+
 export default router;

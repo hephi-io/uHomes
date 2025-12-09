@@ -8,9 +8,6 @@
  *         status:
  *           type: string
  *           example: completed
- *         transaction_type:
- *           type: string
- *           example: payment
  *         fromDate:
  *           type: string
  *           format: date
@@ -41,18 +38,22 @@
  *         _id:
  *           type: string
  *           example: 64a1d0f4e3b6a1a234567891
- *         user_id:
+ *         paymentId:
+ *           type: string
+ *           description: ID of the linked payment
+ *           example: 64a1c8f1e3b6a1a234567890
+ *         userId:
  *           type: string
  *           example: 64a1c5f1e3b6a1a234567888
  *         reference:
  *           type: string
  *           example: PSK_123456789
- *         transaction_type:
- *           type: string
- *           example: payment
  *         amount:
  *           type: number
  *           example: 15000
+ *         currency:
+ *           type: string
+ *           example: NGN
  *         status:
  *           type: string
  *           enum: [pending, completed, failed, refunded]
@@ -60,11 +61,14 @@
  *         description:
  *           type: string
  *           example: Payment for subscription
- *         created_at:
+ *         metadata:
+ *           type: object
+ *           example: {}
+ *         createdAt:
  *           type: string
  *           format: date-time
  *           example: "2025-12-05T10:00:00.000Z"
- *         updated_at:
+ *         updatedAt:
  *           type: string
  *           format: date-time
  *           example: "2025-12-05T10:05:00.000Z"

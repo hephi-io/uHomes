@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import Property, { IProperty } from '../src/models/property.model';
-import Agent, { IAgent } from '../src/models/agent.model';
+import User from '../src/models/user.model';
+import UserType from '../src/models/user-type.model';
 import { PropertyService } from '../src/service/property.service';
 import cloudinary from '../src/config/cloudinary';
 import { BadRequestError } from '../src/middlewares/error.middlewere';
@@ -18,13 +19,17 @@ describe('PropertyService', () => {
 
   beforeAll(async () => {
     propertyService = new PropertyService();
-    const agent = await Agent.create({
+    const agent = await User.create({
       fullName: 'Test Agent',
       email: 'agent@test.com',
       password: 'password',
       phoneNumber: '08123456789',
-    } as unknown as IAgent);
+    });
     agentId = (agent._id as mongoose.Types.ObjectId).toString();
+    await UserType.create({
+      userId: agent._id,
+      type: 'agent',
+    });
   });
 
   afterEach(async () => {
@@ -36,9 +41,17 @@ describe('PropertyService', () => {
     const data: Partial<IProperty> = {
       title: 'Test Property',
       location: 'City',
-      price: 1000,
+      pricePerSemester: 1000,
       description: 'Nice property',
-      amenities: ['pool', 'gym'],
+      roomsAvailable: 5,
+      amenities: {
+        wifi: true,
+        kitchen: false,
+        security: true,
+        parking: false,
+        power24_7: false,
+        gym: true,
+      },
       isAvailable: true,
     };
     const files = [{ path: 'path/to/file.jpg' }];
@@ -53,6 +66,14 @@ describe('PropertyService', () => {
   });
 
   it('should throw error if no files', async () => {
+    // Ensure UserType exists for this test
+    const userType = await UserType.findOne({ userId: new mongoose.Types.ObjectId(agentId) });
+    if (!userType) {
+      await UserType.create({
+        userId: new mongoose.Types.ObjectId(agentId),
+        type: 'agent',
+      });
+    }
     await expect(propertyService.createProperty(agentId, { title: 'Test' }, [])).rejects.toThrow(
       BadRequestError
     );
@@ -62,12 +83,20 @@ describe('PropertyService', () => {
     const property = await Property.create({
       title: 'Test',
       location: 'City',
-      price: 1000,
+      pricePerSemester: 1000,
       description: 'Desc',
-      amenities: [],
+      roomsAvailable: 5,
+      amenities: {
+        wifi: false,
+        kitchen: false,
+        security: false,
+        parking: false,
+        power24_7: false,
+        gym: false,
+      },
       isAvailable: true,
       images: [{ url: 'url', cloudinary_id: 'id' }],
-      agentId: [new mongoose.Types.ObjectId(agentId)],
+      agentId: new mongoose.Types.ObjectId(agentId),
     } as unknown as IProperty);
 
     const fetched = await propertyService.getPropertyById(
@@ -82,11 +111,19 @@ describe('PropertyService', () => {
     const property = await Property.create({
       title: 'Delete Me',
       location: 'City',
-      price: 1000,
+      pricePerSemester: 1000,
       description: 'Desc',
-      amenities: [],
+      roomsAvailable: 5,
+      amenities: {
+        wifi: false,
+        kitchen: false,
+        security: false,
+        parking: false,
+        power24_7: false,
+        gym: false,
+      },
       isAvailable: true,
-      agentId: [new mongoose.Types.ObjectId(agentId)],
+      agentId: new mongoose.Types.ObjectId(agentId),
       images: [{ url: 'url', cloudinary_id: 'id' }],
     } as unknown as IProperty);
 

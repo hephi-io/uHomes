@@ -3,8 +3,15 @@ import Review, { IReview } from '../models/review.model';
 import Property from '../models/property.model';
 import User from '../models/user.model';
 import { BadRequestError, NotFoundError, ConflictError } from '../middlewares/error.middlewere';
+import { NotificationService } from './notification.service';
+import logger from '../utils/logger';
 
 export class ReviewService {
+  private notificationService: NotificationService;
+
+  constructor() {
+    this.notificationService = new NotificationService();
+  }
   async getReviewsByPropertyId(
     propertyId: string,
     page: number = 1,
@@ -107,6 +114,24 @@ export class ReviewService {
 
     // Update property average rating
     await this.updatePropertyRating(propertyId);
+
+    // Notify agent about new review
+    try {
+      const propertyData = await Property.findById(propertyId);
+      if (propertyData && propertyData.agentId) {
+        const agentId = propertyData.agentId.toString();
+        await this.notificationService.createNotification({
+          userId: agentId,
+          type: 'property_reviewed',
+          title: 'New Review Received',
+          message: `New review received for ${propertyData.title || 'your property'}`,
+          relatedId: propertyId,
+          metadata: { rating, reviewId: savedReview._id.toString() },
+        });
+      }
+    } catch (error) {
+      logger.error('Failed to create notification for new review:', error);
+    }
 
     // Populate user data before returning
     await savedReview.populate('userId', 'fullName email');

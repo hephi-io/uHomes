@@ -25,11 +25,6 @@ const transactionController = new TransactionController();
  *           type: string
  *         description: Filter by transaction status
  *       - in: query
- *         name: transaction_type
- *         schema:
- *           type: string
- *         description: Filter by transaction type
- *       - in: query
  *         name: fromDate
  *         schema:
  *           type: string

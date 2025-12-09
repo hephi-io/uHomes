@@ -3,6 +3,8 @@ import Booking, { IBooking } from '../models/booking.model';
 import property from '../models/property.model';
 import UserType from '../models/user-type.model';
 import { BadRequestError, NotFoundError, UnauthorizedError } from '../middlewares/error.middlewere';
+import { NotificationService } from './notification.service';
+import logger from '../utils/logger';
 
 type BookingStatus = 'pending' | 'confirmed' | 'cancelled' | 'completed';
 
@@ -20,9 +22,15 @@ interface BookingInput {
 }
 
 export class BookingService {
+  private notificationService: NotificationService;
+
+  constructor() {
+    this.notificationService = new NotificationService();
+  }
+
   async createBooking(data: BookingInput, user: { id: string; type?: string }): Promise<IBooking> {
     // Check if logged-in user is a student
-    const userType = await UserType.findOne({ userId: user.id });
+    const userType = await UserType.findOne({ userId: new mongoose.Types.ObjectId(user.id) });
     if (!userType) throw new NotFoundError('User type not found');
     if (userType.type !== 'student') {
       throw new UnauthorizedError('Only students can create bookings');
@@ -58,7 +66,23 @@ export class BookingService {
       agent: agentId,
     });
 
-    return await booking.save();
+    const savedBooking = await booking.save();
+
+    // Notify agent about new booking
+    try {
+      await this.notificationService.createNotification({
+        userId: agentId.toString(),
+        type: 'booking_created',
+        title: 'New Booking Request',
+        message: `New booking request received for ${foundProperty.title || 'property'}`,
+        relatedId: savedBooking._id.toString(),
+        metadata: { propertyId: data.propertyid, amount: data.amount },
+      });
+    } catch (error) {
+      logger.error('Failed to create notification for new booking:', error);
+    }
+
+    return savedBooking;
   }
   async getBookingById(bookingId: string, userId: string): Promise<IBooking> {
     if (!mongoose.Types.ObjectId.isValid(bookingId)) {
@@ -133,7 +157,31 @@ export class BookingService {
     }
 
     booking.status = status;
-    return await booking.save();
+    const updatedBooking = await booking.save();
+
+    // Notify student about booking status update
+    try {
+      const statusMessages: Record<string, string> = {
+        confirmed: 'Your booking has been confirmed!',
+        cancelled: 'Your booking has been cancelled',
+        completed: 'Your booking has been completed',
+      };
+
+      const message = statusMessages[status] || `Your booking status has been updated to ${status}`;
+
+      await this.notificationService.createNotification({
+        userId: booking.tenant.toString(),
+        type: 'booking_updated',
+        title: 'Booking Status Updated',
+        message,
+        relatedId: booking._id.toString(),
+        metadata: { status, propertyId: booking.propertyid.toString() },
+      });
+    } catch (error) {
+      logger.error('Failed to create notification for booking update:', error);
+    }
+
+    return updatedBooking;
   }
 
   async deleteBooking(bookingId: string, user: { id: string; role: string }) {
@@ -150,6 +198,27 @@ export class BookingService {
       booking.tenant.toString() === user.id;
 
     if (!canDelete) throw new UnauthorizedError('Access denied');
+
+    // Notify both parties about booking deletion
+    try {
+      const propertyData = await property.findById(booking.propertyid);
+      const propertyTitle = propertyData?.title || 'property';
+
+      // Notify the other party
+      const notifyUserId =
+        user.id === booking.agent.toString() ? booking.tenant.toString() : booking.agent.toString();
+
+      await this.notificationService.createNotification({
+        userId: notifyUserId,
+        type: 'booking_deleted',
+        title: 'Booking Deleted',
+        message: `Booking for ${propertyTitle} has been deleted`,
+        relatedId: booking._id.toString(),
+        metadata: { deletedBy: user.id },
+      });
+    } catch (error) {
+      logger.error('Failed to create notification for booking deletion:', error);
+    }
 
     await booking.deleteOne();
     return booking;
