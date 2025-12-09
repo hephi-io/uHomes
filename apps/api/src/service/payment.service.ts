@@ -1,5 +1,6 @@
 import { Payment, IPayment } from '../models/payment.model';
 import { Transaction } from '../models/transaction.model';
+import Booking from '../models/booking.model';
 import { AppError, BadRequestError, NotFoundError } from '../middlewares/error.middlewere';
 import logger from '../utils/logger';
 import { PaystackService } from './paystack.service';
@@ -28,9 +29,14 @@ export class PaymentService {
         throw new BadRequestError('Missing required fields');
       }
 
+      // Build callback URL for Paystack redirect (points to backend API)
+      const backendUrl = process.env.BASE_URL || process.env.API_URL || 'http://localhost:7000';
+      const callbackUrl = `${backendUrl}/api/payment/callback`;
+
       const paystackResponse = await this.paystack.initializeTransaction({
         email: input.email,
         amount,
+        callback_url: callbackUrl,
       });
 
       const { reference, authorization_url } = paystackResponse;
@@ -80,6 +86,18 @@ export class PaymentService {
     payment.status = result.status === 'success' ? 'completed' : 'failed';
     await payment.save();
 
+    // Update booking payment status if bookingId exists in metadata
+    if (payment.metadata?.bookingId && payment.status === 'completed') {
+      try {
+        const bookingId = payment.metadata.bookingId as string;
+        await Booking.findByIdAndUpdate(bookingId, { paymentStatus: 'paid' }, { new: true });
+        logger.info(`Booking ${bookingId} payment status updated to paid`);
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        logger.error('Failed to update booking payment status:', errorMessage);
+      }
+    }
+
     await Transaction.findOneAndUpdate(
       { paymentId: payment._id },
       { status: payment.status, updatedAt: new Date() }
@@ -87,6 +105,14 @@ export class PaymentService {
 
     logger.info(`Payment ${paymentId} processed, status: ${payment.status}`);
     return payment;
+  }
+
+  async verifyPaymentByReference(reference: string): Promise<IPayment> {
+    const payment = await Payment.findOne({ reference });
+    if (!payment) throw new NotFoundError('Payment not found');
+
+    const paymentId = String(payment._id);
+    return this.processPayment(paymentId);
   }
 
   async refundPayment(paymentId: string): Promise<IPayment> {

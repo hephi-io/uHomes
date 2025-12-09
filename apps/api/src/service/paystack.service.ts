@@ -4,7 +4,7 @@ import { nairaToKobo } from '../utils/amountConverstion';
 
 const PAYSTACK_BASE_URL = 'https://api.paystack.co';
 
-type TInitializeTransactionPayload = { email: string; amount: number };
+type TInitializeTransactionPayload = { email: string; amount: number; callback_url?: string };
 
 export class PaystackService {
   private readonly secretKey: string;
@@ -23,13 +23,18 @@ export class PaystackService {
 
   async initializeTransaction(payload: TInitializeTransactionPayload) {
     if (!payload.amount) throw new Error('Amount is required');
-    const { email, amount: plainAmount } = payload;
+    const { email, amount: plainAmount, callback_url } = payload;
     const amount = nairaToKobo(plainAmount);
 
     try {
+      const requestBody: any = { email, amount };
+      if (callback_url) {
+        requestBody.callback_url = callback_url;
+      }
+
       const response = await axios.post(
         `${PAYSTACK_BASE_URL}/transaction/initialize`,
-        { email, amount },
+        requestBody,
         { headers: this.getHeaders() }
       );
       return response.data.data; // contains reference & authorization_url

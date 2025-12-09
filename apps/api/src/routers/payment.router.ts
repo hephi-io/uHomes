@@ -199,4 +199,24 @@ router.patch(
   paymentController.updatePaymentStatus.bind(paymentController)
 );
 
+/**
+ * @swagger
+ * /api/payment/callback:
+ *   get:
+ *     summary: Paystack payment callback handler
+ *     description: This endpoint handles Paystack redirects after payment completion. It verifies the payment and redirects to the frontend success page.
+ *     tags: [Payments]
+ *     parameters:
+ *       - name: reference
+ *         in: query
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Payment reference from Paystack
+ *     responses:
+ *       302:
+ *         description: Redirects to frontend success or error page
+ */
+router.get('/callback', paymentController.paymentCallback.bind(paymentController));
+
 export default router;

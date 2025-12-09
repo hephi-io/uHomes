@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import { PaymentService } from '../service/payment.service';
 import { ResponseHelper } from '../utils/response';
+import Booking from '../models/booking.model';
+import logger from '../utils/logger';
 
 export class PaymentController {
   paymentService: PaymentService;
@@ -78,6 +80,64 @@ export class PaymentController {
       return ResponseHelper.success(res, payment);
     } catch (error) {
       next(error);
+    }
+  }
+
+  async paymentCallback(req: Request, res: Response, _next: NextFunction) {
+    try {
+      const { reference } = req.query;
+
+      if (!reference || typeof reference !== 'string') {
+        return res.redirect(
+          `${process.env.FRONTEND_URL || 'http://localhost:3000'}/students/booking/checkout?error=invalid_reference`
+        );
+      }
+
+      const payment = await this.paymentService.verifyPaymentByReference(reference);
+
+      if (payment.status === 'completed' && payment.metadata?.bookingId) {
+        // Fetch booking to pass to frontend
+        const booking = await Booking.findById(payment.metadata.bookingId)
+          .populate('propertyid', 'title location images')
+          .populate('tenant', 'fullName email phoneNumber')
+          .populate('agent', 'fullName email phoneNumber');
+
+        if (!booking) {
+          return res.redirect(
+            `${process.env.FRONTEND_URL || 'http://localhost:3000'}/students/booking/checkout?error=booking_not_found`
+          );
+        }
+
+        // Redirect to success page with booking data in URL params
+        const bookingData = encodeURIComponent(
+          JSON.stringify({
+            _id: booking._id,
+            amount: booking.amount,
+            duration: booking.duration,
+            moveInDate: booking.moveInDate,
+            moveOutDate: booking.moveOutDate,
+            paymentStatus: booking.paymentStatus,
+            status: booking.status,
+            propertyType: booking.propertyType,
+            property: booking.propertyid,
+            tenant: booking.tenant,
+            agent: booking.agent,
+          })
+        );
+
+        return res.redirect(
+          `${process.env.FRONTEND_URL || 'http://localhost:3000'}/students/booking/checkout-success?booking=${bookingData}`
+        );
+      } else {
+        return res.redirect(
+          `${process.env.FRONTEND_URL || 'http://localhost:3000'}/students/booking/checkout?error=payment_failed`
+        );
+      }
+    } catch (error) {
+      logger.error('Payment callback error:', error);
+      return res.redirect(
+        `${process.env.FRONTEND_URL || 'http://localhost:3000'}/students/booking/checkout?error=verification_failed`
+      );
     }
   }
 }
