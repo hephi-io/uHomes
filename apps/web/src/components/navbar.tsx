@@ -3,6 +3,7 @@ import { cn } from '@uhomes/ui-kit';
 
 import { SVGs } from '@/assets/svgs/Index';
 import { ProfileDropdown } from './profile-dropdown';
+import Notification from '@/pages/Agent/notification';
 
 interface NavItem {
   id: number;
@@ -53,9 +54,7 @@ export const Navbar = ({ navItems }: NavbarProps) => {
       </div>
 
       <div className="hidden md:block lg:flex lg:gap-x-8 lg:items-center">
-        <div className="hidden w-10 h-10 justify-center items-center rounded-full border border-[#00000033] bg-[#F8F8F8] lg:flex">
-          <SVGs.Notification />
-        </div>
+        <Notification />
 
         <ProfileDropdown />
       </div>
