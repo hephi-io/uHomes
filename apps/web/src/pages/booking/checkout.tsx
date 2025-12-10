@@ -4,7 +4,11 @@ import { SVGs } from '@/assets/svgs/Index';
 import { Checkbox } from '@/components/ui/checkbox';
 import HostelImage from '@/assets/pngs/hostel-image-2.png';
 
+import { useNavigate } from 'react-router-dom';
+
 export default function Checkout() {
+  const navigate = useNavigate();
+
   const summaries = [
     { id: 1, item: 'Room Type ', value: 'Shared Room' },
     { id: 2, item: 'Move-in Date', value: '16/12/2025' },
@@ -60,7 +64,10 @@ export default function Checkout() {
             Uhomes
           </Label>
         </div>
-        <Button className="w-full h-[45px] gap-x-2 rounded-[5px] border border-[#E4E4E4EE] bg-[#3E78FF] px-4 py-2 mt-9">
+        <Button
+          onClick={() => navigate('../checkout-success')}
+          className="w-full h-[45px] gap-x-2 rounded-[5px] border border-[#E4E4E4EE] bg-[#3E78FF] px-4 py-2 mt-9"
+        >
           <SVGs.PropertyAdd />
           <span className="font-medium text-sm leading-[150%] tracking-[0%] text-white">
             Proceed To Payment

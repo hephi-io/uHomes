@@ -4,11 +4,21 @@ import { Button } from '@uhomes/ui-kit';
 
 import { SVGs } from '@/assets/svgs/Index';
 
+import { useNavigate } from 'react-router-dom';
+
+// import
+
 export default function BookingLayout() {
+  const navigate = useNavigate();
+
   return (
     <div className="md:px-8 lg:pb-8">
       <div className="flex gap-x-9 items-center mt-4">
-        <Button variant="outline" className="size-11 rounded-full border-[#E5E5E5]">
+        <Button
+          variant="outline"
+          className="size-11 rounded-full border-[#E5E5E5]"
+          onClick={() => navigate('../hostels/1')}
+        >
           <SVGs.ChevronLeft />
         </Button>
         <h1 className="font-semibold text-base leading-[120%] tracking-[0%] text-[#09090B]">

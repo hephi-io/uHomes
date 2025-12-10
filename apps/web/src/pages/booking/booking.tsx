@@ -11,7 +11,11 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { SVGs } from '@/assets/svgs/Index';
 
+import { useNavigate } from 'react-router-dom';
+
 export default function Booking() {
+  const navigate = useNavigate();
+
   return (
     <div className="lg:w-[680px] lg:rounded-xl lg:border lg:border-[#EAEAEA] lg:bg-white lg:shadow-[0px_2px_3px_1px_#0000001A] lg:p-4.5 lg:mx-auto">
       <h1 className="font-semibold text-lg leading-[130%] tracking-[0%] text-[#101828] mb-1">
@@ -74,7 +78,10 @@ export default function Booking() {
         placeholder="e.g., Near window, Upper bunk"
         className="h-21.5 rounded-lg border border-[#E4E4E7] bg-white text-sm leading-[130%] tracking-[0%] align-middle text-[#999999] p-3"
       />
-      <Button className="w-full h-[45px] gap-x-2 rounded-[5px] border border-[#E4E4E4EE] bg-[#3E78FF] px-4 py-2 mt-9">
+      <Button
+        onClick={() => navigate('checkout')}
+        className="w-full h-[45px] gap-x-2 rounded-[5px] border border-[#E4E4E4EE] bg-[#3E78FF] px-4 py-2 mt-9"
+      >
         <SVGs.PropertyAdd />
         <span className="font-medium text-sm leading-[150%] tracking-[0%] text-white">
           Proceed To Payment

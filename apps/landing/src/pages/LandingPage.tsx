@@ -1,56 +1,31 @@
-import React from "react";
+import Navbar from '@/components/navbar';
+import Hero from '@/components/hero';
+import About from '@/components/about';
+import HowItWorks from '@/components/how-it-works';
+import FAQs from '@/components/faqs';
+import Footer from '@/components/footer';
 
-const LandingPage: React.FC = () => {
+export default function LandingPage() {
   return (
-    <div className="landing-page">
-      <header className="hero">
-        <div className="container">
-          <h1>Welcome to uHomes</h1>
-          <p>Your dream home awaits. Find the perfect property for you.</p>
-          <div className="cta-buttons">
-            <button className="btn-primary">Get Started</button>
-            <button className="btn-secondary">Learn More</button>
-          </div>
-        </div>
-      </header>
-
-      <main>
-        <section className="features">
-          <div className="container">
-            <h2>Why Choose uHomes?</h2>
-            <div className="features-grid">
-              <div className="feature">
-                <h3>Smart Search</h3>
-                <p>
-                  Find properties that match your exact needs with our advanced
-                  search.
-                </p>
-              </div>
-              <div className="feature">
-                <h3>Expert Guidance</h3>
-                <p>
-                  Get professional help from our experienced real estate agents.
-                </p>
-              </div>
-              <div className="feature">
-                <h3>Secure Transactions</h3>
-                <p>
-                  All transactions are secure and protected with
-                  industry-leading security.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-      </main>
-
-      <footer>
-        <div className="container">
-          <p>&copy; 2024 uHomes. All rights reserved.</p>
-        </div>
-      </footer>
-    </div>
+    <>
+      <div className="px-[33px] py-4 md:px-16.5 lg:px-33">
+        <Navbar />
+      </div>
+      <div className="border-b border-b-[#C4C4C4] px-[33px] py-14 md:px-16.5 md:pt-[93px] lg:pl-33 lg:pr-0 lg:pb-0">
+        <Hero />
+      </div>
+      <div className="pt-14 md:pt-28">
+        <About />
+      </div>
+      <div className="pt-14 pb-28 md:pt-28">
+        <HowItWorks />
+      </div>
+      <div className="border-y border-y-[#C4C4C4] px-[33px] md:px-16.5 lg:px-33">
+        <FAQs />
+      </div>
+      <div className="px-[33px] py-14 md:px-16.5 md:py-28 lg:px-33">
+        <Footer />
+      </div>
+    </>
   );
-};
-
-export default LandingPage;
+}
