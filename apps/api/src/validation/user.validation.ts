@@ -24,8 +24,10 @@ const studentRegisterSchema = baseRegisterSchema.extend({
 });
 
 // Agent-specific registration schema
+// Note: NIN is optional during registration - agents can complete NIN verification separately
 const agentRegisterSchema = baseRegisterSchema.extend({
   type: z.literal('agent'),
+  // NIN is optional - agents will verify NIN via /api/user/verify-nin endpoint
 });
 
 // Admin-specific registration schema
@@ -93,6 +95,12 @@ export const updateUserSchema = z.object({
     password: z.string().min(6).optional(),
     university: z.string().optional(),
     yearOfStudy: z.enum(['100', '200', '300', '400', '500'] as const).optional(),
+    nin: z
+      .string()
+      .min(11, 'NIN must be exactly 11 digits')
+      .max(11, 'NIN must be exactly 11 digits')
+      .regex(/^\d{11}$/, 'NIN must contain only digits')
+      .optional(),
   }),
   params: z.object({
     id: z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid user ID format'),
