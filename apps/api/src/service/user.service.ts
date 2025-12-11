@@ -20,7 +20,8 @@ interface RegisterData {
   // Student-specific
   university?: string;
   yearOfStudy?: '100' | '200' | '300' | '400' | '500';
-  // Agent-specific (can be added later if needed)
+  // Agent-specific
+  nin?: string; // National Identification Number for KYC verification
 }
 
 export class UserService {
@@ -39,7 +40,7 @@ export class UserService {
    * Register a new user with their type
    */
   async register(data: RegisterData) {
-    const { fullName, email, phoneNumber, password, type, university, yearOfStudy } = data;
+    const { fullName, email, phoneNumber, password, type, university, yearOfStudy, nin } = data;
 
     // Check if user already exists by email
     const existingUserByEmail = await User.findOne({ email });
@@ -55,6 +56,19 @@ export class UserService {
       if (!yearOfStudy) throw new BadRequestError('Year of study is required for students');
     }
 
+    // Note: NIN is optional during registration - agents can verify NIN separately via /api/user/verify-nin
+    // If NIN is provided during registration, validate it
+    if (type === 'agent' && nin) {
+      // Check if NIN already exists
+      const existingUserByNIN = await User.findOne({ nin: nin.trim() });
+      if (existingUserByNIN) throw new BadRequestError('NIN already in use');
+
+      // Validate NIN format
+      if (!/^\d{11}$/.test(nin.trim())) {
+        throw new BadRequestError('NIN must be exactly 11 digits');
+      }
+    }
+
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -65,7 +79,11 @@ export class UserService {
       phoneNumber,
       password: hashedPassword,
       ...(type === 'student' && { university, yearOfStudy }),
-      ...(type === 'agent' && { properties: [], totalRevenue: 0 }),
+      ...(type === 'agent' && {
+        properties: [],
+        totalRevenue: 0,
+        ...(nin && { nin: nin.trim(), ninVerificationStatus: 'pending' }),
+      }),
     };
 
     const user = new User(userData);
@@ -143,9 +161,9 @@ export class UserService {
         expiresIn: '1d',
       });
 
-      // Remove password from response
+      // Remove password and NIN from response (sensitive data)
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { password: _, ...userData } = user.toObject();
+      const { password: _, nin: __, ...userData } = user.toObject();
 
       return {
         token,
@@ -235,9 +253,9 @@ export class UserService {
       expiresIn: '1d',
     });
 
-    // Remove password from response
+    // Remove password and NIN from response (sensitive data)
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password: _, ...userData } = user.toObject();
+    const { password: _, nin: __, ...userData } = user.toObject();
 
     return {
       token,
@@ -260,8 +278,9 @@ export class UserService {
     const userType = await UserType.findOne({ userId: user._id });
     if (!userType) throw new NotFoundError('User type not found');
 
+    // Remove password and NIN from response (sensitive data)
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password: _, ...userData } = user.toObject();
+    const { password: _, nin: __, ...userData } = user.toObject();
 
     return {
       ...userData,
@@ -286,6 +305,21 @@ export class UserService {
    * Update user
    */
   async updateUser(id: string, data: Partial<IUser>) {
+    // If NIN is being updated, validate it
+    if (data.nin) {
+      // Validate NIN format
+      if (!/^\d{11}$/.test(data.nin.trim())) {
+        throw new BadRequestError('NIN must be exactly 11 digits');
+      }
+
+      // Check if NIN is already in use by another user
+      const existingUserByNIN = await User.findOne({ nin: data.nin.trim(), _id: { $ne: id } });
+      if (existingUserByNIN) throw new BadRequestError('NIN already in use');
+
+      // Trim NIN before saving
+      data.nin = data.nin.trim();
+    }
+
     const user = await User.findByIdAndUpdate(id, data, { new: true });
     if (!user) throw new NotFoundError('User not found');
 
@@ -320,8 +354,9 @@ export class UserService {
 
     // Get user type for response
     const userType = await UserType.findOne({ userId: user._id });
+    // Remove password and NIN from response (sensitive data)
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password: _, ...userData } = user.toObject();
+    const { password: _, nin: __, ...userData } = user.toObject();
 
     return {
       ...userData,
@@ -513,6 +548,69 @@ export class UserService {
       availableRooms,
       pendingBookings,
       totalRevenue,
+    };
+  }
+
+  /**
+   * Verify NIN with document upload (KYC verification)
+   */
+  async verifyNIN(
+    userId: string,
+    nin: string,
+    documentFile: Express.Multer.File
+  ): Promise<{ message: string }> {
+    // Validate user is an agent
+    const userType = await UserType.findOne({ userId });
+    if (!userType || userType.type !== 'agent') {
+      throw new BadRequestError('Only agents can verify NIN');
+    }
+
+    // Validate NIN format
+    if (!/^\d{11}$/.test(nin.trim())) {
+      throw new BadRequestError('NIN must be exactly 11 digits');
+    }
+
+    // Check if NIN is already in use by another user
+    const existingUserByNIN = await User.findOne({ nin: nin.trim(), _id: { $ne: userId } });
+    if (existingUserByNIN) throw new BadRequestError('NIN already in use');
+
+    // Upload document to Cloudinary
+    const { default: cloudinary } = await import('../config/cloudinary');
+    const uploadResult = await cloudinary.uploader.upload(documentFile.path, {
+      resource_type: 'auto', // Supports both images and PDFs
+      folder: 'nin-documents', // Organize NIN documents in a separate folder
+    });
+
+    // Update user with NIN and document
+    const user = await User.findById(userId);
+    if (!user) throw new NotFoundError('User not found');
+
+    user.nin = nin.trim();
+    user.ninDocumentUrl = uploadResult.secure_url;
+    user.ninVerificationStatus = 'pending'; // Admin will verify later
+    await user.save();
+
+    // Clean up local file
+    const fs = await import('fs');
+    if (fs.existsSync(documentFile.path)) {
+      fs.unlinkSync(documentFile.path);
+    }
+
+    return {
+      message: 'NIN verification submitted successfully. Your document is under review.',
+    };
+  }
+
+  /**
+   * Get NIN verification status (for agents to check their status)
+   */
+  async getNINVerificationStatus(userId: string) {
+    const user = await User.findById(userId).select('ninVerificationStatus ninDocumentUrl');
+    if (!user) throw new NotFoundError('User not found');
+
+    return {
+      verificationStatus: user.ninVerificationStatus || 'pending',
+      hasDocument: !!user.ninDocumentUrl,
     };
   }
 }

@@ -27,6 +27,24 @@ export class PropertyService {
       throw new UnauthorizedError('Only agents can create properties');
     }
 
+    // Check if agent has completed KYC verification (NIN required and verified)
+    const agent = await User.findById(agentId);
+    if (!agent) throw new NotFoundError('Agent not found');
+
+    if (!agent.nin) {
+      throw new BadRequestError(
+        'KYC verification required. Please complete your NIN verification to create properties.'
+      );
+    }
+
+    if (agent.ninVerificationStatus !== 'verified') {
+      throw new BadRequestError(
+        `KYC verification ${
+          agent.ninVerificationStatus === 'pending' ? 'is pending review' : 'was rejected'
+        }. Please ensure your NIN verification is approved before creating properties.`
+      );
+    }
+
     if (!files || files.length === 0) throw new BadRequestError('At least one image is required');
 
     if (data.roomTypes && typeof data.roomTypes === 'string') {
@@ -186,7 +204,7 @@ export class PropertyService {
     const properties = await Property.find({ agentId })
       .skip(skip)
       .limit(limit)
-      .populate('agentId', '-password');
+      .populate('agentId', '-password -nin');
 
     return { properties, total, page, limit };
   }

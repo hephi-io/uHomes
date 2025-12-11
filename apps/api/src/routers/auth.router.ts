@@ -56,13 +56,21 @@ const controller = new UserController();
  *                 type: string
  *                 enum: [student, agent, admin]
  *                 example: agent
+ *                 description: User type. For students, university and yearOfStudy are required. For agents, NIN can be verified separately via the verify-nin endpoint.
  *               university:
  *                 type: string
  *                 example: University of Example
+ *                 description: Required for student type
  *               yearOfStudy:
  *                 type: string
  *                 enum: [100, 200, 300, 400, 500]
  *                 example: "300"
+ *                 description: Required for student type
+ *               nin:
+ *                 type: string
+ *                 example: "12345678901"
+ *                 pattern: "^\\d{11}$"
+ *                 description: National Identification Number (optional for agent type - can be verified later via /api/user/verify-nin endpoint)
  *     responses:
  *       201:
  *         description: User registered successfully. Verification email sent.
@@ -348,6 +356,10 @@ router.get('/:id', authenticate, validate(getUserByIdSchema), controller.getById
  *                 type: string
  *               yearOfStudy:
  *                 type: string
+ *               nin:
+ *                 type: string
+ *                 pattern: "^\\d{11}$"
+ *                 description: National Identification Number (must be exactly 11 digits)
  *     responses:
  *       200:
  *         description: User updated successfully

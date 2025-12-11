@@ -7,7 +7,8 @@ export class UserController {
 
   async register(req: Request, res: Response, next: NextFunction) {
     try {
-      const { fullName, email, phoneNumber, password, type, university, yearOfStudy } = req.body;
+      const { fullName, email, phoneNumber, password, type, university, yearOfStudy, nin } =
+        req.body;
 
       const result = await this.userService.register({
         fullName,
@@ -17,6 +18,7 @@ export class UserController {
         type,
         university,
         yearOfStudy,
+        nin,
       });
 
       return ResponseHelper.created(res, result);
@@ -207,6 +209,45 @@ export class UserController {
 
       const stats = await this.userService.getAgentDashboardStats(agentId);
       return ResponseHelper.success(res, stats);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async verifyNIN(req: Request, res: Response, next: NextFunction) {
+    try {
+      const userId = req.user?.id;
+      if (!userId) {
+        return ResponseHelper.unauthorized(res, 'Unauthorized');
+      }
+
+      const { nin } = req.body;
+      const file = req.file;
+
+      if (!nin) {
+        return ResponseHelper.badRequest(res, { message: 'NIN is required' });
+      }
+
+      if (!file) {
+        return ResponseHelper.badRequest(res, { message: 'National ID document is required' });
+      }
+
+      const result = await this.userService.verifyNIN(userId, nin, file);
+      return ResponseHelper.success(res, result);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async getNINVerificationStatus(req: Request, res: Response, next: NextFunction) {
+    try {
+      const userId = req.user?.id;
+      if (!userId) {
+        return ResponseHelper.unauthorized(res, 'Unauthorized');
+      }
+
+      const status = await this.userService.getNINVerificationStatus(userId);
+      return ResponseHelper.success(res, status);
     } catch (err) {
       next(err);
     }

@@ -27,3 +27,23 @@ const fileFilter = (
 };
 
 export const upload = multer({ storage, fileFilter });
+
+// File filter for NIN documents (supports PDF, JPG, JPEG, PNG)
+const ninDocumentFileFilter = (
+  _req: Request,
+  file: Express.Multer.File,
+  cb: (error: unknown, isValid?: boolean) => void
+) => {
+  const allowed = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf'];
+  if (allowed.includes(file.mimetype)) cb(null, true);
+  else cb(new Error('Invalid file type. Only PDF, JPG, JPEG, and PNG are allowed.'));
+};
+
+// Multer config for NIN documents with 5MB file size limit
+export const uploadNINDocument = multer({
+  storage,
+  fileFilter: ninDocumentFileFilter,
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB in bytes
+  },
+});
