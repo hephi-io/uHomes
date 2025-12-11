@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { AxiosError } from 'axios';
+import toast from 'react-hot-toast';
 import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { Loader2 } from 'lucide-react';
@@ -47,10 +48,15 @@ const Login = () => {
       }
     } catch (error) {
       if (error instanceof AxiosError) {
-        console.error('Uh oh! Something went wrong:', error.response?.data?.error || error.message);
+        const errorMessage =
+          error.response?.data?.error ||
+          error.response?.data?.message ||
+          'Login failed. Please check your credentials and try again.';
+        toast.error(errorMessage);
       } else {
-        console.error('Unexpected error:', error);
+        toast.error('An unexpected error occurred. Please try again.');
       }
+      console.error('Login error:', error);
     } finally {
       setLoading(false);
     }

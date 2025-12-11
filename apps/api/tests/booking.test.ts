@@ -3,7 +3,7 @@ import Property from '../src/models/property.model';
 import User from '../src/models/user.model';
 import UserType from '../src/models/user-type.model';
 import Booking from '../src/models/booking.model';
-import { BookingService } from '../src/service/booking.service';
+import { BookingInput, BookingService } from '../src/service/booking.service';
 import { BadRequestError, UnauthorizedError } from '../src/middlewares/error.middlewere';
 
 describe('BookingService', () => {
@@ -64,12 +64,9 @@ describe('BookingService', () => {
   });
 
   it('should create a booking for a student', async () => {
-    const bookingData = {
+    const bookingData: BookingInput = {
       propertyid: propertyId,
       propertyType: 'apartment',
-      tenantName: 'John Doe',
-      tenantEmail: 'john@test.com',
-      tenantPhone: '123456',
       moveInDate: new Date(),
       duration: '6 months',
       gender: 'male',
@@ -96,12 +93,9 @@ describe('BookingService', () => {
       });
     }
 
-    const bookingData = {
+    const bookingData: BookingInput = {
       propertyid: propertyId,
       propertyType: 'apartment',
-      tenantName: 'John',
-      tenantEmail: 'john@test.com',
-      tenantPhone: '123456',
       moveInDate: new Date(),
       duration: '6 months',
       gender: 'male',

@@ -8,7 +8,7 @@ import logger from '../utils/logger';
 
 type BookingStatus = 'pending' | 'confirmed' | 'cancelled' | 'completed';
 
-interface BookingInput {
+export interface BookingInput {
   propertyid: string;
   propertyType: string;
   moveInDate: Date;
