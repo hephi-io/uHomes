@@ -2,12 +2,7 @@ import mongoose from 'mongoose';
 import { Payment, IPayment } from '../models/payment.model';
 import { Transaction } from '../models/transaction.model';
 import Booking from '../models/booking.model';
-import {
-  AppError,
-  BadRequestError,
-  NotFoundError,
-  ForbiddenError,
-} from '../middlewares/error.middlewere';
+import { AppError, BadRequestError, NotFoundError } from '../middlewares/error.middlewere';
 import logger from '../utils/logger';
 import { PaystackService } from './paystack.service';
 import { NotificationService } from './notification.service';
@@ -39,18 +34,14 @@ export class PaymentService {
         throw new BadRequestError('Missing required fields');
       }
 
-      // If bookingId is provided, validate it exists and belongs to user
-      if (bookingId) {
-        const booking = await Booking.findById(bookingId);
-        if (!booking) throw new NotFoundError('Booking not found');
-        if (booking.tenant.toString() !== userId) {
-          throw new ForbiddenError('You do not have permission to pay for this booking');
-        }
-      }
+      // Build callback URL for Paystack redirect (points to backend API)
+      const backendUrl = process.env.BASE_URL || process.env.API_URL || 'http://localhost:7000';
+      const callbackUrl = `${backendUrl}/api/payment/callback`;
 
       const paystackResponse = await this.paystack.initializeTransaction({
         email: input.email,
         amount,
+        callback_url: callbackUrl,
       });
 
       const { reference, authorization_url } = paystackResponse;
@@ -242,10 +233,28 @@ export class PaymentService {
     }
 
     const result = await this.paystack.verifyTransaction(payment.reference!);
-    payment.status = result.status === 'success' ? 'completed' : 'failed';
+    payment.status = result.data.status === 'success' ? 'completed' : 'failed';
     await payment.save();
 
-    const updatedTransaction = await Transaction.findOneAndUpdate(
+    // Update booking payment status and booking status if bookingId exists in metadata
+    if (payment.metadata?.bookingId && payment.status === 'completed') {
+      try {
+        const bookingId = payment.metadata.bookingId as string;
+        await Booking.findByIdAndUpdate(
+          bookingId,
+          { paymentStatus: 'paid', status: 'confirmed' },
+          { new: true }
+        );
+        logger.info(
+          `Booking ${bookingId} payment status updated to paid and status updated to confirmed`
+        );
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        logger.error('Failed to update booking status:', errorMessage);
+      }
+    }
+
+    await Transaction.findOneAndUpdate(
       { paymentId: payment._id },
       { status: payment.status, updatedAt: new Date() },
       { new: true }
@@ -306,7 +315,15 @@ export class PaymentService {
     return payment;
   }
 
-  async refundPayment(paymentId: string, userId: string): Promise<IPayment> {
+  async verifyPaymentByReference(reference: string): Promise<IPayment> {
+    const payment = await Payment.findOne({ reference });
+    if (!payment) throw new NotFoundError('Payment not found');
+
+    const paymentId = String(payment._id);
+    return this.processPayment(paymentId);
+  }
+
+  async refundPayment(paymentId: string): Promise<IPayment> {
     const payment = await Payment.findById(paymentId);
     if (!payment) throw new NotFoundError('Payment not found');
 
