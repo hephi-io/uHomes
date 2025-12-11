@@ -2,7 +2,12 @@ import mongoose from 'mongoose';
 import { Payment, IPayment } from '../models/payment.model';
 import { Transaction } from '../models/transaction.model';
 import Booking from '../models/booking.model';
-import { AppError, BadRequestError, NotFoundError } from '../middlewares/error.middlewere';
+import {
+  AppError,
+  BadRequestError,
+  NotFoundError,
+  ForbiddenError,
+} from '../middlewares/error.middlewere';
 import logger from '../utils/logger';
 import { PaystackService } from './paystack.service';
 import { NotificationService } from './notification.service';
@@ -12,7 +17,7 @@ export interface PaymentInput {
   currency: string;
   paymentMethod: string;
   description?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   email: string;
   bookingId?: string;
 }
@@ -52,9 +57,10 @@ export class PaymentService {
 
       try {
         session.startTransaction();
-      } catch (error: any) {
+      } catch (error: unknown) {
         // If transactions not supported (e.g., standalone MongoDB in tests), skip transaction
-        if (error?.message?.includes('replica set') || error?.message?.includes('mongos')) {
+        const errorMessage = error instanceof Error ? error.message : '';
+        if (errorMessage.includes('replica set') || errorMessage.includes('mongos')) {
           useTransaction = false;
           logger.warn('MongoDB transactions not supported, creating without transaction');
         } else {
@@ -95,9 +101,10 @@ export class PaymentService {
             const created = await Transaction.create([transactionData], { session });
             transaction = created[0];
             await session.commitTransaction();
-          } catch (txError: any) {
+          } catch (txError: unknown) {
             // If transaction fails due to replica set issue, retry without transaction
-            if (txError?.message?.includes('replica set') || txError?.message?.includes('mongos')) {
+            const txErrorMessage = txError instanceof Error ? txError.message : '';
+            if (txErrorMessage.includes('replica set') || txErrorMessage.includes('mongos')) {
               try {
                 await session.abortTransaction();
               } catch {
@@ -130,7 +137,7 @@ export class PaymentService {
             type: 'payment_created',
             title: 'Payment Initiated',
             message: `Payment of ${currency} ${amount} has been initiated. Please complete payment.`,
-            relatedId: payment._id.toString(),
+            relatedId: (payment._id as mongoose.Types.ObjectId).toString(),
             metadata: { amount, currency, bookingId: bookingId || null },
           });
         } catch (error) {
@@ -138,7 +145,7 @@ export class PaymentService {
         }
 
         return { payment, authorization_url };
-      } catch (error: any) {
+      } catch (error: unknown) {
         if (useTransaction) {
           try {
             await session.abortTransaction();
@@ -146,27 +153,28 @@ export class PaymentService {
             // Ignore abort errors
           }
         }
+        const errorObj = error instanceof Error ? error : new Error(String(error));
         logger.error('Payment creation failed, transaction rolled back:', {
-          message: error.message || error,
-          name: error?.name,
-          stack: error?.stack,
+          message: errorObj.message,
+          name: errorObj.name,
+          stack: errorObj.stack,
         });
         // Re-throw known errors, otherwise wrap in BadRequestError
         if (
           error instanceof AppError ||
-          error?.name === 'BadRequestError' ||
-          error?.name === 'NotFoundError' ||
-          error?.name === 'ForbiddenError' ||
-          error?.name === 'UnauthorizedError'
+          errorObj.name === 'BadRequestError' ||
+          errorObj.name === 'NotFoundError' ||
+          errorObj.name === 'ForbiddenError' ||
+          errorObj.name === 'UnauthorizedError'
         ) {
           throw error;
         }
         // If it's a validation error or other known error types, preserve the original error message
-        if (error?.name === 'ValidationError' || error?.name === 'CastError') {
-          throw new BadRequestError(error.message || 'Failed to create payment');
+        if (errorObj.name === 'ValidationError' || errorObj.name === 'CastError') {
+          throw new BadRequestError(errorObj.message || 'Failed to create payment');
         }
         // Handle MongoDB transaction errors gracefully
-        if (error?.message?.includes('replica set') || error?.message?.includes('mongos')) {
+        if (errorObj.message.includes('replica set') || errorObj.message.includes('mongos')) {
           // Retry without transaction
           try {
             const payment = await Payment.create({
@@ -197,8 +205,10 @@ export class PaymentService {
               `Payment and Transaction created without transaction: Payment ${payment._id}, Transaction ${transaction._id}`
             );
             return { payment, authorization_url };
-          } catch (retryError: any) {
-            throw new BadRequestError(retryError.message || 'Failed to create payment');
+          } catch (retryError: unknown) {
+            const retryErrorMessage =
+              retryError instanceof Error ? retryError.message : 'Failed to create payment';
+            throw new BadRequestError(retryErrorMessage);
           }
         }
         throw new BadRequestError('Failed to create payment');
@@ -207,15 +217,16 @@ export class PaymentService {
           session.endSession();
         }
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error creating payment:', error);
       // Re-throw known errors, otherwise wrap in BadRequestError
+      const errorObj = error instanceof Error ? error : new Error(String(error));
       if (
         error instanceof AppError ||
-        error?.name === 'BadRequestError' ||
-        error?.name === 'NotFoundError' ||
-        error?.name === 'ForbiddenError' ||
-        error?.name === 'UnauthorizedError'
+        errorObj.name === 'BadRequestError' ||
+        errorObj.name === 'NotFoundError' ||
+        errorObj.name === 'ForbiddenError' ||
+        errorObj.name === 'UnauthorizedError'
       ) {
         throw error;
       }
@@ -254,7 +265,7 @@ export class PaymentService {
       }
     }
 
-    await Transaction.findOneAndUpdate(
+    const updatedTransaction = await Transaction.findOneAndUpdate(
       { paymentId: payment._id },
       { status: payment.status, updatedAt: new Date() },
       { new: true }
@@ -282,7 +293,7 @@ export class PaymentService {
           type: 'payment_completed',
           title: 'Payment Successful',
           message: `Your payment of ${payment.currency} ${payment.amount} was successful!`,
-          relatedId: payment._id.toString(),
+          relatedId: (payment._id as mongoose.Types.ObjectId).toString(),
           metadata: { amount: payment.amount, currency: payment.currency },
         });
 
@@ -303,7 +314,7 @@ export class PaymentService {
           type: 'payment_failed',
           title: 'Payment Failed',
           message: `Your payment of ${payment.currency} ${payment.amount} failed. Please try again.`,
-          relatedId: payment._id.toString(),
+          relatedId: (payment._id as mongoose.Types.ObjectId).toString(),
           metadata: { amount: payment.amount, currency: payment.currency },
         });
       }
@@ -320,10 +331,11 @@ export class PaymentService {
     if (!payment) throw new NotFoundError('Payment not found');
 
     const paymentId = String(payment._id);
-    return this.processPayment(paymentId);
+    const userId = payment.userId.toString();
+    return this.processPayment(paymentId, userId);
   }
 
-  async refundPayment(paymentId: string): Promise<IPayment> {
+  async refundPayment(paymentId: string, userId: string): Promise<IPayment> {
     const payment = await Payment.findById(paymentId);
     if (!payment) throw new NotFoundError('Payment not found');
 
@@ -367,7 +379,7 @@ export class PaymentService {
         type: 'payment_refunded',
         title: 'Payment Refunded',
         message: `Your payment of ${payment.currency} ${payment.amount} has been refunded`,
-        relatedId: payment._id.toString(),
+        relatedId: (payment._id as mongoose.Types.ObjectId).toString(),
         metadata: { amount: payment.amount, currency: payment.currency },
       });
 
@@ -392,9 +404,26 @@ export class PaymentService {
 
   async getTransactions(
     userId: string,
-    filters: any
-  ): Promise<{ payments: IPayment[]; pagination: any }> {
-    const query: any = { userId: userId };
+    filters: {
+      status?: string;
+      startDate?: string;
+      endDate?: string;
+      minAmount?: number;
+      maxAmount?: number;
+      limit?: string | number;
+      page?: string | number;
+    }
+  ): Promise<{
+    payments: IPayment[];
+    pagination: { total: number; page: number; pages: number; limit: number };
+  }> {
+    interface QueryType {
+      userId: string;
+      status?: string;
+      createdAt?: { $gte?: Date; $lte?: Date };
+      amount?: { $gte?: number; $lte?: number };
+    }
+    const query: QueryType = { userId: userId };
 
     if (filters.status) query.status = filters.status;
     if (filters.startDate || filters.endDate) {
@@ -405,8 +434,8 @@ export class PaymentService {
     if (filters.minAmount) query.amount = { ...query.amount, $gte: filters.minAmount };
     if (filters.maxAmount) query.amount = { ...query.amount, $lte: filters.maxAmount };
 
-    const limit = parseInt(filters.limit) || 10;
-    const page = parseInt(filters.page) || 1;
+    const limit = parseInt(String(filters.limit || '10'));
+    const page = parseInt(String(filters.page || '1'));
     const skip = (page - 1) * limit;
 
     const [payments, total] = await Promise.all([
@@ -462,7 +491,7 @@ export class PaymentService {
     return this.paystack.verifyWebhookSignature(payload, signature);
   }
 
-  async handleWebhookEvent(event: string, data: any) {
+  async handleWebhookEvent(event: string, data: { reference?: string; [key: string]: unknown }) {
     if (event === 'charge.success') {
       const reference = data.reference;
       if (!reference) {
@@ -502,7 +531,7 @@ export class PaymentService {
             type: 'payment_completed',
             title: 'Payment Successful',
             message: `Your payment of ${payment.currency} ${payment.amount} was successful!`,
-            relatedId: payment._id.toString(),
+            relatedId: (payment._id as mongoose.Types.ObjectId).toString(),
             metadata: { amount: payment.amount, currency: payment.currency },
           });
 
@@ -552,7 +581,7 @@ export class PaymentService {
             type: 'payment_failed',
             title: 'Payment Failed',
             message: `Your payment of ${payment.currency} ${payment.amount} failed. Please try again.`,
-            relatedId: payment._id.toString(),
+            relatedId: (payment._id as mongoose.Types.ObjectId).toString(),
             metadata: { amount: payment.amount, currency: payment.currency },
           });
         } catch (error) {

@@ -139,4 +139,6 @@ export class PaymentController {
       next(error);
     }
   }
+
+  async handleWebhook(_req: Request, _res: Response, _next: NextFunction) {}
 }

@@ -307,11 +307,11 @@ export class UserService {
       const { NotificationService } = await import('./notification.service');
       const notificationService = new NotificationService();
       await notificationService.createNotification({
-        userId: user._id.toString(),
+        userId: (user._id as mongoose.Types.ObjectId).toString(),
         type: 'account_updated',
         title: 'Account Updated',
         message: 'Your account details have been updated',
-        relatedId: user._id.toString(),
+        relatedId: (user._id as mongoose.Types.ObjectId).toString(),
       });
     } catch (error) {
       // Notification failure shouldn't break the update
@@ -424,11 +424,11 @@ export class UserService {
       const { NotificationService } = await import('./notification.service');
       const notificationService = new NotificationService();
       await notificationService.createNotification({
-        userId: user._id.toString(),
+        userId: (user._id as mongoose.Types.ObjectId).toString(),
         type: 'password_reset',
         title: 'Password Reset',
         message: 'Your password has been reset successfully',
-        relatedId: user._id.toString(),
+        relatedId: (user._id as mongoose.Types.ObjectId).toString(),
       });
     } catch (error) {
       // Notification failure shouldn't break the reset
