@@ -4,6 +4,10 @@ import { Button } from '@uhomes/ui-kit';
 
 import { SVGs } from '@/assets/svgs/Index';
 
+import { useNavigate } from 'react-router-dom';
+
+// import
+
 export default function BookingLayout() {
   const navigate = useNavigate();
 

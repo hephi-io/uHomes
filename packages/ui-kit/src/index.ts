@@ -22,7 +22,7 @@ export {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from './components/ui/table';
 
 export {
   useReactTable,
@@ -41,7 +41,7 @@ export {
   DialogTitle,
   DialogTrigger,
   DialogClose,
-} from '@/components/ui/dialog';
+} from './components/ui/dialog';
 
 export {
   Command,
@@ -65,14 +65,14 @@ export {
   PaginationPrevious,
 } from '@/components/ui/pagination';
 
-export { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+export { Popover, PopoverContent, PopoverTrigger } from './components/ui/popover';
 
 export type { ColumnDef } from '@tanstack/react-table';
 
 export { Tabs, TabsList, TabsTrigger, TabsContent } from './components/ui/tabs';
 export * from './components/ui/input-otp';
-export { Checkbox } from '@/components/ui/checkbox';
-export { Textarea } from '@/components/ui/textarea';
+export { Checkbox } from './components/ui/checkbox';
+export { Textarea } from './components/ui/textarea';
 export * from './components/ui/dropdown-menu';
 
 // Shared Components
