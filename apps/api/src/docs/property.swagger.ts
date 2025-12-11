@@ -2,24 +2,6 @@
  * @swagger
  * components:
  *   schemas:
- *     RoomTypes:
- *       type: object
- *       properties:
- *         single:
- *           type: object
- *           properties:
- *             price:
- *               type: number
- *         shared:
- *           type: object
- *           properties:
- *             price:
- *               type: number
- *         selfContain:
- *           type: object
- *           properties:
- *             price:
- *               type: number
  *     Amenities:
  *       type: object
  *       properties:
@@ -53,12 +35,11 @@
  *           type: string
  *         location:
  *           type: string
- *         pricePerSemester:
+ *         price:
  *           type: number
- *         roomTypes:
- *           $ref: '#/components/schemas/RoomTypes'
- *         roomsAvailable:
- *           type: number
+ *         roomType:
+ *           type: string
+ *           enum: [single, shared, self_contain]
  *         amenities:
  *           $ref: '#/components/schemas/Amenities'
  *         images:

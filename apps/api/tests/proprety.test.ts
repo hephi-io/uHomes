@@ -41,9 +41,9 @@ describe('PropertyService', () => {
     const data: Partial<IProperty> = {
       title: 'Test Property',
       location: 'City',
-      pricePerSemester: 1000,
+      price: 1000,
+      roomType: 'single',
       description: 'Nice property',
-      roomsAvailable: 5,
       amenities: {
         wifi: true,
         kitchen: false,
@@ -83,9 +83,9 @@ describe('PropertyService', () => {
     const property = await Property.create({
       title: 'Test',
       location: 'City',
-      pricePerSemester: 1000,
+      price: 1000,
+      roomType: 'shared',
       description: 'Desc',
-      roomsAvailable: 5,
       amenities: {
         wifi: false,
         kitchen: false,
@@ -111,9 +111,9 @@ describe('PropertyService', () => {
     const property = await Property.create({
       title: 'Delete Me',
       location: 'City',
-      pricePerSemester: 1000,
+      price: 1000,
+      roomType: 'self_contain',
       description: 'Desc',
-      roomsAvailable: 5,
       amenities: {
         wifi: false,
         kitchen: false,

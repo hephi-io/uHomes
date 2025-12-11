@@ -5,15 +5,8 @@ export interface IProperty extends Document {
   description: string;
   location: string;
 
-  pricePerSemester: number;
-
-  roomTypes: {
-    single?: { price: number };
-    shared?: { price: number };
-    selfContain?: { price: number };
-  };
-
-  roomsAvailable: number;
+  price: number;
+  roomType: 'single' | 'shared' | 'self_contain';
 
   images: {
     url: string;
@@ -40,21 +33,12 @@ const propertySchema = new Schema<IProperty>(
     description: { type: String, required: true },
     location: { type: String, required: true },
 
-    pricePerSemester: { type: Number, required: true },
-
-    roomTypes: {
-      single: {
-        price: { type: Number },
-      },
-      shared: {
-        price: { type: Number },
-      },
-      selfContain: {
-        price: { type: Number },
-      },
+    price: { type: Number, required: true },
+    roomType: {
+      type: String,
+      required: true,
+      enum: ['single', 'shared', 'self_contain'],
     },
-
-    roomsAvailable: { type: Number, required: true },
 
     images: [
       {
