@@ -83,18 +83,24 @@ export class PaymentService {
     if (!payment) throw new NotFoundError('Payment not found');
 
     const result = await this.paystack.verifyTransaction(payment.reference!);
-    payment.status = result.status === 'success' ? 'completed' : 'failed';
+    payment.status = result.data.status === 'success' ? 'completed' : 'failed';
     await payment.save();
 
-    // Update booking payment status if bookingId exists in metadata
+    // Update booking payment status and booking status if bookingId exists in metadata
     if (payment.metadata?.bookingId && payment.status === 'completed') {
       try {
         const bookingId = payment.metadata.bookingId as string;
-        await Booking.findByIdAndUpdate(bookingId, { paymentStatus: 'paid' }, { new: true });
-        logger.info(`Booking ${bookingId} payment status updated to paid`);
+        await Booking.findByIdAndUpdate(
+          bookingId,
+          { paymentStatus: 'paid', status: 'confirmed' },
+          { new: true }
+        );
+        logger.info(
+          `Booking ${bookingId} payment status updated to paid and status updated to confirmed`
+        );
       } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        logger.error('Failed to update booking payment status:', errorMessage);
+        logger.error('Failed to update booking status:', errorMessage);
       }
     }
 

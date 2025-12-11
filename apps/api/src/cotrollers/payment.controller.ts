@@ -93,51 +93,47 @@ export class PaymentController {
         );
       }
 
-      const payment = await this.paymentService.verifyPaymentByReference(reference);
-
-      if (payment.status === 'completed' && payment.metadata?.bookingId) {
-        // Fetch booking to pass to frontend
-        const booking = await Booking.findById(payment.metadata.bookingId)
-          .populate('propertyid', 'title location images')
-          .populate('tenant', 'fullName email phoneNumber')
-          .populate('agent', 'fullName email phoneNumber');
-
-        if (!booking) {
-          return res.redirect(
-            `${process.env.FRONTEND_URL || 'http://localhost:3000'}/students/booking/checkout?error=booking_not_found`
-          );
-        }
-
-        // Redirect to success page with booking data in URL params
-        const bookingData = encodeURIComponent(
-          JSON.stringify({
-            _id: booking._id,
-            amount: booking.amount,
-            duration: booking.duration,
-            moveInDate: booking.moveInDate,
-            moveOutDate: booking.moveOutDate,
-            paymentStatus: booking.paymentStatus,
-            status: booking.status,
-            propertyType: booking.propertyType,
-            property: booking.propertyid,
-            tenant: booking.tenant,
-            agent: booking.agent,
-          })
-        );
-
-        return res.redirect(
-          `${process.env.FRONTEND_URL || 'http://localhost:3000'}/students/booking/checkout-success?booking=${bookingData}`
-        );
-      } else {
-        return res.redirect(
-          `${process.env.FRONTEND_URL || 'http://localhost:3000'}/students/booking/checkout?error=payment_failed`
-        );
-      }
+      // Redirect to frontend callback page with reference parameter
+      // The frontend will handle payment verification
+      return res.redirect(
+        `${process.env.FRONTEND_URL || 'http://localhost:3000'}/students/booking/callback?reference=${reference}`
+      );
     } catch (error) {
       logger.error('Payment callback error:', error);
       return res.redirect(
-        `${process.env.FRONTEND_URL || 'http://localhost:3000'}/students/booking/checkout?error=verification_failed`
+        `${process.env.FRONTEND_URL || 'http://localhost:3000'}/students/booking/checkout?error=callback_error`
       );
+    }
+  }
+
+  async verifyPaymentByReference(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { reference } = req.body;
+
+      if (!reference || typeof reference !== 'string') {
+        return ResponseHelper.badRequest(res, 'Payment reference is required');
+      }
+
+      // Verify payment and update booking status
+      const payment = await this.paymentService.verifyPaymentByReference(reference);
+
+      if (!payment.metadata?.bookingId) {
+        return ResponseHelper.badRequest(res, 'No booking associated with this payment');
+      }
+
+      // Fetch updated booking with populated fields
+      const booking = await Booking.findById(payment.metadata.bookingId)
+        .populate('propertyid', 'title location images')
+        .populate('tenant', 'fullName email phoneNumber')
+        .populate('agent', 'fullName email phoneNumber');
+
+      if (!booking) {
+        return ResponseHelper.notFound(res, 'Booking not found');
+      }
+
+      return ResponseHelper.success(res, { payment, booking });
+    } catch (error) {
+      next(error);
     }
   }
 }

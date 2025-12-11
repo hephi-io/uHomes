@@ -137,6 +137,76 @@ router.get('/', authenticate, paymentController.listPayments.bind(paymentControl
 
 /**
  * @swagger
+ * /api/payment/verify-by-reference:
+ *   post:
+ *     summary: Verify a payment by reference and return booking data
+ *     description: This endpoint verifies payment using payment reference and returns updated payment and booking data. Automatically updates booking status to confirmed on successful payment.
+ *     tags: [Payments]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - reference
+ *             properties:
+ *               reference:
+ *                 type: string
+ *                 description: Payment reference from Paystack
+ *     responses:
+ *       200:
+ *         description: Payment verified successfully with booking data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     payment:
+ *                       $ref: '#/components/schemas/Payment'
+ *                     booking:
+ *                       $ref: '#/components/schemas/Booking'
+ *       400:
+ *         description: Invalid reference or payment not found
+ *       404:
+ *         description: Booking not found
+ */
+router.post(
+  '/verify-by-reference',
+  authenticate,
+  paymentController.verifyPaymentByReference.bind(paymentController)
+);
+
+/**
+ * @swagger
+ * /api/payment/callback:
+ *   get:
+ *     summary: Paystack payment callback handler
+ *     description: This endpoint handles Paystack redirects after payment completion. It redirects to the frontend callback page with the payment reference.
+ *     tags: [Payments]
+ *     parameters:
+ *       - name: reference
+ *         in: query
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Payment reference from Paystack
+ *     responses:
+ *       302:
+ *         description: Redirects to frontend callback page
+ */
+router.get('/callback', paymentController.paymentCallback.bind(paymentController));
+
+/**
+ * @swagger
  * /api/payment/{id}:
  *   get:
  *     summary: Get payment by ID
@@ -198,25 +268,5 @@ router.patch(
   validate({ body: updatePaymentStatusSchema }),
   paymentController.updatePaymentStatus.bind(paymentController)
 );
-
-/**
- * @swagger
- * /api/payment/callback:
- *   get:
- *     summary: Paystack payment callback handler
- *     description: This endpoint handles Paystack redirects after payment completion. It verifies the payment and redirects to the frontend success page.
- *     tags: [Payments]
- *     parameters:
- *       - name: reference
- *         in: query
- *         required: true
- *         schema:
- *           type: string
- *         description: Payment reference from Paystack
- *     responses:
- *       302:
- *         description: Redirects to frontend success or error page
- */
-router.get('/callback', paymentController.paymentCallback.bind(paymentController));
 
 export default router;

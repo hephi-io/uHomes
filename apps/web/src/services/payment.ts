@@ -1,4 +1,5 @@
 import { API, type TResponse } from './auth';
+import { type Booking } from './booking';
 
 export interface PaymentInput {
   amount: number;
@@ -29,9 +30,15 @@ export interface CreatePaymentResponse {
   authorization_url: string;
 }
 
+export interface VerifyPaymentByReferenceResponse {
+  payment: Payment;
+  booking: Booking;
+}
+
 const endpoints = {
   createPayment: '/api/payment',
   verifyPayment: (id: string) => `/api/payment/${id}/verify`,
+  verifyPaymentByReference: '/api/payment/verify-by-reference',
 };
 
 export const createPayment = (data: PaymentInput) => {
@@ -40,4 +47,10 @@ export const createPayment = (data: PaymentInput) => {
 
 export const verifyPayment = (paymentId: string) => {
   return API.post<TResponse<Payment>>(endpoints.verifyPayment(paymentId));
+};
+
+export const verifyPaymentByReference = (reference: string) => {
+  return API.post<TResponse<VerifyPaymentByReferenceResponse>>(endpoints.verifyPaymentByReference, {
+    reference,
+  });
 };

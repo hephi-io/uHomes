@@ -45,6 +45,13 @@ function calculateBreakdown(amount: number) {
   };
 }
 
+// Room type labels mapping
+const ROOM_TYPE_LABELS: Record<string, string> = {
+  single: 'Single Room',
+  shared: 'Shared Room (2-person)',
+  'self-contain': 'Self Contain',
+};
+
 export default function Checkout() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -98,12 +105,7 @@ export default function Checkout() {
     {
       id: 1,
       item: 'Room Type',
-      value:
-        booking.propertyType === 'single'
-          ? 'Single Room'
-          : booking.propertyType === 'shared'
-            ? 'Shared Room (2-person)'
-            : 'Self Contain',
+      value: ROOM_TYPE_LABELS[booking.propertyType] || 'Self Contain',
     },
     { id: 2, item: 'Move-in Date', value: formatDate(booking.moveInDate) },
     {

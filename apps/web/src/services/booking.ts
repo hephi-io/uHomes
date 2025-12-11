@@ -23,6 +23,7 @@ export interface BookingAgent {
 export interface Booking {
   _id: string;
   property: BookingProperty | string;
+  propertyType: string;
   agent: BookingAgent | string;
   tenant: {
     _id: string;
