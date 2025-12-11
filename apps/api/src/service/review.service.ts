@@ -126,7 +126,7 @@ export class ReviewService {
           title: 'New Review Received',
           message: `New review received for ${propertyData.title || 'your property'}`,
           relatedId: propertyId,
-          metadata: { rating, reviewId: savedReview._id.toString() },
+          metadata: { rating, reviewId: (savedReview._id as mongoose.Types.ObjectId).toString() },
         });
       }
     } catch (error) {

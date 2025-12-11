@@ -75,7 +75,7 @@ export class BookingService {
         type: 'booking_created',
         title: 'New Booking Request',
         message: `New booking request received for ${foundProperty.title || 'property'}`,
-        relatedId: savedBooking._id.toString(),
+        relatedId: (savedBooking._id as mongoose.Types.ObjectId).toString(),
         metadata: { propertyId: data.propertyid, amount: data.amount },
       });
     } catch (error) {
@@ -174,7 +174,7 @@ export class BookingService {
         type: 'booking_updated',
         title: 'Booking Status Updated',
         message,
-        relatedId: booking._id.toString(),
+        relatedId: (booking._id as mongoose.Types.ObjectId).toString(),
         metadata: { status, propertyId: booking.propertyid.toString() },
       });
     } catch (error) {
@@ -213,7 +213,7 @@ export class BookingService {
         type: 'booking_deleted',
         title: 'Booking Deleted',
         message: `Booking for ${propertyTitle} has been deleted`,
-        relatedId: booking._id.toString(),
+        relatedId: (booking._id as mongoose.Types.ObjectId).toString(),
         metadata: { deletedBy: user.id },
       });
     } catch (error) {

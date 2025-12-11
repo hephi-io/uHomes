@@ -3,9 +3,11 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"],
       "@uhomes/shared": ["../../packages/shared/src"],
-      "@uhomes/ui-kit": ["../../packages/ui-kit/src"]
+      "@uhomes/ui-kit": ["../../packages/ui-kit/src"],
+      "@/lib/*": ["../../packages/ui-kit/src/lib/*"],
+      "@/components/ui/*": ["../../packages/ui-kit/src/components/ui/*"],
+      "@/*": ["./src/*"]
     }
   },
   "include": ["src"],
