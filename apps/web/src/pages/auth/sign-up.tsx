@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { Loader2 } from 'lucide-react';
+import { AxiosError } from 'axios';
+import toast from 'react-hot-toast';
 import { register } from '@/services/auth';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -72,7 +74,16 @@ const Signup = () => {
       localStorage.setItem('signupEmail', email);
       navigate('/auth/verify-account');
     } catch (error) {
-      console.log(error);
+      if (error instanceof AxiosError) {
+        const errorMessage =
+          error.response?.data?.error ||
+          error.response?.data?.message ||
+          'Registration failed. Please try again.';
+        toast.error(errorMessage);
+      } else {
+        toast.error('An unexpected error occurred. Please try again.');
+      }
+      console.error('Registration error:', error);
     } finally {
       setLoading(false);
     }
