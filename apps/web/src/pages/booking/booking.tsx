@@ -182,8 +182,6 @@ function calculateSemesters(startDate: Date, endDate: Date): number {
   return Math.ceil(months / 4.5);
 }
 
-import { useNavigate } from 'react-router-dom';
-
 export default function Booking() {
   const navigate = useNavigate();
   const location = useLocation();

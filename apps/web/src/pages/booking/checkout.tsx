@@ -52,8 +52,6 @@ const ROOM_TYPE_LABELS: Record<string, string> = {
   'self-contain': 'Self Contain',
 };
 
-import { useNavigate } from 'react-router-dom';
-
 export default function Checkout() {
   const navigate = useNavigate();
   const location = useLocation();
