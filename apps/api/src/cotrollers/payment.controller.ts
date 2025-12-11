@@ -27,7 +27,8 @@ export class PaymentController {
 
   async processPayment(req: Request, res: Response, next: NextFunction) {
     try {
-      const payment = await this.paymentService.processPayment(req.params.id);
+      const userId = req.user!.id;
+      const payment = await this.paymentService.processPayment(req.params.id, userId);
       return ResponseHelper.success(res, payment);
     } catch (error) {
       next(error);
@@ -36,7 +37,8 @@ export class PaymentController {
 
   async refundPayment(req: Request, res: Response, next: NextFunction) {
     try {
-      const payment = await this.paymentService.refundPayment(req.params.id);
+      const userId = req.user!.id;
+      const payment = await this.paymentService.refundPayment(req.params.id, userId);
       return ResponseHelper.success(res, payment);
     } catch (error) {
       next(error);
@@ -45,16 +47,19 @@ export class PaymentController {
 
   async listPayments(req: Request, res: Response, next: NextFunction) {
     try {
+      const userId = req.user!.id;
       const filters = {
         startDate: req.query.startDate as string,
         endDate: req.query.endDate as string,
         status: req.query.status as string,
         minAmount: req.query.minAmount ? Number(req.query.minAmount) : undefined,
         maxAmount: req.query.maxAmount ? Number(req.query.maxAmount) : undefined,
+        limit: req.query.limit as string,
+        page: req.query.page as string,
       };
 
-      const payments = await this.paymentService.getTransactions(filters);
-      return ResponseHelper.success(res, payments);
+      const result = await this.paymentService.getTransactions(userId, filters);
+      return ResponseHelper.success(res, result);
     } catch (error) {
       next(error);
     }
@@ -62,9 +67,8 @@ export class PaymentController {
 
   async getPayment(req: Request, res: Response, next: NextFunction) {
     try {
-      const payment = await this.paymentService.getTransactionById(req.params.id);
-      if (!payment) return ResponseHelper.notFound(res, 'Payment not found');
-
+      const userId = req.user!.id;
+      const payment = await this.paymentService.getTransactionById(req.params.id, userId);
       return ResponseHelper.success(res, payment);
     } catch (error) {
       next(error);
@@ -73,10 +77,9 @@ export class PaymentController {
 
   async updatePaymentStatus(req: Request, res: Response, next: NextFunction) {
     try {
+      const userId = req.user!.id;
       const { status } = req.body;
-      const payment = await this.paymentService.updatePaymentStatus(req.params.id, status);
-      if (!payment) return ResponseHelper.notFound(res, 'Payment not found');
-
+      const payment = await this.paymentService.updatePaymentStatus(req.params.id, status, userId);
       return ResponseHelper.success(res, payment);
     } catch (error) {
       next(error);

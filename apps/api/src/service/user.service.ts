@@ -302,6 +302,22 @@ export class UserService {
 
     await sendEmail(user.email, 'Your UHomes Account Was Updated', html);
 
+    // Create in-app notification
+    try {
+      const { NotificationService } = await import('./notification.service');
+      const notificationService = new NotificationService();
+      await notificationService.createNotification({
+        userId: user._id.toString(),
+        type: 'account_updated',
+        title: 'Account Updated',
+        message: 'Your account details have been updated',
+        relatedId: user._id.toString(),
+      });
+    } catch (error) {
+      // Notification failure shouldn't break the update
+      console.error('Failed to create notification for account update:', error);
+    }
+
     // Get user type for response
     const userType = await UserType.findOne({ userId: user._id });
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -402,6 +418,22 @@ export class UserService {
       <p>If you did not perform this action, please contact support immediately.</p>
     `;
     await sendEmail(user.email, 'Password Reset Confirmation', html);
+
+    // Create in-app notification
+    try {
+      const { NotificationService } = await import('./notification.service');
+      const notificationService = new NotificationService();
+      await notificationService.createNotification({
+        userId: user._id.toString(),
+        type: 'password_reset',
+        title: 'Password Reset',
+        message: 'Your password has been reset successfully',
+        relatedId: user._id.toString(),
+      });
+    } catch (error) {
+      // Notification failure shouldn't break the reset
+      console.error('Failed to create notification for password reset:', error);
+    }
 
     return {
       success: true,

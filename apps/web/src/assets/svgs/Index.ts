@@ -60,6 +60,11 @@ import DashesMedium from './dashes-medium.svg?react';
 import StarBlank from './star-blank.svg?react';
 import Invoice from './invoice.svg?react';
 import Copy from './copy.svg?react';
+import XIcon from './X.svg?react';
+import Marked from './marked.svg?react';
+import miniHouse from './mini-house.svg?react';
+import Published from './published.svg?react';
+import StartOutline from './star-outline.svg?react';
 
 export const SVGs = {
   AddProperty,
@@ -124,4 +129,9 @@ export const SVGs = {
   StarBlank,
   Invoice,
   Copy,
+  XIcon,
+  Marked,
+  miniHouse,
+  Published,
+  StartOutline,
 };
