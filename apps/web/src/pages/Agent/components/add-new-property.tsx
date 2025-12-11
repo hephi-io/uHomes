@@ -6,29 +6,15 @@ import {
   DialogTrigger,
   Label,
   Textarea,
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-  Command,
   DialogClose,
   // CommandEmpty,
-  CommandGroup,
-  // CommandInput,
-  CommandItem,
-  CommandList,
-  cn,
   TextField,
 } from '@uhomes/ui-kit';
-import { Check, ChevronsUpDown, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import { useState } from 'react';
 import SuccessAnimation from '@/assets/pngs/Success Animation.png';
 import { DialogFooter } from '@/components/ui/dialog';
-import {
-  amenities,
-  Checkboxes,
-  frameworks,
-  type IAddNewProperty,
-} from '@/pages/students/constants';
+import { amenities, Checkboxes, type IAddNewProperty } from '@/pages/students/constants';
 import { Controller, useForm } from 'react-hook-form';
 import { createProperty, updateProperty, getPropertyById } from '@/services/property';
 import { useEffect } from 'react';
@@ -51,7 +37,6 @@ const AddNewProperty = ({
   const [isDragging, setIsDragging] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
   const [existingImages, setExistingImages] = useState<string[]>([]);
-  const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -72,9 +57,9 @@ const AddNewProperty = ({
     defaultValues: {
       propertyTitle: '',
       location: '',
-      roomTypes: '',
+      roomType: '',
+      price: '',
       amenities: [],
-      roomsAvailable: '',
       description: '',
       propertyImages: [],
     },
@@ -95,20 +80,19 @@ const AddNewProperty = ({
             setValue('location', property.location);
             setValue('description', property.description);
 
-            // Set room types
-            if (property.roomTypes) {
-              if (property.roomTypes.single) {
-                setValue('roomTypes', 'Single Room');
-              } else if (property.roomTypes.shared) {
-                setValue('roomTypes', 'Shared Room');
-              } else if (property.roomTypes.selfContain) {
-                setValue('roomTypes', 'Self Contain');
-              }
+            // Set room type
+            if (property.roomType) {
+              const roomTypeMap: Record<string, string> = {
+                single: 'Single Room',
+                shared: 'Shared Room',
+                self_contain: 'Self Contain',
+              };
+              setValue('roomType', roomTypeMap[property.roomType] || property.roomType);
             }
 
-            // Set rooms available
-            if (property.roomsAvailable) {
-              setValue('roomsAvailable', property.roomsAvailable.toString());
+            // Set price
+            if (property.price) {
+              setValue('price', property.price.toString());
             }
 
             // Set amenities
@@ -211,39 +195,24 @@ const AddNewProperty = ({
       formData.append('location', data.location);
       formData.append('description', data.description);
 
-      const price = 150000;
-      formData.append('pricePerSemester', price.toString());
+      // Use the price from the form input
+      const price = parseFloat(data.price);
+      if (!isNaN(price) && price > 0) {
+        formData.append('price', price.toString());
+      } else {
+        setErrorMessage('Please enter a valid price');
+        return;
+      }
 
-      const roomTypesObj: Record<string, { price: number }> = {};
       const roomTypeMap: Record<string, string> = {
         'Single Room': 'single',
         'Shared Room': 'shared',
-        'Self Contain': 'selfContain',
+        'Self Contain': 'self_contain',
       };
-      const selectedRoomType = roomTypeMap[data.roomTypes];
+      const selectedRoomType = roomTypeMap[data.roomType];
       if (selectedRoomType) {
-        roomTypesObj[selectedRoomType] = { price };
+        formData.append('roomType', selectedRoomType);
       }
-      formData.append('roomTypes', JSON.stringify(roomTypesObj));
-
-      let roomsAvailable = 1;
-      if (data.roomsAvailable) {
-        const parsed = parseInt(data.roomsAvailable, 10);
-        if (!isNaN(parsed)) {
-          roomsAvailable = parsed;
-        } else {
-          const framework = frameworks.find((f) => f.value === data.roomsAvailable);
-
-          if (framework) {
-            // Try to extract number from label (e.g., "5 rooms" -> 5)
-            const match = framework.label.match(/\d+/);
-            if (match) {
-              roomsAvailable = parseInt(match[0], 10);
-            }
-          }
-        }
-      }
-      formData.append('roomsAvailable', roomsAvailable.toString());
 
       // Amenities - transform array of strings to object with boolean flags
       const amenitiesObj = {
@@ -375,7 +344,7 @@ const AddNewProperty = ({
 
             {/* ROOM TYPES */}
             <div className="space-y-4">
-              <Label className="text-[#09090B] font-normal text-sm font-inter">Room Types *</Label>
+              <Label className="text-[#09090B] font-normal text-sm font-inter">Room Type *</Label>
 
               <div className="flex items-center justify-between">
                 {Checkboxes.map((item) => (
@@ -383,7 +352,7 @@ const AddNewProperty = ({
                     <input
                       type="radio"
                       value={item.name}
-                      {...register('roomTypes', { required: 'Select 1 room type' })}
+                      {...register('roomType', { required: 'Select 1 room type' })}
                       className="peer hidden"
                     />
                     <div className="w-4 h-4 border rounded peer-checked:bg-[#3E78FF] peer-checked:border-[#3E78FF]">
@@ -403,81 +372,27 @@ const AddNewProperty = ({
                 ))}
               </div>
 
-              {errors.roomTypes && (
-                <p className="text-xs text-red-500">{errors.roomTypes.message}</p>
-              )}
+              {errors.roomType && <p className="text-xs text-red-500">{errors.roomType.message}</p>}
             </div>
 
-            {/* SINGLE ROOM + ROOMS AVAILABLE */}
-            <div className="grid items-center grid-cols-2 gap-6">
-              <div className="flex flex-col space-y-2">
-                <Label className="text-[#09090B] font-inter text-sm">Single Room *</Label>
-
-                <div className="flex items-center justify-between border border-[#E4E4E7] rounded-md px-3 py-2">
-                  <span className="text-[#71717A] font-inter text-sm">150000</span>
-                  <span className="text-[#09090B] font-inter text-xs">Per Semester</span>
-                </div>
-              </div>
-
-              <div className="flex flex-col space-y-2">
-                <Label className="text-[#09090B] font-inter text-sm">Rooms Available *</Label>
-
-                <Controller
-                  name="roomsAvailable"
-                  control={control}
-                  rules={{ required: 'Rooms available is required' }}
-                  render={({ field }) => (
-                    <Popover open={open} onOpenChange={setOpen}>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          role="combobox"
-                          aria-expanded={open}
-                          className="w-[200px] justify-between text-sm font-inter text-[#71717A]"
-                        >
-                          {field.value
-                            ? frameworks.find((i) => i.value === field.value)?.label
-                            : 'Select rooms'}
-                          <ChevronsUpDown className="opacity-50" />
-                        </Button>
-                      </PopoverTrigger>
-
-                      <PopoverContent className="w-[200px] p-0">
-                        <Command>
-                          <CommandList>
-                            <CommandGroup>
-                              {frameworks.map((item) => (
-                                <CommandItem
-                                  key={item.value}
-                                  value={item.value}
-                                  onSelect={() => {
-                                    field.onChange(item.value);
-                                    setOpen(false);
-                                  }}
-                                  className="font-inter"
-                                >
-                                  {item.label}
-
-                                  <Check
-                                    className={cn(
-                                      'ml-auto h-4 w-4',
-                                      field.value === item.value ? 'opacity-100' : 'opacity-0'
-                                    )}
-                                  />
-                                </CommandItem>
-                              ))}
-                            </CommandGroup>
-                          </CommandList>
-                        </Command>
-                      </PopoverContent>
-                    </Popover>
-                  )}
+            {/* PRICE INPUT */}
+            <div className="space-y-2">
+              <Label className="text-[#09090B] font-inter text-sm">Price (Per Annum) *</Label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#71717A] font-inter text-sm">
+                  ₦
+                </span>
+                <input
+                  type="number"
+                  {...register('price', {
+                    required: 'Price is required',
+                    min: { value: 1, message: 'Price must be greater than 0' },
+                  })}
+                  placeholder="Enter property price"
+                  className="w-full border border-[#E4E4E7] rounded-md pl-8 pr-3 py-2 text-[#09090B] font-inter text-sm focus:outline-none focus:ring-2 focus:ring-[#3E78FF] focus:border-transparent"
                 />
-
-                {errors.roomsAvailable && (
-                  <p className="text-xs text-red-500">{errors.roomsAvailable.message}</p>
-                )}
               </div>
+              {errors.price && <p className="text-xs text-red-500">{errors.price.message}</p>}
             </div>
 
             {/* DESCRIPTION */}

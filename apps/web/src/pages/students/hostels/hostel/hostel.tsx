@@ -54,50 +54,28 @@ const getRatingSVG = (rating: number) => {
   return SVGs.FourAndHalfStars;
 };
 
-// Helper function to format room types
-const formatRoomTypes = (roomTypes?: SavedProperty['roomTypes']): AvailableRoom[] => {
-  if (!roomTypes) return [];
+// Helper function to format room type
+const formatRoomType = (roomType?: SavedProperty['roomType'], price?: number): AvailableRoom[] => {
+  if (!roomType || !price) return [];
 
-  const rooms: AvailableRoom[] = [];
-  let id = 1;
+  const roomTypeLabel =
+    roomType === 'single'
+      ? 'Single Room'
+      : roomType === 'shared'
+        ? 'Shared Room (2-person)'
+        : 'Self Contain';
 
-  if (roomTypes.single?.price) {
-    rooms.push({
-      id: id++,
-      description: 'Single Room',
+  return [
+    {
+      id: 1,
+      description: roomTypeLabel,
       price: new Intl.NumberFormat('en-NG', {
         style: 'currency',
         currency: 'NGN',
         minimumFractionDigits: 0,
-      }).format(roomTypes.single.price),
-    });
-  }
-
-  if (roomTypes.shared?.price) {
-    rooms.push({
-      id: id++,
-      description: 'Shared Room (2-person)',
-      price: new Intl.NumberFormat('en-NG', {
-        style: 'currency',
-        currency: 'NGN',
-        minimumFractionDigits: 0,
-      }).format(roomTypes.shared.price),
-    });
-  }
-
-  if (roomTypes.selfContain?.price) {
-    rooms.push({
-      id: id++,
-      description: 'Self Contain',
-      price: new Intl.NumberFormat('en-NG', {
-        style: 'currency',
-        currency: 'NGN',
-        minimumFractionDigits: 0,
-      }).format(roomTypes.selfContain.price),
-    });
-  }
-
-  return rooms;
+      }).format(price),
+    },
+  ];
 };
 
 // Helper function to map amenities object to badges
@@ -278,7 +256,7 @@ export function Hostel() {
       if (!property) return;
 
       try {
-        const priceRange = property.pricePerSemester || property.price || 0;
+        const priceRange = property.price || 0;
         const minPrice = Math.max(0, priceRange * 0.8); // 20% below
         const maxPrice = priceRange * 1.2; // 20% above
 
@@ -401,7 +379,7 @@ export function Hostel() {
     );
   }
 
-  const availableRooms = formatRoomTypes(property.roomTypes);
+  const availableRooms = formatRoomType(property.roomType, property.price);
   const amenityBadges = getAmenityBadges(property.amenities);
   const receiptDetailsData = formatReceiptDetails(booking);
   const breakdownsData = formatBreakdown(booking);
@@ -516,14 +494,6 @@ export function Hostel() {
                       </span>{' '}
                       <span className="text-sm text-[#71717A]">per semester</span>
                     </div>
-                    {property.roomsAvailable !== undefined && (
-                      <div className="w-fit flex items-center rounded-full bg-[#F3F3F3] px-1.5 py-0.5 mt-2">
-                        <span className="text-xs leading-[100%] tracking-[0%] text-[#71717A] text-center align-middle">
-                          {property.roomsAvailable} room{property.roomsAvailable !== 1 ? 's' : ''}{' '}
-                          left
-                        </span>
-                      </div>
-                    )}
                   </div>
                 ))}
               </div>

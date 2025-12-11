@@ -238,9 +238,8 @@ export const frameworks2 = [
 export interface IAddNewProperty {
   propertyTitle: string;
   location: string;
-  roomTypes: string;
-  singleRoom: string;
-  roomsAvailable: string;
+  roomType: string;
+  price: string;
   description: string;
   propertyImages: File[];
   amenities: string[];

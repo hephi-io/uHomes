@@ -246,7 +246,7 @@ export default function Booking() {
       setCalculatedDuration(duration);
 
       const semesters = calculateSemesters(moveInDate, moveOutDate);
-      const amount = property.pricePerSemester * semesters;
+      const amount = property.price * semesters;
       setCalculatedAmount(amount);
     } else {
       setCalculatedDuration('');
@@ -318,19 +318,19 @@ export default function Booking() {
     }
   };
 
-  // Get available room types from property
-  const availableRoomTypes = property?.roomTypes
-    ? Object.entries(property.roomTypes)
-        .filter(([_, value]) => value && value.price)
-        .map(([key, _]) => ({
-          value: key,
+  // Get available room type from property
+  const availableRoomTypes = property?.roomType
+    ? [
+        {
+          value: property.roomType,
           label:
-            key === 'single'
+            property.roomType === 'single'
               ? 'Single Room'
-              : key === 'shared'
+              : property.roomType === 'shared'
                 ? 'Shared Room (2-person)'
                 : 'Self Contain',
-        }))
+        },
+      ]
     : [];
 
   return (

@@ -480,11 +480,11 @@ export class UserService {
       agentId: new mongoose.Types.ObjectId(agentId),
     });
 
-    const properties = await Property.find({ agentId: new mongoose.Types.ObjectId(agentId) });
-    const availableRooms = properties.reduce(
-      (sum, property) => sum + (property.roomsAvailable || 0),
-      0
-    );
+    // Count available properties as the number of available rooms
+    const availableRooms = await Property.countDocuments({
+      agentId: new mongoose.Types.ObjectId(agentId),
+      isAvailable: true,
+    });
 
     const pendingBookings = await Booking.countDocuments({
       agent: new mongoose.Types.ObjectId(agentId),

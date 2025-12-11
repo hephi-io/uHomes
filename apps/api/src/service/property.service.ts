@@ -29,14 +29,6 @@ export class PropertyService {
 
     if (!files || files.length === 0) throw new BadRequestError('At least one image is required');
 
-    if (data.roomTypes && typeof data.roomTypes === 'string') {
-      try {
-        data.roomTypes = JSON.parse(data.roomTypes);
-      } catch {
-        throw new BadRequestError('Invalid roomTypes format');
-      }
-    }
-
     if (data.amenities && typeof data.amenities === 'string') {
       try {
         data.amenities = JSON.parse(data.amenities);
@@ -200,14 +192,6 @@ export class PropertyService {
     if (!property) throw new NotFoundError('Property not found');
 
     // Parse JSON strings if they exist (for multipart/form-data)
-    if (data.roomTypes && typeof data.roomTypes === 'string') {
-      try {
-        data.roomTypes = JSON.parse(data.roomTypes);
-      } catch {
-        throw new BadRequestError('Invalid roomTypes format');
-      }
-    }
-
     if (data.amenities && typeof data.amenities === 'string') {
       try {
         data.amenities = JSON.parse(data.amenities);

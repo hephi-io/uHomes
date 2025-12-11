@@ -123,7 +123,7 @@ const Dashboard = () => {
         images: property.images.map((img) => (typeof img === 'string' ? img : img.url)),
         name: property.title,
         location: property.location,
-        price: formatCurrency(property.pricePerSemester || property.price || 0),
+        price: formatCurrency(property.price || 0),
         bookings: 0, // Will be calculated from bookings data
         amenities: `${amenityCount} items`,
         rating: property.rating ? `${property.rating.toFixed(1)} (0)` : 'N/A',

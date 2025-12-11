@@ -16,8 +16,8 @@ export interface SavedProperty {
   _id: string;
   title: string;
   description: string;
-  pricePerSemester: number;
-  price?: number; // Legacy field for backward compatibility
+  price: number;
+  roomType: 'single' | 'shared' | 'self_contain';
   location: string;
   images: PropertyImage[];
   amenities:
@@ -30,12 +30,6 @@ export interface SavedProperty {
         gym: boolean;
       }
     | string[]; // Can be object or array for backward compatibility
-  roomTypes?: {
-    single?: { price: number };
-    shared?: { price: number };
-    selfContain?: { price: number };
-  };
-  roomsAvailable?: number;
   rating?: number;
   isAvailable: boolean;
   agentId: PropertyAgent[] | string[];

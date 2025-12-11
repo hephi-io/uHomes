@@ -29,8 +29,8 @@ router.use('/', reviewRouter);
  *             required:
  *               - title
  *               - location
- *               - pricePerSemester
- *               - roomsAvailable
+ *               - price
+ *               - roomType
  *               - images
  *             properties:
  *               title:
@@ -42,14 +42,13 @@ router.use('/', reviewRouter);
  *               location:
  *                 type: string
  *                 example: University of Lagos
- *               pricePerSemester:
+ *               price:
  *                 type: number
  *                 example: 150000
- *               roomTypes:
- *                 $ref: '#/components/schemas/RoomTypes'
- *               roomsAvailable:
- *                 type: number
- *                 example: 12
+ *               roomType:
+ *                 type: string
+ *                 enum: [single, shared, self_contain]
+ *                 example: single
  *               amenities:
  *                 $ref: '#/components/schemas/Amenities'
  *               images:
@@ -103,14 +102,13 @@ router.post('/', authenticate, upload.array('images'), controller.createProperty
  *               location:
  *                 type: string
  *                 example: Downtown, New York
- *               pricePerSemester:
+ *               price:
  *                 type: number
  *                 example: 260000
- *               roomTypes:
- *                 $ref: '#/components/schemas/RoomTypes'
- *               roomsAvailable:
- *                 type: number
- *                 example: 8
+ *               roomType:
+ *                 type: string
+ *                 enum: [single, shared, self_contain]
+ *                 example: shared
  *               amenities:
  *                 $ref: '#/components/schemas/Amenities'
  *               replaceImages:

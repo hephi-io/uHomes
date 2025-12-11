@@ -30,9 +30,9 @@ describe('BookingService', () => {
     const property = (await Property.create({
       title: 'Property',
       location: 'City',
-      pricePerSemester: 1000,
+      price: 1000,
+      roomType: 'single',
       description: 'Test property description',
-      roomsAvailable: 5,
       agentId: new mongoose.Types.ObjectId(agentId),
       amenities: {
         wifi: false,
