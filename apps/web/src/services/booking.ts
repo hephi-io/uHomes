@@ -23,6 +23,7 @@ export interface BookingAgent {
 export interface Booking {
   _id: string;
   property: BookingProperty | string;
+  propertyType: string;
   agent: BookingAgent | string;
   tenant: {
     _id: string;
@@ -48,10 +49,26 @@ export interface PaginatedBookings {
   totalPages: number;
 }
 
+export interface CreateBookingInput {
+  propertyid: string;
+  propertyType: string;
+  moveInDate: string; // ISO date string
+  moveOutDate?: string; // ISO date string
+  duration: string;
+  gender: 'male' | 'female';
+  specialRequest?: string;
+  amount: number;
+}
+
 const endpoints = {
+  createBooking: '/api/booking',
   getActiveBookingsSummary: '/api/booking/student/active-summary',
   getMyBookings: '/api/booking',
   getBookingById: (id: string) => `/api/booking/${id}`,
+};
+
+export const createBooking = (data: CreateBookingInput) => {
+  return API.post<TResponse<Booking>>(endpoints.createBooking, data);
 };
 
 export const getActiveBookingsSummary = () => {

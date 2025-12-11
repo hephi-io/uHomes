@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { PaymentService } from '../service/payment.service';
 import { ResponseHelper } from '../utils/response';
-import { BadRequestError } from '../middlewares/error.middlewere';
+import Booking from '../models/booking.model';
 import logger from '../utils/logger';
 
 export class PaymentController {
@@ -86,30 +86,56 @@ export class PaymentController {
     }
   }
 
-  async handleWebhook(req: Request, res: Response, next: NextFunction) {
+  async paymentCallback(req: Request, res: Response, _next: NextFunction) {
     try {
-      const signature = req.headers['x-paystack-signature'] as string;
-      if (!signature) {
-        throw new BadRequestError('Missing webhook signature');
+      const { reference } = req.query;
+
+      if (!reference || typeof reference !== 'string') {
+        return res.redirect(
+          `${process.env.FRONTEND_URL || 'http://localhost:3000'}/students/booking/checkout?error=invalid_reference`
+        );
       }
 
-      const rawBody =
-        req.body instanceof Buffer ? req.body.toString('utf8') : JSON.stringify(req.body);
-      const isValid = this.paymentService.verifyWebhookSignature(rawBody, signature);
-
-      if (!isValid) {
-        logger.warn('Invalid webhook signature received');
-        throw new BadRequestError('Invalid webhook signature');
-      }
-
-      const event = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
-      logger.info(`Webhook event received: ${event.event}`);
-
-      await this.paymentService.handleWebhookEvent(event.event, event.data);
-
-      return res.status(200).json({ received: true });
+      // Redirect to frontend callback page with reference parameter
+      // The frontend will handle payment verification
+      return res.redirect(
+        `${process.env.FRONTEND_URL || 'http://localhost:3000'}/students/booking/callback?reference=${reference}`
+      );
     } catch (error) {
-      logger.error('Webhook processing error:', error);
+      logger.error('Payment callback error:', error);
+      return res.redirect(
+        `${process.env.FRONTEND_URL || 'http://localhost:3000'}/students/booking/checkout?error=callback_error`
+      );
+    }
+  }
+
+  async verifyPaymentByReference(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { reference } = req.body;
+
+      if (!reference || typeof reference !== 'string') {
+        return ResponseHelper.badRequest(res, 'Payment reference is required');
+      }
+
+      // Verify payment and update booking status
+      const payment = await this.paymentService.verifyPaymentByReference(reference);
+
+      if (!payment.metadata?.bookingId) {
+        return ResponseHelper.badRequest(res, 'No booking associated with this payment');
+      }
+
+      // Fetch updated booking with populated fields
+      const booking = await Booking.findById(payment.metadata.bookingId)
+        .populate('propertyid', 'title location images')
+        .populate('tenant', 'fullName email phoneNumber')
+        .populate('agent', 'fullName email phoneNumber');
+
+      if (!booking) {
+        return ResponseHelper.notFound(res, 'Booking not found');
+      }
+
+      return ResponseHelper.success(res, { payment, booking });
+    } catch (error) {
       next(error);
     }
   }

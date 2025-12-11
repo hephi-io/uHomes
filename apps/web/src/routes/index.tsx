@@ -20,6 +20,7 @@ import Booking from '@/pages/booking/booking';
 import SMNewProperty from '@/pages/Agent/components/sm-add-new-property';
 import Checkout from '@/pages/booking/checkout';
 import CheckoutSuccess from '@/pages/booking/checkout-success';
+import PaymentCallback from '@/pages/booking/payment-callback';
 
 const router = createBrowserRouter([
   {
@@ -92,6 +93,7 @@ const router = createBrowserRouter([
         children: [
           { index: true, element: <Booking /> },
           { path: 'checkout', element: <Checkout /> },
+          { path: 'callback', element: <PaymentCallback /> },
           { path: 'checkout-success', element: <CheckoutSuccess /> },
         ],
       },

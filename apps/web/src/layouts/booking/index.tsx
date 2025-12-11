@@ -1,14 +1,24 @@
-import { Outlet } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
 
 import { Button } from '@uhomes/ui-kit';
 
 import { SVGs } from '@/assets/svgs/Index';
 
 export default function BookingLayout() {
+  const navigate = useNavigate();
+
+  const handleBack = () => {
+    navigate(-1);
+  };
+
   return (
     <div className="md:px-8 lg:pb-8">
       <div className="flex gap-x-9 items-center mt-4">
-        <Button variant="outline" className="size-11 rounded-full border-[#E5E5E5]">
+        <Button
+          variant="outline"
+          className="size-11 rounded-full border-[#E5E5E5]"
+          onClick={handleBack}
+        >
           <SVGs.ChevronLeft />
         </Button>
         <h1 className="font-semibold text-base leading-[120%] tracking-[0%] text-[#09090B]">
