@@ -53,11 +53,11 @@ export function Help() {
 
   return (
     <>
-      <h1 className="font-semibold text-2xl leading-[120%] tracking-[0%] text-black pl-8 py-5 md:pt-0">
+      <h1 className="font-semibold text-2xl leading-[120%] tracking-[0%] text-black pl-8 py-5 md:pt-0 lg:pt-5">
         Help
       </h1>
       <div className="border-t border-t-[#E4E4E4]" />
-      <div className="p-8 mt-9">
+      <div className="p-8 mt-9 lg:mt-0">
         <div className="size-16 flex justify-center items-center rounded-full bg-[#DBEAFE] md:mx-auto">
           <SVGs.QuestionMark className="text-[#3E78FF]" />
         </div>
@@ -68,7 +68,7 @@ export function Help() {
           Find answers to common questions or get in touch with our support team
         </p>
         <div className="border-t border-t-[#D8D8D8] mt-4"></div>
-        <div className="md:grid md:grid-cols-[30.47%_30.47%_30.47%] md:justify-between md:mt-10.5">
+        <div className="md:grid md:grid-cols-[30.47%_30.47%_30.47%] md:justify-between lg:max-w-[1208px] md:mt-10.5 lg:mx-auto">
           {cards.map((card) => (
             <div
               key={card.id}
@@ -77,13 +77,13 @@ export function Help() {
               <div className="size-12 flex justify-center items-center rounded-full bg-[#EDF2FE] mx-auto">
                 <card.icon />
               </div>
-              <div className="font-Bricolage text-sm leading-6 tracking-normal text-center text-black mt-3">
+              <div className="font-Bricolage text-sm leading-6 tracking-normal text-center text-black lg:text-base mt-3">
                 {card.textOne}
               </div>
               <div className="font-Bricolage text-sm leading-5 tracking-normal text-center text-[#727272] mt-3">
                 {card.textTwo}
               </div>
-              <div className="font-Bricolage text-sm leading-6 tracking-normal text-center text-[#3E78FF] mt-3">
+              <div className="font-Bricolage text-sm leading-6 tracking-normal text-center text-[#3E78FF] lg:text-base mt-3">
                 <a className="hover:cursor-pointer">{card.textThree}</a>
               </div>
             </div>
@@ -108,9 +108,10 @@ export function Help() {
               </div>
             ))}
           </div>
+          <div className="border-t-[0.8px] border-t-[#E5E7EB]" />
           <Accordion
             type="single"
-            className="gap-4 rounded-b-[10px] border-b border-b-[#E5E7EB] mt-6"
+            className="rounded-b-[10px] border-b border-b-[#E5E7EB] mt-6"
             collapsible
           >
             {accordions.map((accordion) => (
