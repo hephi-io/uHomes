@@ -71,6 +71,16 @@ import SecurityLock from './security-lock.svg?react';
 import LocationStar from './location-star.svg?react';
 import DribbleLogo from './dribble-logo.svg?react';
 import LogoSmall from './logo-sm.svg?react';
+import QuestionMark from './question-mark.svg?react';
+import Phone from './phone.svg?react';
+import Mail from './mail.svg?react';
+import Chat from './bubble-chat-question.svg?react';
+import DollarSign from './dollar-sign.svg?react';
+import People from './people.svg?react';
+import UploadDoc from './upload-doc.svg?react';
+import Bell from './bell.svg?react';
+import Bandwidth from './bandwidth.svg?react';
+import Settings from './setting.svg?react';
 
 export const SVGs = {
   AddProperty,
@@ -146,4 +156,14 @@ export const SVGs = {
   LocationStar,
   DribbleLogo,
   LogoSmall,
+  QuestionMark,
+  Phone,
+  Mail,
+  Chat,
+  DollarSign,
+  People,
+  UploadDoc,
+  Bell,
+  Bandwidth,
+  Settings,
 };
