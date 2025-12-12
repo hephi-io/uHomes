@@ -21,6 +21,10 @@ import SMNewProperty from '@/pages/Agent/components/sm-add-new-property';
 import Checkout from '@/pages/booking/checkout';
 import CheckoutSuccess from '@/pages/booking/checkout-success';
 import PaymentCallback from '@/pages/booking/payment-callback';
+import Settings from '@/pages/Agent/settings';
+import ProfileSecurity from '@/pages/Agent/components/settings/profile-security';
+import PaymentSetup from '@/pages/Agent/components/settings/payment-setup';
+import NotificationPreference from '@/pages/Agent/components/settings/notification-preference';
 
 const router = createBrowserRouter([
   {
@@ -71,6 +75,15 @@ const router = createBrowserRouter([
       {
         index: true,
         element: <Dashboard />,
+      },
+      {
+        path: 'settings',
+        element: <Settings />,
+        children: [
+          { path:'profile-security', element: <ProfileSecurity /> },
+          { path:'payment-setup', element: <PaymentSetup /> },
+          { path:'notification-preference', element: <NotificationPreference /> },
+        ]
       },
     ],
   },

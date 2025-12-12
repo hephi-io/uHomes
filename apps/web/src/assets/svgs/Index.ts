@@ -65,6 +65,9 @@ import Marked from './marked.svg?react';
 import miniHouse from './mini-house.svg?react';
 import Published from './published.svg?react';
 import StartOutline from './star-outline.svg?react';
+import ImageUpload from './image-upload.svg?react';
+import National from './national-id.svg?react';
+import HalfTime from './halftime.svg?react';
 
 export const SVGs = {
   AddProperty,
@@ -134,4 +137,7 @@ export const SVGs = {
   miniHouse,
   Published,
   StartOutline,
+  ImageUpload,
+  National,
+  HalfTime
 };
