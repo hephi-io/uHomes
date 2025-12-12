@@ -43,6 +43,46 @@ export interface PaginatedResponse<T> {
   totalPages: number;
 }
 
+// Notification types
+export type NotificationType =
+  | 'booking_created'
+  | 'booking_updated'
+  | 'booking_deleted'
+  | 'payment_created'
+  | 'payment_completed'
+  | 'payment_failed'
+  | 'payment_refunded'
+  | 'property_reviewed'
+  | 'account_updated'
+  | 'password_reset';
+
+export interface Notification {
+  _id: string;
+  userId: string;
+  type: NotificationType;
+  title: string;
+  message: string;
+  read: boolean;
+  relatedId?: string;
+  metadata?: Record<string, unknown>;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface NotificationListResponse {
+  notifications: Notification[];
+  pagination: {
+    total: number;
+    page: number;
+    pages: number;
+    limit: number;
+  };
+}
+
+export interface UnreadCountResponse {
+  unreadCount: number;
+}
+
 // API endpoints
 export const API_ENDPOINTS = {
   AUTH: {

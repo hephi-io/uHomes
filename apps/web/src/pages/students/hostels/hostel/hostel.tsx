@@ -431,7 +431,7 @@ export function Hostel() {
                     <Badge key={topBadge.id} Icon={topBadge.Icon} text={topBadge.text} />
                   ))}
                 </div>
-                <LikeButton />
+                {(property?._id || id) && <LikeButton propertyId={property?._id || id || ''} />}
               </div>
             </div>
             {propertyImages.length > 1 && (

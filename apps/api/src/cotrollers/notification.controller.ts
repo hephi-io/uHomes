@@ -64,4 +64,39 @@ export class NotificationController {
       next(error);
     }
   }
+
+  async streamNotifications(req: Request, res: Response, next: NextFunction) {
+    try {
+      // Get token from query params (EventSource doesn't support custom headers)
+      const token = req.query.token as string;
+
+      if (!token) {
+        res.status(401).json({ error: 'Unauthorized, token missing' });
+        return;
+      }
+
+      // Verify token
+      const jwt = await import('jsonwebtoken');
+      let userId: string;
+
+      try {
+        const payload = jwt.verify(token, process.env.JWT_SECRET!) as { id: string };
+        userId = payload.id;
+      } catch {
+        res.status(401).json({ error: 'Unauthorized, invalid token' });
+        return;
+      }
+
+      // Set headers for SSE
+      res.setHeader('Content-Type', 'text/event-stream');
+      res.setHeader('Cache-Control', 'no-cache');
+      res.setHeader('Connection', 'keep-alive');
+      res.setHeader('X-Accel-Buffering', 'no'); // Disable buffering in nginx
+
+      // Add client to SSE registry
+      this.notificationService.addSSEClient(userId, res);
+    } catch (error) {
+      next(error);
+    }
+  }
 }

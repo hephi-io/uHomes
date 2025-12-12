@@ -9,6 +9,7 @@ import { bookingColumns, type IBooking } from '@/shared/booking';
 import { transactionColumn, type ITransaction } from '@/shared/transactions';
 import Tableshared from '@/shared/table';
 import { useAuth } from '@/contexts/auth-context';
+import { useNotifications } from '@/contexts/NotificationContext';
 import {
   getAgentProperties,
   getAgentDashboardStats,
@@ -23,6 +24,7 @@ import { useNavigate } from 'react-router-dom';
 const Dashboard = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { unreadCount } = useNotifications();
   const [activeView, setActiveView] = useState<'list' | 'grid'>('grid');
 
   // Dashboard stats
@@ -302,8 +304,13 @@ const Dashboard = () => {
                 </p>
               </div>
             </div>
-            <div className="w-10 h-10 flex justify-center items-center rounded-full bg-[#F8F8F8] lg:hidden">
+            <div className="relative w-10 h-10 flex justify-center items-center rounded-full bg-[#F8F8F8] lg:hidden">
               <SVGs.Notification />
+              {unreadCount > 0 && (
+                <div className="absolute -top-1 -right-1 bg-[#3E78FF] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                  {unreadCount > 99 ? '99+' : unreadCount}
+                </div>
+              )}
             </div>
           </div>
         </div>
