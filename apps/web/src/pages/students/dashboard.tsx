@@ -8,6 +8,7 @@ import { SVGs } from '@/assets/svgs/Index';
 import NoBookings from '@/assets/pngs/no-bookings.png';
 import HostelImageTwo from '@/assets/pngs/hostel-image-2.png';
 import { useAuth } from '@/contexts/auth-context';
+import { useNotifications } from '@/contexts/NotificationContext';
 import { getActiveBookingsSummary, getMyBookings, type Booking } from '@/services/booking';
 import { getSavedProperties, type SavedProperty } from '@/services/property';
 
@@ -67,6 +68,7 @@ const staggerItemVariants = {
 
 export function StudentDashboard() {
   const { user } = useAuth();
+  const { unreadCount } = useNotifications();
   const [activeBookingsCount, setActiveBookingsCount] = useState(0);
   const [totalSpent, setTotalSpent] = useState(0);
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -210,10 +212,15 @@ export function StudentDashboard() {
           </motion.div>
 
           <motion.div
-            className="w-10 h-10 flex justify-center items-center rounded-full border border-[#00000033] bg-[#F8F8F8] lg:hidden"
+            className="relative w-10 h-10 flex justify-center items-center rounded-full border border-[#00000033] bg-[#F8F8F8] lg:hidden"
             variants={itemVariants}
           >
             <SVGs.Notification />
+            {unreadCount > 0 && (
+              <div className="absolute -top-1 -right-1 bg-[#3E78FF] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                {unreadCount > 99 ? '99+' : unreadCount}
+              </div>
+            )}
           </motion.div>
         </motion.div>
         <div className="hidden lg:block lg:border-t lg:border-[#E4E4E4] lg:mt-8"></div>
