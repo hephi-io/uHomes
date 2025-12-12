@@ -53,54 +53,61 @@ export function Help() {
 
   return (
     <>
-      <h1 className="font-semibold text-2xl leading-[120%] tracking-[0%] text-black pl-8 py-5">
+      <h1 className="font-semibold text-2xl leading-[120%] tracking-[0%] text-black pl-8 py-5 md:pt-0">
         Help
       </h1>
       <div className="border-t border-t-[#E4E4E4]" />
       <div className="p-8 mt-9">
-        <div className="size-16 flex justify-center items-center rounded-full bg-[#DBEAFE]">
+        <div className="size-16 flex justify-center items-center rounded-full bg-[#DBEAFE] md:mx-auto">
           <SVGs.QuestionMark className="text-[#3E78FF]" />
         </div>
-        <h2 className="font-medium text-base leading-6 tracking-normal text-black mt-4">
+        <h2 className="font-medium text-base leading-6 tracking-normal text-black md:text-center mt-4">
           Help & Support
         </h2>
-        <p className="text-base leading-6 tracking-normal text-[#727272] mt-4">
+        <p className="text-base leading-6 tracking-normal text-[#727272] md:text-center mt-4">
           Find answers to common questions or get in touch with our support team
         </p>
         <div className="border-t border-t-[#D8D8D8] mt-4"></div>
-        {cards.map((card) => (
-          <div
-            key={card.id}
-            className={`rounded-[10px] border-[0.8px] border-[#E5E7EB] p-[25px] ${card.id === 1 ? 'mt-10.5' : 'mt-6'}`}
-          >
-            <div className="size-12 flex justify-center items-center rounded-full bg-[#EDF2FE] mx-auto">
-              <card.icon />
+        <div className="md:grid md:grid-cols-[30.47%_30.47%_30.47%] md:justify-between md:mt-10.5">
+          {cards.map((card) => (
+            <div
+              key={card.id}
+              className={`rounded-[10px] border-[0.8px] border-[#E5E7EB] p-[25px] md:mt-0 ${card.id === 1 ? 'mt-10.5' : 'mt-6'}`}
+            >
+              <div className="size-12 flex justify-center items-center rounded-full bg-[#EDF2FE] mx-auto">
+                <card.icon />
+              </div>
+              <div className="font-Bricolage text-sm leading-6 tracking-normal text-center text-black mt-3">
+                {card.textOne}
+              </div>
+              <div className="font-Bricolage text-sm leading-5 tracking-normal text-center text-[#727272] mt-3">
+                {card.textTwo}
+              </div>
+              <div className="font-Bricolage text-sm leading-6 tracking-normal text-center text-[#3E78FF] mt-3">
+                <a className="hover:cursor-pointer">{card.textThree}</a>
+              </div>
             </div>
-            <div className="font-Bricolage text-sm leading-6 tracking-normal text-center text-black mt-3">
-              {card.textOne}
-            </div>
-            <div className="font-Bricolage text-sm leading-5 tracking-normal text-center text-[#727272] mt-3">
-              {card.textTwo}
-            </div>
-            <div className="font-Bricolage text-sm leading-6 tracking-normal text-center text-[#3E78FF] mt-3">
-              <a className="hover:cursor-pointer">{card.textThree}</a>
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
         <div className="rounded-[10px] border-[0.8px] border-[#E5E7EB] p-6 mt-10.5">
           <h2 className="font-medium text-base leading-6 tracking-normal text-black text-center">
             Frequently Asked Questions
           </h2>
-          {faqButtons.map((faqButton) => (
-            <div key={faqButton.id} className={faqButton.id === 1 ? 'mt-6' : 'mt-2'}>
-              <Button className="group w-fit gap-x-[7px] rounded-[6px] bg-[#F3F4F6] hover:bg-[#3E78FF] hover:cursor-pointer px-[15px] py-1.5">
-                <faqButton.icon className="text-black group-hover:text-white" />
-                <span className="text-sm leading-6 tracking-normal text-black group-hover:text-white">
-                  {faqButton.text}
-                </span>
-              </Button>
-            </div>
-          ))}
+          <div className="md:flex md:flex-wrap md:gap-2 md:mt-6">
+            {faqButtons.map((faqButton) => (
+              <div
+                key={faqButton.id}
+                className={`md:w-fit md:mt-0 ${faqButton.id === 1 ? 'mt-6' : 'mt-2'}`}
+              >
+                <Button className="group w-fit gap-x-[7px] rounded-[6px] bg-[#F3F4F6] hover:bg-[#3E78FF] hover:cursor-pointer px-[15px] py-1.5">
+                  <faqButton.icon className="text-black group-hover:text-white" />
+                  <span className="text-sm leading-6 tracking-normal text-black group-hover:text-white">
+                    {faqButton.text}
+                  </span>
+                </Button>
+              </div>
+            ))}
+          </div>
           <Accordion
             type="single"
             className="gap-4 rounded-b-[10px] border-b border-b-[#E5E7EB] mt-6"
@@ -112,7 +119,7 @@ export function Help() {
                 value={accordion.item}
                 className={`rounded-[10px] border-[0.8px] border-[#E5E7EB] px-4 ${accordion.id === 1 ? '' : 'mt-4'}`}
               >
-                <AccordionTrigger className="font-Bricolage text-sm leading-[120%] tracking-normal text-black">
+                <AccordionTrigger className="font-Bricolage text-sm leading-[120%] tracking-normal text-black md:leading-6">
                   {accordion.label}
                 </AccordionTrigger>
                 <AccordionContent className="font-Bricolage">
