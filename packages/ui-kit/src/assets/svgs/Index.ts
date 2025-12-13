@@ -81,6 +81,12 @@ import UploadDoc from './upload-doc.svg?react';
 import Bell from './bell.svg?react';
 import Bandwidth from './bandwidth.svg?react';
 import Settings from './setting.svg?react';
+import Cancel from './cancel.svg?react';
+import Home from './home.svg?react';
+import InformationCircle from './information-circle.svg?react';
+import WorkflowCircle from './workflow-circle.svg?react';
+import UserQuestion from './user-question.svg?react';
+import ArrowForward from './arrow-forward.svg?react';
 
 export const SVGs = {
   AddProperty,
@@ -166,4 +172,10 @@ export const SVGs = {
   Bell,
   Bandwidth,
   Settings,
+  Cancel,
+  Home,
+  InformationCircle,
+  WorkflowCircle,
+  UserQuestion,
+  ArrowForward,
 };
