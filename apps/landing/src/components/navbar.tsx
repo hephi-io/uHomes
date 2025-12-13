@@ -69,11 +69,14 @@ function MenuDropdown({ open, close }: { open: boolean; close: () => void }) {
   ];
 
   return (
-    <div
-      className={`fixed left-0 right-0 top-0 bottom-0 bg-[#000000BF] ${open ? 'block' : 'hidden'}`}
-      onClick={() => close()}
-    >
-      <div className="w-[340px] bg-white pb-18">
+    <>
+      <div
+        className={`fixed left-0 right-0 top-0 bottom-0 bg-[#000000BF] transition-all duration-300 ease-in-out ${open ? 'opacity-100 visible' : 'opacity-0 invisible'}`}
+        onClick={() => close()}
+      ></div>
+      <div
+        className={`fixed left-0 top-0 w-[340px] bg-white pb-18 transition-all duration-300 ease-in-out ${open ? 'visible' : '-translate-x-full invisible'}`}
+      >
         <div className="flex justify-between items-center px-[33px] py-4">
           <div className="flex gap-x-2 items-center">
             <SVGs.UHome />
@@ -120,6 +123,6 @@ function MenuDropdown({ open, close }: { open: boolean; close: () => void }) {
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
