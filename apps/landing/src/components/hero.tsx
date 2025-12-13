@@ -1,4 +1,6 @@
-import dashboardImage from '@/assets/jpgs/dashboard-my-bookings.jpg';
+import dashboardSm from '@/assets/jpgs/dashboard-sm.jpg';
+import dashboardMd from '@/assets/jpgs/dashboard-md.jpg';
+import dashboardLg from '@/assets/jpgs/dashboard-lg.jpg';
 import FindHostelButton from './shared/find-hostel-button';
 
 export default function Hero() {
@@ -30,8 +32,18 @@ export default function Hero() {
             </a>
           </div>
         </div>
-        <div className="h-[438px] rounded-[14px] border border-[#C4C4C4] overflow-hidden md:h-[821px] md:rounded-3xl lg:w-[54.24%] lg:rounded-none lg:rounded-tl-3xl lg:border-b-0 mt-6">
-          <img src={dashboardImage} alt="" className="size-full object-fill" />
+        <div className="h-[438px] rounded-[14px] overflow-hidden md:h-[821px] md:rounded-3xl lg:w-[54.24%] lg:rounded-none lg:rounded-tl-3xl lg:border-b-0 mt-6">
+          <img src={dashboardSm} alt="" className="size-full object-fill md:hidden" />
+          <img
+            src={dashboardMd}
+            alt=""
+            className="hidden md:block md:size-full md:object-fill lg:hidden"
+          />
+          <img
+            src={dashboardLg}
+            alt=""
+            className="hidden lg:block lg:size-full lg:object-fill outline outline-black"
+          />
         </div>
       </div>
     </>

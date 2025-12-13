@@ -1,7 +1,13 @@
-import friends from '@/assets/jpgs/friends.jpg';
+// import friends from '@/assets/jpgs/friends.jpg';
 import FindHostelButton from './shared/find-hostel-button';
 import { SVGs } from '../../../../packages/ui-kit/src/assets/svgs/Index';
-import findHostelImage from '@/assets/jpgs/find-hostel-image.jpg';
+// import findHostelImage from '@/assets/jpgs/find-hostel-image.jpg';
+import findHostelSm from '@/assets/jpgs/find-hostel-sm.jpg';
+import findHostelMd from '@/assets/jpgs/find-hostel-md.jpg';
+import findHostelLg from '@/assets/jpgs/find-hostel-lg.jpg';
+import friendsSm from '@/assets/jpgs/friends-sm.jpg';
+import friendsMd from '@/assets/jpgs/friends-md.jpg';
+import friendsLg from '@/assets/jpgs/friends-lg.jpg';
 
 export default function About() {
   return (
@@ -9,7 +15,13 @@ export default function About() {
       <div className="lg:flex lg:gap-x-3 px-[33px] md:px-[66px] lg:px-33">
         <div className="rounded-[20px] bg-[#F5F5F5] p-8">
           <div className="h-[173px] rounded-3xl bg-[#EAEAEA] overflow-hidden md:h-[390px]">
-            <img src={friends} alt="" className="size-full object-fill lg:object-cover" />
+            <img src={friendsSm} alt="" className="size-full object-fill md:hidden" />
+            <img
+              src={friendsMd}
+              alt=""
+              className="hidden md:block md:size-full md:object-fill lg:hidden"
+            />
+            <img src={friendsLg} alt="" className="hidden lg:block lg:size-full lg:object-fill" />
           </div>
           <h1 className="font-medium text-2xl leading-[120%] -tracking-[0.5px] text-black md:w-[54.13%] md:text-[28px] lg:w-full lg:text-3xl my-8">
             Stay Where You Can Focus on What Truly Matters
@@ -85,7 +97,9 @@ export default function About() {
             </div>
           </div>
           <div className="h-[177px] overflow-hidden md:h-[386px] lg:w-[79.83%] lg:h-[515px] mt-8.5 lg:mx-auto lg:mt-12">
-            <img src={findHostelImage} className="size-full" />
+            <img src={findHostelSm} className="size-full" />
+            <img src={findHostelMd} className="hidden md:block md:size-full lg:hidden" />
+            <img src={findHostelLg} className="hidden lg:block lg:size-full" />
           </div>
         </div>
       </div>
