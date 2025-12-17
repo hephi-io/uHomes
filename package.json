@@ -24,6 +24,7 @@
   "devDependencies": {
     "@commitlint/cli": "20.1.0",
     "@commitlint/config-conventional": "20.0.0",
+    "@esbuild/darwin-x64": "0.25.11",
     "@types/node": "^24.7.2",
     "@uhomes/eslint-config": "workspace:*",
     "commitizen": "4.3.1",

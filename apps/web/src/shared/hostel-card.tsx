@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@uhomes/ui-kit';
 
 import Badge from '@/shared/badge';
+import LikeButton from '@/shared/like-button';
 import { SVGs } from '@/assets/svgs/Index';
 import { topBadges } from '@/pages/students/constants';
 import HostelImage from '@/assets/pngs/hostel-image.jpg';
@@ -45,19 +46,20 @@ export function HostelCard({ property }: HostelCardProps) {
       <div className="relative h-[206px]">
         <img src={propertyImage} alt={propertyTitle} className="w-full h-full object-cover" />
 
-        <div className="absolute left-4 top-4 lg:right-4 lg:flex lg:justify-between lg:items-center">
+        <div className="absolute left-4 top-4 lg:right-4 lg:flex lg:justify-between lg:items-center lg:w-full lg:px-4">
           <div className="flex gap-x-1.5 items-center">
             {topBadges.map((topBadge) => (
               <Badge key={topBadge.id} Icon={topBadge.Icon} text={topBadge.text} />
             ))}
           </div>
 
-          <Button
-            variant="outline"
-            className="hidden lg:flex lg:w-7 lg:h-7 rounded-md border border-[#CECECE] bg-white"
-          >
-            <SVGs.Favorite />
-          </Button>
+          {property?._id && (
+            <LikeButton
+              propertyId={property._id}
+              isSaved={false}
+              className="hidden lg:flex lg:w-7 lg:h-7 rounded-md border border-[#CECECE] bg-white p-0"
+            />
+          )}
         </div>
       </div>
 

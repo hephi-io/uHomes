@@ -28,6 +28,7 @@ export type TUser = {
   phoneNumber: string;
   userType: TUserType;
   isVerified: boolean;
+  savedProperties?: string[];
 };
 
 const endpoints = {

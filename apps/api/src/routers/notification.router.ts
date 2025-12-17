@@ -7,6 +7,31 @@ const notificationController = new NotificationController();
 
 /**
  * @swagger
+ * /api/notification/stream:
+ *   get:
+ *     summary: Stream notifications via Server-Sent Events (SSE)
+ *     tags: [Notifications]
+ *     parameters:
+ *       - in: query
+ *         name: token
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: JWT authentication token
+ *     responses:
+ *       200:
+ *         description: SSE stream of notifications
+ *         content:
+ *           text/event-stream:
+ *             schema:
+ *               type: string
+ *       401:
+ *         description: Unauthorized
+ */
+router.get('/stream', notificationController.streamNotifications.bind(notificationController));
+
+/**
+ * @swagger
  * /api/notification:
  *   get:
  *     summary: Get all notifications for authenticated user
