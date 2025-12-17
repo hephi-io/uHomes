@@ -24,6 +24,7 @@ describe('PropertyService', () => {
       email: 'agent@test.com',
       password: 'password',
       phoneNumber: '08123456789',
+      nin: '12345678901', // NIN required for agents (KYC verification)
     });
     agentId = (agent._id as mongoose.Types.ObjectId).toString();
     await UserType.create({

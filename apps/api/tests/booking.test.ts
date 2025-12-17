@@ -20,6 +20,7 @@ describe('BookingService', () => {
       email: 'agent@test.com',
       password: 'password',
       phoneNumber: '08123456789',
+      nin: '12345678901', // NIN required for agents (KYC verification)
     });
     agentId = (agent._id as mongoose.Types.ObjectId).toString();
     await UserType.create({
@@ -69,7 +70,7 @@ describe('BookingService', () => {
       propertyType: 'apartment',
       moveInDate: new Date(),
       duration: '6 months',
-      gender: 'male',
+      gender: 'male' as 'male' | 'female',
       amount: 500,
     };
 
@@ -98,7 +99,7 @@ describe('BookingService', () => {
       propertyType: 'apartment',
       moveInDate: new Date(),
       duration: '6 months',
-      gender: 'male',
+      gender: 'male' as 'male' | 'female',
       amount: 500,
     };
     // The code converts userId to ObjectId, so it should find the UserType and throw UnauthorizedError
