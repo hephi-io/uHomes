@@ -20,7 +20,8 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
-      "@uhomes/shared": ["../../packages/shared/src"]
+      "@uhomes/shared": ["../../packages/shared/src"],
+      "@uhomes/ui-kit": ["../../packages/ui-kit/src"]
     }
   },
   "include": ["src"],
