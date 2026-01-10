@@ -291,8 +291,16 @@ const Dashboard = () => {
         <div className=" border-0 md:border-b  md:border-[#E4E4E4]  md:pt-8  lg:pt-3 lg:pb-8 ">
           <div className="flex items-center justify-between mb-6 md:mb-0">
             <div className="flex items-center  gap-4 ">
-              <div className="">
-                <img src={profile} alt="profile image " className="rounded-full size-12" />
+              <div className="size-12 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center shrink-0">
+                {user?.profilePicture ? (
+                  <img
+                    src={user.profilePicture}
+                    alt={user.fullName || 'Profile'}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <img src={profile} alt="profile image" className="w-full h-full object-cover" />
+                )}
               </div>
 
               <div className="space-y-0.5">
@@ -460,7 +468,12 @@ const Dashboard = () => {
                   className=" lg:flex cursor-pointer gap-x-2 rounded border border-[#E4E4E4EE] bg-white px-3 py-2"
                 >
                   <SVGs.FunnelSimple />
-                  <span className="font-medium text-sm text-[#404D61]">Filter</span>
+                  <span
+                    className="
+                  font-medium text-sm text-[#404D61]"
+                  >
+                    Filter
+                  </span>
                 </Button>
               </div>
 

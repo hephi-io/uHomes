@@ -613,4 +613,273 @@ export class UserService {
       hasDocument: !!user.ninDocumentUrl,
     };
   }
+
+  /**
+   * Upload profile picture
+   */
+  async uploadProfilePicture(
+    userId: string,
+    imageFile: Express.Multer.File
+  ): Promise<{ profilePicture: string }> {
+    const user = await User.findById(userId);
+    if (!user) throw new NotFoundError('User not found');
+
+    // Upload to Cloudinary
+    const { default: cloudinary } = await import('../config/cloudinary');
+
+    // Upload new image to Cloudinary first
+    const uploadResult = await cloudinary.uploader.upload(imageFile.path, {
+      resource_type: 'image',
+      folder: 'profile-pictures',
+      transformation: [
+        { width: 400, height: 400, crop: 'fill', gravity: 'face' },
+        { quality: 'auto' },
+      ],
+    });
+
+    // If user already has a profile picture, delete the old one from Cloudinary
+    if (user.profilePicture) {
+      try {
+        // Extract public_id from the URL
+        // URL format: https://res.cloudinary.com/cloud_name/image/upload/v1234567890/profile-pictures/public_id.jpg
+        // or: https://res.cloudinary.com/cloud_name/image/upload/profile-pictures/public_id.jpg (without version)
+        const url = user.profilePicture;
+        const uploadIndex = url.indexOf('/upload/');
+        if (uploadIndex !== -1) {
+          const pathAfterUpload = url.substring(uploadIndex + '/upload/'.length);
+          // Remove version if present (format: v1234567890/)
+          const pathWithoutVersion = pathAfterUpload.replace(/^v\d+\//, '');
+          // Remove file extension to get public_id
+          const publicId = pathWithoutVersion.replace(/\.[^/.]+$/, '');
+          await cloudinary.uploader.destroy(publicId);
+        }
+      } catch (error) {
+        // If deletion fails, continue with upload anyway (non-critical)
+        console.warn('Failed to delete old profile picture:', error);
+      }
+    }
+
+    // Update user with new profile picture URL
+    user.profilePicture = uploadResult.secure_url;
+    await user.save();
+
+    // Clean up local file
+    const fs = await import('fs');
+    if (fs.existsSync(imageFile.path)) {
+      fs.unlinkSync(imageFile.path);
+    }
+
+    return {
+      profilePicture: user.profilePicture,
+    };
+  }
+
+  /**
+   * Update payment setup (bank information and invoice email)
+   */
+  async updatePaymentSetup(
+    userId: string,
+    data: {
+      accountNumber?: string;
+      accountName?: string;
+      bank?: string;
+      alternativeEmail?: string;
+    }
+  ) {
+    const user = await User.findById(userId);
+    if (!user) throw new NotFoundError('User not found');
+
+    // Validate email format if alternative email is provided
+    if (data.alternativeEmail) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(data.alternativeEmail)) {
+        throw new BadRequestError('Invalid email format');
+      }
+    }
+
+    // Validate account number if provided (should be numeric)
+    if (data.accountNumber && !/^\d+$/.test(data.accountNumber)) {
+      throw new BadRequestError('Account number must contain only digits');
+    }
+
+    // Update payment fields
+    if (data.accountNumber !== undefined) user.accountNumber = data.accountNumber;
+    if (data.accountName !== undefined) user.accountName = data.accountName;
+    if (data.bank !== undefined) user.bank = data.bank;
+    if (data.alternativeEmail !== undefined) user.alternativeEmail = data.alternativeEmail;
+
+    await user.save();
+
+    // Get user type for response
+    const userType = await UserType.findOne({ userId: user._id });
+    // Remove password and NIN from response (sensitive data)
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password: _, nin: __, ...userData } = user.toObject();
+
+    return {
+      ...userData,
+      userType: userType ? { type: userType.type } : undefined,
+    };
+  }
+
+  /**
+   * Get notification preferences for a user
+   */
+  async getNotificationPreferences(userId: string) {
+    const user = await User.findById(userId).select('notificationPreferences');
+    if (!user) throw new NotFoundError('User not found');
+
+    // Return default preferences if none exist
+    const defaultPreferences = {
+      email: {
+        payment: true,
+        booking: true,
+        systemUpdates: false,
+        reviewAlert: false,
+      },
+      inApp: {
+        payment: true,
+        booking: true,
+        systemUpdates: true,
+        reviewAlert: true,
+      },
+      sms: {
+        payment: false,
+        booking: false,
+        systemUpdates: true,
+        reviewAlert: false,
+      },
+    };
+
+    return {
+      notificationPreferences: user.notificationPreferences || defaultPreferences,
+    };
+  }
+
+  /**
+   * Update notification preferences for a user
+   */
+  async updateNotificationPreferences(
+    userId: string,
+    preferences: {
+      email?: {
+        payment?: boolean;
+        booking?: boolean;
+        systemUpdates?: boolean;
+        reviewAlert?: boolean;
+      };
+      inApp?: {
+        payment?: boolean;
+        booking?: boolean;
+        systemUpdates?: boolean;
+        reviewAlert?: boolean;
+      };
+      sms?: {
+        payment?: boolean;
+        booking?: boolean;
+        systemUpdates?: boolean;
+        reviewAlert?: boolean;
+      };
+    }
+  ) {
+    const user = await User.findById(userId);
+    if (!user) throw new NotFoundError('User not found');
+
+    // Get current preferences or defaults
+    const defaultPreferences = {
+      email: {
+        payment: true,
+        booking: true,
+        systemUpdates: false,
+        reviewAlert: false,
+      },
+      inApp: {
+        payment: true,
+        booking: true,
+        systemUpdates: true,
+        reviewAlert: true,
+      },
+      sms: {
+        payment: false,
+        booking: false,
+        systemUpdates: true,
+        reviewAlert: false,
+      },
+    };
+
+    const currentPreferences = (user.notificationPreferences as any) || defaultPreferences;
+
+    // Merge new preferences with current ones
+    const updatedPreferences = {
+      email: {
+        ...currentPreferences.email,
+        ...preferences.email,
+      },
+      inApp: {
+        ...currentPreferences.inApp,
+        ...preferences.inApp,
+      },
+      sms: {
+        ...currentPreferences.sms,
+        ...preferences.sms,
+      },
+    };
+
+    user.notificationPreferences = updatedPreferences as any;
+    await user.save();
+
+    // Get user type for response
+    const userType = await UserType.findOne({ userId: user._id });
+    // Remove password and NIN from response (sensitive data)
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password: _, nin: __, ...userData } = user.toObject();
+
+    return {
+      ...userData,
+      userType: userType ? { type: userType.type } : undefined,
+    };
+  }
+
+  /**
+   * Reset notification preferences to default values
+   */
+  async resetNotificationPreferences(userId: string) {
+    const user = await User.findById(userId);
+    if (!user) throw new NotFoundError('User not found');
+
+    const defaultPreferences = {
+      email: {
+        payment: true,
+        booking: true,
+        systemUpdates: false,
+        reviewAlert: false,
+      },
+      inApp: {
+        payment: true,
+        booking: true,
+        systemUpdates: true,
+        reviewAlert: true,
+      },
+      sms: {
+        payment: false,
+        booking: false,
+        systemUpdates: true,
+        reviewAlert: false,
+      },
+    };
+
+    user.notificationPreferences = defaultPreferences as any;
+    await user.save();
+
+    // Get user type for response
+    const userType = await UserType.findOne({ userId: user._id });
+    // Remove password and NIN from response (sensitive data)
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password: _, nin: __, ...userData } = user.toObject();
+
+    return {
+      ...userData,
+      userType: userType ? { type: userType.type } : undefined,
+    };
+  }
 }

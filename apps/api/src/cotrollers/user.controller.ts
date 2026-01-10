@@ -252,4 +252,89 @@ export class UserController {
       next(err);
     }
   }
+
+  async uploadProfilePicture(req: Request, res: Response, next: NextFunction) {
+    try {
+      const userId = req.user?.id;
+      if (!userId) {
+        return ResponseHelper.unauthorized(res, 'Unauthorized');
+      }
+
+      const file = req.file;
+      if (!file) {
+        return ResponseHelper.badRequest(res, { message: 'Profile picture is required' });
+      }
+
+      const result = await this.userService.uploadProfilePicture(userId, file);
+      return ResponseHelper.success(res, result);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async updatePaymentSetup(req: Request, res: Response, next: NextFunction) {
+    try {
+      const userId = req.user?.id;
+      if (!userId) {
+        return ResponseHelper.unauthorized(res, 'Unauthorized');
+      }
+
+      const { accountNumber, accountName, bank, alternativeEmail } = req.body;
+
+      const result = await this.userService.updatePaymentSetup(userId, {
+        accountNumber,
+        accountName,
+        bank,
+        alternativeEmail,
+      });
+
+      return ResponseHelper.success(res, result);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async getNotificationPreferences(req: Request, res: Response, next: NextFunction) {
+    try {
+      const userId = req.user?.id;
+      if (!userId) {
+        return ResponseHelper.unauthorized(res, 'Unauthorized');
+      }
+
+      const result = await this.userService.getNotificationPreferences(userId);
+      return ResponseHelper.success(res, result);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async updateNotificationPreferences(req: Request, res: Response, next: NextFunction) {
+    try {
+      const userId = req.user?.id;
+      if (!userId) {
+        return ResponseHelper.unauthorized(res, 'Unauthorized');
+      }
+
+      const { preferences } = req.body;
+
+      const result = await this.userService.updateNotificationPreferences(userId, preferences);
+      return ResponseHelper.success(res, result);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async resetNotificationPreferences(req: Request, res: Response, next: NextFunction) {
+    try {
+      const userId = req.user?.id;
+      if (!userId) {
+        return ResponseHelper.unauthorized(res, 'Unauthorized');
+      }
+
+      const result = await this.userService.resetNotificationPreferences(userId);
+      return ResponseHelper.success(res, result);
+    } catch (err) {
+      next(err);
+    }
+  }
 }

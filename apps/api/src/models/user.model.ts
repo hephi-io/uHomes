@@ -20,6 +20,37 @@ export interface IUser extends Document {
   ninDocumentUrl?: string; // URL to uploaded National ID document
   ninVerificationStatus?: 'pending' | 'verified' | 'rejected'; // NIN verification status
 
+  // Profile fields
+  profilePicture?: string; // URL to profile picture
+
+  // Payment/Payout fields (for agents)
+  accountNumber?: string; // Bank account number for payouts
+  accountName?: string; // Bank account name
+  bank?: string; // Bank name/code
+  alternativeEmail?: string; // Alternative email for booking invoices
+
+  // Notification preferences
+  notificationPreferences?: {
+    email?: {
+      payment?: boolean;
+      booking?: boolean;
+      systemUpdates?: boolean;
+      reviewAlert?: boolean;
+    };
+    inApp?: {
+      payment?: boolean;
+      booking?: boolean;
+      systemUpdates?: boolean;
+      reviewAlert?: boolean;
+    };
+    sms?: {
+      payment?: boolean;
+      booking?: boolean;
+      systemUpdates?: boolean;
+      reviewAlert?: boolean;
+    };
+  };
+
   // Timestamps
   createdAt: Date;
   updatedAt: Date;
@@ -94,6 +125,52 @@ const userSchema: Schema<IUser> = new Schema(
       type: String,
       enum: ['pending', 'verified', 'rejected'],
       default: 'pending',
+    },
+    profilePicture: {
+      type: String,
+      trim: true,
+    },
+    // Payment/Payout fields (for agents)
+    accountNumber: {
+      type: String,
+      trim: true,
+    },
+    accountName: {
+      type: String,
+      trim: true,
+    },
+    bank: {
+      type: String,
+      trim: true,
+    },
+    alternativeEmail: {
+      type: String,
+      lowercase: true,
+      trim: true,
+    },
+    // Notification preferences
+    notificationPreferences: {
+      type: Schema.Types.Mixed,
+      default: {
+        email: {
+          payment: true,
+          booking: true,
+          systemUpdates: false,
+          reviewAlert: false,
+        },
+        inApp: {
+          payment: true,
+          booking: true,
+          systemUpdates: true,
+          reviewAlert: true,
+        },
+        sms: {
+          payment: false,
+          booking: false,
+          systemUpdates: true,
+          reviewAlert: false,
+        },
+      },
     },
   },
   { timestamps: true }

@@ -21,6 +21,27 @@ type TUserType = {
   type: 'student' | 'agent' | 'admin';
 };
 
+export interface NotificationPreferences {
+  email?: {
+    payment?: boolean;
+    booking?: boolean;
+    systemUpdates?: boolean;
+    reviewAlert?: boolean;
+  };
+  inApp?: {
+    payment?: boolean;
+    booking?: boolean;
+    systemUpdates?: boolean;
+    reviewAlert?: boolean;
+  };
+  sms?: {
+    payment?: boolean;
+    booking?: boolean;
+    systemUpdates?: boolean;
+    reviewAlert?: boolean;
+  };
+}
+
 export type TUser = {
   _id: string;
   fullName: string;
@@ -29,6 +50,12 @@ export type TUser = {
   userType: TUserType;
   isVerified: boolean;
   savedProperties?: string[];
+  profilePicture?: string;
+  accountNumber?: string;
+  accountName?: string;
+  bank?: string;
+  alternativeEmail?: string;
+  notificationPreferences?: NotificationPreferences;
 };
 
 const endpoints = {
@@ -46,6 +73,12 @@ const endpoints = {
   resetPassword: (otp: string) => `/api/auth/reset-password/${otp}`,
   resendResetToken: '/api/auth/resend-reset-token',
   logout: '/api/auth/logout',
+  getNINVerificationStatus: '/api/user/nin-verification-status',
+  uploadProfilePicture: '/api/user/upload-profile-picture',
+  updatePaymentSetup: '/api/user/payment-setup',
+  getNotificationPreferences: '/api/user/notification-preferences',
+  updateNotificationPreferences: '/api/user/notification-preferences',
+  resetNotificationPreferences: '/api/user/notification-preferences/reset',
 };
 
 export const API = axios.create({ baseURL: import.meta.env.VITE_API_BASE_URL });
@@ -120,4 +153,52 @@ export const resendResetToken = (email: string) => {
 
 export const logout = () => {
   return API.post<TResponse<{ message: string }>>(endpoints.logout);
+};
+
+export type TNINVerificationStatus = {
+  verificationStatus: 'pending' | 'verified' | 'rejected';
+  hasDocument: boolean;
+};
+
+export const getNINVerificationStatus = () => {
+  return API.get<TResponse<TNINVerificationStatus>>(endpoints.getNINVerificationStatus);
+};
+
+export const uploadProfilePicture = (file: File) => {
+  const formData = new FormData();
+  formData.append('profilePicture', file);
+  return API.post<TResponse<{ profilePicture: string }>>(endpoints.uploadProfilePicture, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+};
+
+export interface PaymentSetupData {
+  accountNumber?: string;
+  accountName?: string;
+  bank?: string;
+  alternativeEmail?: string;
+}
+
+export const updatePaymentSetup = (payload: PaymentSetupData) => {
+  return API.put<TResponse<TUser>>(endpoints.updatePaymentSetup, payload);
+};
+
+export interface NotificationPreferencesResponse {
+  notificationPreferences: NotificationPreferences;
+}
+
+export const getNotificationPreferences = () => {
+  return API.get<TResponse<NotificationPreferencesResponse>>(endpoints.getNotificationPreferences);
+};
+
+export const updateNotificationPreferences = (preferences: NotificationPreferences) => {
+  return API.put<TResponse<TUser>>(endpoints.updateNotificationPreferences, {
+    preferences,
+  });
+};
+
+export const resetNotificationPreferences = () => {
+  return API.post<TResponse<TUser>>(endpoints.resetNotificationPreferences);
 };

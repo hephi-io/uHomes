@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { LogOut } from 'lucide-react';
+import { LogOut, Settings } from 'lucide-react';
 
 import {
   DropdownMenu,
@@ -22,6 +22,10 @@ export const ProfileDropdown = () => {
     });
   };
 
+  const handleSettingsClick = () => {
+    navigate('/settings');
+  };
+
   // Get user's first name or fallback
   const displayName = user?.fullName
     ? user.fullName.split(' ')[0] +
@@ -32,7 +36,17 @@ export const ProfileDropdown = () => {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <div className="hidden md:flex md:gap-x-3 md:items-center hover:cursor-pointer">
-          <SVGs.ProfilePicSmall />
+          <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center flex-shrink-0">
+            {user?.profilePicture ? (
+              <img
+                src={user.profilePicture}
+                alt={user.fullName || 'Profile'}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <SVGs.ProfilePicSmall />
+            )}
+          </div>
           <span className="font-medium text-sm leading-[150%] tracking-[0%] text-center text-[#000000]">
             {displayName}
           </span>
@@ -45,6 +59,13 @@ export const ProfileDropdown = () => {
           <p className="text-sm font-medium">{user?.fullName || 'User'}</p>
           <p className="text-xs text-muted-foreground">{user?.email || ''}</p>
         </div>
+
+        <DropdownMenuSeparator />
+
+        <DropdownMenuItem onClick={handleSettingsClick} className="cursor-pointer">
+          <Settings className="mr-2 h-4 w-4" />
+          Settings
+        </DropdownMenuItem>
 
         <DropdownMenuSeparator />
 
