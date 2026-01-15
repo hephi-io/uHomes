@@ -22,6 +22,7 @@ import Checkout from '@/pages/booking/checkout';
 import CheckoutSuccess from '@/pages/booking/checkout-success';
 import PaymentCallback from '@/pages/booking/payment-callback';
 import { Settings, ProfileSecurity, PaymentSetup, NotificationPreference } from '@/pages/settings';
+import NinVerification from '@/pages/auth/nin-verification';
 
 const router = createBrowserRouter([
   {
@@ -53,6 +54,15 @@ const router = createBrowserRouter([
       </PublicRoute>
     ),
   },
+
+  {
+    path: 'onboarding-nin-verification',
+    element: (
+      <ProtectedRoute>
+        <NinVerification />
+      </ProtectedRoute>
+    ),
+  },
   {
     path: 'SMNewProperty',
     element: (
@@ -72,6 +82,16 @@ const router = createBrowserRouter([
       {
         index: true,
         element: <Dashboard />,
+      },
+      { path: 'help', element: <Help /> },
+      {
+        path: 'settings',
+        element: <Settings />,
+        children: [
+          { path: 'profile-security', element: <ProfileSecurity /> },
+          { path: 'payment-setup', element: <PaymentSetup /> },
+          { path: 'notification-preference', element: <NotificationPreference /> },
+        ],
       },
     ],
   },

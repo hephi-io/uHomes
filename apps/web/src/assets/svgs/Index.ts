@@ -68,6 +68,8 @@ import StartOutline from './star-outline.svg?react';
 import ImageUpload from './image-upload.svg?react';
 import National from './national-id.svg?react';
 import HalfTime from './halftime.svg?react';
+import uIcon from './u-icon.svg?react';
+import Image from './image.svg?react';
 
 export const SVGs = {
   AddProperty,
@@ -139,5 +141,7 @@ export const SVGs = {
   StartOutline,
   ImageUpload,
   National,
-  HalfTime
+  HalfTime,
+  uIcon,
+  Image,
 };

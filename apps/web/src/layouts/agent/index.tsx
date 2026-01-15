@@ -3,7 +3,10 @@ import { Outlet } from 'react-router-dom';
 import { Navbar } from '../../components/navbar';
 
 const AgentLayout = () => {
-  const navItems = [{ id: 1, label: 'Dashboard', path: '/agent-dashboard' }];
+  const navItems = [
+    { id: 1, label: 'Dashboard', path: '/agent-dashboard' },
+    { id: 1, label: 'Help', path: '/agent-dashboard/help' },
+  ];
 
   return (
     <div className="p-4 lg:p-0">
