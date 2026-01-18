@@ -95,6 +95,10 @@ import UserAccount from './user-account.svg?react';
 import Megaphone from './megaphone.svg?react';
 import MessageQuestion from './message-question.svg?react';
 import Logout from './logout.svg?react';
+import ListBullet from './list-bullet.svg?react';
+import TaskChecked from './task-checked.svg?react';
+import WarningLine from './warning-line.svg?react';
+import PictureIcon from './picture-icon.svg?react';
 
 export const SVGs = {
   AddProperty,
@@ -194,4 +198,8 @@ export const SVGs = {
   Megaphone,
   MessageQuestion,
   Logout,
+  ListBullet,
+  TaskChecked,
+  WarningLine,
+  PictureIcon,
 };

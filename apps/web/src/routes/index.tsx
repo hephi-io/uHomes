@@ -27,6 +27,7 @@ import { MobileNotifications } from '@/pages/notification';
 import { AdminLayout } from '@/layouts/admin/index';
 import { AdminDashboard } from '@/pages/admin/admin-overview';
 import { AdminHostelListings } from '@/pages/admin/hostel-listings';
+import AgentApplications from '@/pages/admin/agent-applications';
 
 const router = createBrowserRouter([
   {
@@ -123,6 +124,7 @@ const router = createBrowserRouter([
       { index: true, element: <Navigate to="dashboard" replace /> },
       { path: 'dashboard', element: <AdminDashboard /> },
       { path: 'listings', element: <AdminHostelListings /> },
+      { path: 'agents', element: <AgentApplications /> },
     ],
   },
 ]);
