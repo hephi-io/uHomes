@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { cn } from '@uhomes/ui-kit';
 
 import { SVGs } from '../../../../packages/ui-kit/src/assets/svgs/Index';
@@ -6,6 +6,7 @@ import { ProfileDropdown } from './profile-dropdown';
 import { NotificationDropdown } from './notification-dropdown';
 import { Button } from '@uhomes/ui-kit';
 import { useState } from 'react';
+import { useAuth } from '@/contexts/auth-context';
 
 interface NavItem {
   id: number;
@@ -19,10 +20,6 @@ interface NavbarProps {
 
 export const Navbar = ({ navItems }: NavbarProps) => {
   const [open, setOpen] = useState(false);
-
-  const close = () => {
-    setOpen(false);
-  };
 
   return (
     <>
@@ -74,7 +71,7 @@ export const Navbar = ({ navItems }: NavbarProps) => {
           <ProfileDropdown />
         </div>
       </div>
-      <MenuDropdown open={open} close={close} navItems={navItems} />
+      <MenuDropdown open={open} close={() => setOpen(false)} navItems={navItems} />
     </>
   );
 };
@@ -88,6 +85,15 @@ function MenuDropdown({
   close: () => void;
   navItems: NavItem[];
 }) {
+  const { logout, isLoggingOut } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    await logout(() => {
+      navigate('/auth');
+    });
+  };
+
   return (
     <>
       <div
@@ -95,7 +101,7 @@ function MenuDropdown({
         onClick={() => close()}
       ></div>
       <div
-        className={`z-30 fixed left-0 top-0 w-[340px] bg-white transition-all duration-300 ease-in-out ${open ? 'visible' : '-translate-x-full invisible'}`}
+        className={`z-30 fixed left-0 top-0 bottom-0 w-[340px] bg-white transition-all duration-300 ease-in-out ${open ? 'visible' : '-translate-x-full invisible'}`}
       >
         <div className="flex justify-between items-center px-[33px] py-4">
           <div className="flex gap-x-2 items-center">
@@ -107,24 +113,47 @@ function MenuDropdown({
           <SVGs.Cancel className="text-[#26203B] hover:cursor-pointer" onClick={() => close()} />
         </div>
         <div className="border-t border-t-[#E4E7EC]" />
-        <div className="px-[33px] py-6">
-          {navItems.map((navItem) => (
-            <NavLink
-              key={navItem.id}
-              to={navItem.path}
-              className="size-fit"
-              onClick={() => close()}
-            >
+        <div className="h-[88%] flex flex-col justify-between px-[33px] py-6">
+          <div>
+            {navItems.map((navItem) => (
+              <NavLink
+                key={navItem.id}
+                to={navItem.path}
+                className="size-fit"
+                onClick={() => close()}
+              >
+                <Button
+                  variant="ghost"
+                  className={`w-full flex justify-start hover:cursor-pointer p-2 ${navItem.id === 1 ? '' : 'mt-6'}`}
+                >
+                  <span className="font-semibold text-sm leading-[110%] tracking-normal align-middle text-[#26203B]">
+                    {navItem.label}
+                  </span>
+                </Button>
+              </NavLink>
+            ))}
+          </div>
+          <div>
+            <NavLink to="/settings" className="size-fit" onClick={close}>
               <Button
                 variant="ghost"
-                className={`flex gap-x-4 hover:cursor-pointer p-2 ${navItem.id === 1 ? '' : 'mt-6'}`}
+                className="w-full flex justify-start hover:cursor-pointer p-2"
               >
                 <span className="font-semibold text-sm leading-[110%] tracking-normal align-middle text-[#26203B]">
-                  {navItem.label}
+                  Setting
                 </span>
               </Button>
             </NavLink>
-          ))}
+            <Button
+              variant="ghost"
+              className="w-full flex justify-start hover:cursor-pointer p-2 mt-6"
+              onClick={handleSignOut}
+            >
+              <span className="font-semibold text-sm leading-[110%] tracking-normal align-middle text-[#26203B]">
+                {isLoggingOut ? 'Signing Out...' : 'Sign Out'}
+              </span>
+            </Button>
+          </div>
         </div>
       </div>
     </>
