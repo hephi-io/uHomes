@@ -98,69 +98,76 @@ export const MobileNotifications = () => {
   return (
     <div className="flex flex-col h-screen bg-white">
       {/* Header */}
-      <div className="flex justify-between items-center px-4 py-4">
-        <button className="p-2 border border-gray-200 rounded-full">
-          <SVGs.ChevronLeft className="w-5 h-5" />
-        </button>
-        <h1 className="text-xl font-bold">Notifications</h1>
-        <button
+      <div className="flex justify-between items-center">
+        <Button variant="outline" className="size-11 rounded-full border-[#E5E5E5]">
+          <SVGs.ChevronLeft className="size-4" />
+        </Button>
+        <h1 className="font-semibold text-2xl leading-[120%] tracking-[0%] text-[#09090B]">
+          Notifications
+        </h1>
+        <Button
+          variant="ghost"
           onClick={() => notifications.forEach((n) => deleteNotification(n._id))}
-          className="flex items-center gap-1 text-sm text-[#26203B]"
+          className="gap-1"
         >
-          clear all <SVGs.XIcon className="w-3 h-3" />
-        </button>
+          <span className="text-[13px] leading-[100%] tracking-[0%] text-center align-middle text-[#26203B">
+            clear all
+          </span>
+          <SVGs.XIcon className="w-3 h-3" />
+        </Button>
       </div>
-
-      {/* Filter Tabs */}
-      <div className="flex gap-2 px-4 py-3 overflow-x-auto no-scrollbar border-b border-gray-100">
-        {[
-          { id: 'all', label: 'All', count: counts.all },
-          { id: 'unread', label: 'Unread', count: counts.unread },
-          { id: 'booking', label: 'Bookings', count: counts.booking },
-          { id: 'payment', label: 'Transactions', count: counts.payment },
-        ].map((filter) => (
-          <button
-            key={filter.id}
-            onClick={() => setActiveFilter(filter.id as FilterType)}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-full whitespace-nowrap text-sm border transition-all ${
-              activeFilter === filter.id
-                ? 'bg-[#3E78FF17] border-[#3E78FF] text-[#3E78FF] font-medium'
-                : 'border-transparent text-[#71717A]'
-            }`}
-          >
-            {filter.label}
-            {filter.count > 0 && (
-              <span
-                className={`px-2 py-0.5 rounded-full text-xs ${
-                  activeFilter === filter.id
-                    ? 'bg-[#3E78FF] text-white'
-                    : 'bg-gray-100 text-[#71717A]'
-                }`}
-              >
-                {filter.count}
-              </span>
-            )}
-          </button>
-        ))}
-      </div>
-
-      {/* Mark All Read Button */}
-      <div className="px-4 py-3">
+      <div className="border-y border-y-[#0000001A] p-4 mt-6">
+        {/* Filter Tabs */}
+        <div className="flex gap-2 overflow-x-auto no-scrollbar">
+          {[
+            { id: 'all', label: 'All', count: counts.all },
+            { id: 'unread', label: 'Unread', count: counts.unread },
+            { id: 'booking', label: 'Bookings', count: counts.booking },
+            { id: 'payment', label: 'Transactions', count: counts.payment },
+          ].map((filter) => (
+            <button
+              key={filter.id}
+              onClick={() => setActiveFilter(filter.id as FilterType)}
+              className={`flex gap-2 items-center rounded-4xl whitespace-nowrap border-[0.8px] transition-all text-sm leading-6 tracking-normal text-center px-2 py-1.5 ${
+                activeFilter === filter.id
+                  ? 'bg-[#3E78FF17] border-[#3E78FF] text-[#3E78FF] font-medium'
+                  : 'border-transparent text-[#71717A]'
+              }`}
+            >
+              <span>{filter.label}</span>
+              {filter.count > 0 && (
+                <span
+                  className={`rounded-[12px] border-[0.8px] border-[#00000000] px-2 py-1 ${
+                    activeFilter === filter.id ? 'bg-[#3E78FF] text-white' : 'text-[#71717A]'
+                  }`}
+                >
+                  {activeFilter !== filter.id && '('}
+                  {filter.count}
+                  {activeFilter !== filter.id && ')'}
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
+        {/* Mark All Read Button */}
         <Button
           onClick={() => markAllAsRead()}
           variant="outline"
-          className="w-fit flex items-center gap-2 rounded-xl text-xs h-9"
+          className="w-fit gap-2 rounded-lg border-[0.8px] border-[#0000001A] bg-white px-2 py-1 mt-9"
         >
-          Mark all read <SVGs.Marked className="w-3 h-3" />
+          <span className="text-xs leading-5 tracking-normal text-center text-[#09090B]">
+            Mark all read
+          </span>
+          <SVGs.Marked className="w-3 h-3" />
         </Button>
       </div>
 
       {/* Content Area */}
       <div className="flex-1 overflow-y-auto px-4 pb-10">
         {isLoading ? (
-          <div className="text-center py-10 text-gray-400">Loading...</div>
+          <div className="text-center text-gray-400 py-10">Loading...</div>
         ) : filteredNotifications.length === 0 ? (
-          <div className="text-center py-10 text-gray-400">No notifications found</div>
+          <div className="text-center text-gray-400 py-10">No notifications found</div>
         ) : (
           Object.entries(groupedNotifications).map(
             ([group, list]) =>
