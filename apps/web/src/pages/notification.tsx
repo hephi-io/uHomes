@@ -3,6 +3,7 @@ import { Button } from '@uhomes/ui-kit';
 import type { Notification, NotificationType } from '@uhomes/shared';
 import { SVGs } from '@/assets/svgs/Index';
 import { useNotifications } from '@/contexts/NotificationContext';
+import { useNavigate } from 'react-router-dom';
 
 type FilterType = 'all' | 'unread' | 'booking' | 'payment';
 
@@ -69,6 +70,7 @@ export const MobileNotifications = () => {
   const { notifications, unreadCount, isLoading, markAsRead, markAllAsRead, deleteNotification } =
     useNotifications();
   const [activeFilter, setActiveFilter] = useState<FilterType>('all');
+  const navigate = useNavigate();
 
   const filteredNotifications = useMemo(() => {
     let filtered = notifications;
@@ -99,7 +101,11 @@ export const MobileNotifications = () => {
     <div className="flex flex-col h-screen bg-white">
       {/* Header */}
       <div className="flex justify-between items-center">
-        <Button variant="outline" className="size-11 rounded-full border-[#E5E5E5]">
+        <Button
+          variant="outline"
+          className="size-11 rounded-full border-[#E5E5E5]"
+          onClick={() => navigate(-1)}
+        >
           <SVGs.ChevronLeft className="size-4" />
         </Button>
         <h1 className="font-semibold text-2xl leading-[120%] tracking-[0%] text-[#09090B]">
