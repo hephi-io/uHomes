@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Button } from '@uhomes/ui-kit';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@uhomes/ui-kit';
@@ -211,17 +211,19 @@ export function StudentDashboard() {
             </div>
           </motion.div>
 
-          <motion.div
-            className="relative w-10 h-10 flex justify-center items-center rounded-full border border-[#00000033] bg-[#F8F8F8] lg:hidden"
-            variants={itemVariants}
-          >
-            <SVGs.Notification />
-            {unreadCount > 0 && (
-              <div className="absolute -top-1 -right-1 bg-[#3E78FF] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                {unreadCount > 99 ? '99+' : unreadCount}
-              </div>
-            )}
-          </motion.div>
+          <NavLink to="/students/notifications" className="size-fit">
+            <motion.div
+              className="relative w-10 h-10 flex justify-center items-center rounded-full border border-[#00000033] bg-[#F8F8F8] lg:hidden"
+              variants={itemVariants}
+            >
+              <SVGs.Notification />
+              {unreadCount > 0 && (
+                <div className="absolute -top-1 -right-1 bg-[#3E78FF] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                  {unreadCount > 99 ? '99+' : unreadCount}
+                </div>
+              )}
+            </motion.div>
+          </NavLink>
         </motion.div>
         <div className="hidden lg:block lg:border-t lg:border-[#E4E4E4] lg:mt-8"></div>
         <motion.div

@@ -87,6 +87,14 @@ import InformationCircle from './information-circle.svg?react';
 import WorkflowCircle from './workflow-circle.svg?react';
 import UserQuestion from './user-question.svg?react';
 import ArrowForward from './arrow-forward.svg?react';
+import Category from './category.svg?react';
+import User from './user.svg?react';
+import CheckList from './check-list.svg?react';
+import MoneyBagFree from './money-bag-free.svg?react';
+import UserAccount from './user-account.svg?react';
+import Megaphone from './megaphone.svg?react';
+import MessageQuestion from './message-question.svg?react';
+import Logout from './logout.svg?react';
 
 export const SVGs = {
   AddProperty,
@@ -178,4 +186,12 @@ export const SVGs = {
   WorkflowCircle,
   UserQuestion,
   ArrowForward,
+  Category,
+  User,
+  CheckList,
+  MoneyBagFree,
+  UserAccount,
+  Megaphone,
+  MessageQuestion,
+  Logout,
 };
