@@ -68,6 +68,9 @@ import StartOutline from './star-outline.svg?react';
 import ImageUpload from './image-upload.svg?react';
 import National from './national-id.svg?react';
 import HalfTime from './halftime.svg?react';
+import uIcon from './u-icon.svg?react';
+import Image from './image.svg?react';
+
 import Person from './person.svg?react';
 import ArrowRight from './arrow-right.svg?react';
 import Contact2 from './contact-02.svg?react';
@@ -142,6 +145,8 @@ export const SVGs = {
   ImageUpload,
   National,
   HalfTime,
+  uIcon,
+  Image,
   Person,
   ArrowRight,
   Contact2,
