@@ -157,7 +157,7 @@ export const NotificationDropdown = () => {
             className="flex gap-1.5 items-center cursor-pointer"
             onClick={() => {
               notifications.forEach((n) => {
-                if (!n.read) deleteNotification(n._id);
+                deleteNotification(n._id);
               });
             }}
           >

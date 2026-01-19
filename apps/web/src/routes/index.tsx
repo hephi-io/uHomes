@@ -23,6 +23,14 @@ import CheckoutSuccess from '@/pages/booking/checkout-success';
 import PaymentCallback from '@/pages/booking/payment-callback';
 import { Settings, ProfileSecurity, PaymentSetup, NotificationPreference } from '@/pages/settings';
 import NinVerification from '@/pages/auth/nin-verification';
+import { MobileNotifications } from '@/pages/notification';
+
+import { AdminLayout } from '@/layouts/admin/index';
+import { AdminDashboard } from '@/pages/admin/admin-overview';
+import { AdminHostelListings } from '@/pages/admin/hostel-listings';
+import AgentApplications from '@/pages/admin/agent-applications';
+import EscrowPayments from '@/pages/admin/escrow-payments';
+import Accounts from '@/pages/admin/accounts';
 
 const router = createBrowserRouter([
   {
@@ -108,6 +116,7 @@ const router = createBrowserRouter([
       { path: 'hostels', element: <Hostels /> },
       { path: 'hostels/:id', element: <Hostel /> },
       { path: 'help', element: <Help /> },
+      { path: 'notifications', element: <MobileNotifications /> },
       {
         path: 'booking',
         element: <BookingLayout />,
@@ -128,6 +137,18 @@ const router = createBrowserRouter([
       { path: 'profile-security', element: <ProfileSecurity /> },
       { path: 'payment-setup', element: <PaymentSetup /> },
       { path: 'notification-preference', element: <NotificationPreference /> },
+    ],
+  },
+  {
+    path: '/admin',
+    element: <AdminLayout />,
+    children: [
+      { index: true, element: <Navigate to="dashboard" replace /> },
+      { path: 'dashboard', element: <AdminDashboard /> },
+      { path: 'listings', element: <AdminHostelListings /> },
+      { path: 'agents', element: <AgentApplications /> },
+      { path: 'payments', element: <EscrowPayments /> },
+      { path: 'accounts', element: <Accounts /> },
     ],
   },
 ]);
