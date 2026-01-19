@@ -1,5 +1,4 @@
-import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { SVGs } from '../../../../../packages/ui-kit/src/assets/svgs/Index';
 import {
   Button,
   Select,
@@ -8,91 +7,72 @@ import {
   SelectContent,
   SelectItem,
 } from '@uhomes/ui-kit';
-import { SVGs } from '../../../../../packages/ui-kit/src/assets/svgs/Index';
-import HostelImage from '@/assets/pngs/hostel-image-2.png';
+import { StatusBadge } from './admin-overview';
+import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 
-// --- Types ---
 interface Listing {
   id: number;
   name: string;
-  location: string;
-  price: number;
-  amenities: number;
-  agent: string;
-  status: 'Pending' | 'Approved' | 'Rejected';
+  email: string;
+  phone: string;
+  document: boolean;
+  documentName: string;
+  documentSize: string;
+  status: 'Pending' | 'Approved' | 'Rejected' | 'Under review';
+  date: string;
 }
 
 type ModalStep = 'DETAILS' | 'CONFIRM_REJECT' | 'SUCCESS_REJECT' | 'SUCCESS_APPROVE';
 
-// --- Mock Data ---
-const listingsData: Listing[] = [
+const applications: Listing[] = [
   {
     id: 1,
-    name: 'Emerates Lodge',
-    location: 'Ifite Road, Awka',
-    price: 180000,
-    amenities: 4,
-    agent: 'Melodie Ezeani',
+    name: 'Cynthia Themoon',
+    email: 'cynthia.themoon@example.com',
+    phone: '+234 803 123 4567',
+    document: true,
+    documentName: 'National_ID.jpg',
+    documentSize: '1.18 MB',
     status: 'Pending',
-  },
-  {
-    id: 2,
-    name: 'Emerates Lodge',
-    location: 'Ifite Road, Awka',
-    price: 180000,
-    amenities: 4,
-    agent: 'Melodie Ezeani',
-    status: 'Approved',
-  },
-  {
-    id: 3,
-    name: 'Emerates Lodge',
-    location: 'Ifite Road, Awka',
-    price: 180000,
-    amenities: 4,
-    agent: 'Melodie Ezeani',
-    status: 'Rejected',
-  },
-  {
-    id: 4,
-    name: 'Emerates Lodge',
-    location: 'Ifite Road, Awka',
-    price: 180000,
-    amenities: 4,
-    agent: 'Melodie Ezeani',
-    status: 'Pending',
+    date: '12/10/2025',
   },
 ];
 
-// --- Main Page Component ---
-export function AdminHostelListings() {
+export default function AgentApplications() {
   const [selectedListing, setSelectedListing] = useState<Listing | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalInitialStep, setModalInitialStep] = useState<ModalStep>('DETAILS');
 
+  const handleOpenModal = (listing: Listing, step: ModalStep) => {
+    setSelectedListing(listing);
+    setModalInitialStep(step);
+    setIsModalOpen(true);
+  };
+
   const stats = [
     {
-      label: 'Total Listings',
+      label: 'Total Applications',
       value: '1,300',
       color: 'bg-gradient-to-b from-[#E1EAFD] to-white',
       border: 'border-[#CBDBFC]',
     },
     {
-      label: 'Active Listings',
-      value: '10',
-      color: 'bg-gradient-to-b from-[#C8FFDC] to-white',
-      border: 'border-[#BFF0FC]',
-    },
-    {
-      label: 'Pending Approval',
+      label: 'Pending Review',
       value: '20',
       color: 'bg-gradient-to-b from-[#FEECE0] to-white',
       border: 'border-[#FFE0D3]',
     },
     {
-      label: 'Flagged',
-      value: '1,260',
+      label: 'Under Review',
+      value: '10',
       color: 'bg-gradient-to-b from-[#D8F6FF] to-white',
+      border: 'border-[#BFF0FC]',
+    },
+    {
+      label: 'Approved',
+      value: '1,260',
+      color: 'bg-gradient-to-b from-[#C8FFDC] to-white',
       border: 'border-[#BFF0FC]',
     },
     {
@@ -103,20 +83,14 @@ export function AdminHostelListings() {
     },
   ];
 
-  const handleOpenModal = (listing: Listing, step: ModalStep) => {
-    setSelectedListing(listing);
-    setModalInitialStep(step);
-    setIsModalOpen(true);
-  };
-
   return (
-    <div className="min-h-screen">
+    <>
       {/* Header */}
       <h1 className="font-semibold text-[22px] leading-[120%] tracking-[0%] text-black">
-        Hostel Listings
+        Agent Applications
       </h1>
       <p className="text-sm leading-[120%] tracking-[0%] text-black mt-1">
-        Review, approve, and manage hostel listings submitted by agents
+        Review and manage agent applications on Uhomes
       </p>
       {/* Stats Grid */}
       <div className="grid grid-cols-5 gap-4 mt-4">
@@ -158,18 +132,86 @@ export function AdminHostelListings() {
         </div>
         <div className="border-t border-t-[#E4E7EC]"></div>
         <div className="p-4">
-          {/* Listings Grid */}
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-2">
-            {listingsData.map((listing) => (
-              <ListingCard
-                key={listing.id}
-                listing={listing}
-                onViewDetails={() => handleOpenModal(listing, 'DETAILS')}
-                onApprove={() => handleOpenModal(listing, 'SUCCESS_APPROVE')}
-                onReject={() => handleOpenModal(listing, 'CONFIRM_REJECT')}
-              />
-            ))}
-          </div>
+          <table className="w-full text-left">
+            <thead>
+              <tr className="bg-[#F9FAFB]">
+                <th className="px-6 py-3">
+                  <input type="checkbox" className="rounded" />
+                </th>
+                <th className="font-Bricolage font-medium text-xs leading-4.5 tracking-[0%] text-[#475467] px-6 py-3">
+                  Name
+                </th>
+                <th className="font-Bricolage font-medium text-xs leading-4.5 tracking-[0%] text-[#475467] px-6 py-3">
+                  Email address
+                </th>
+                <th className="font-Bricolage font-medium text-xs leading-4.5 tracking-[0%] text-[#475467] px-6 py-3">
+                  Phone number
+                </th>
+                <th className="font-Bricolage font-medium text-xs leading-4.5 tracking-[0%] text-[#475467] px-6 py-3">
+                  Document
+                </th>
+                <th className="font-Bricolage font-medium text-xs leading-4.5 tracking-[0%] text-[#475467] px-6 py-3">
+                  Status Badge
+                </th>
+                <th className="font-Bricolage font-medium text-xs leading-4.5 tracking-[0%] text-[#475467] px-6 py-3">
+                  Date
+                </th>
+                <th className="font-Bricolage font-medium text-xs leading-4.5 tracking-[0%] text-[#475467] px-6 py-3">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-50">
+              {applications.map((app) => (
+                <tr
+                  key={app.id}
+                  className="hover:bg-gray-50 transition-colors border-b border-b-[#E4E7EC]"
+                >
+                  <td className="px-6 py-5">
+                    <input type="checkbox" className="rounded" />
+                  </td>
+                  <td className="font-Bricolage font-medium text-sm leading-[100%] tracking-[0%] text-[#475467] px-6 py-3">
+                    {app.name}
+                  </td>
+                  <td className="font-Bricolage font-medium text-sm leading-[100%] tracking-[0%] text-[#475467] px-6 py-3">
+                    {app.email}
+                  </td>
+                  <td className="font-Bricolage font-medium text-sm leading-[100%] tracking-[0%] text-[#475467] px-6 py-3">
+                    {app.phone}
+                  </td>
+                  <td className="font-Bricolage font-medium text-sm leading-[100%] tracking-[0%] text-[#475467] px-6 py-3">
+                    <div className="flex gap-x-2 items-center">
+                      <span className="font-medium text-sm leading-5 tracking-[0%] text-[#475467]">
+                        {app.document ? '1/1' : '0/1'}
+                      </span>
+                      {app.document ? (
+                        <SVGs.TaskChecked className="text-[#589E67]" />
+                      ) : (
+                        <SVGs.WarningLine className="text-[#FF383C]" />
+                      )}
+                    </div>
+                  </td>
+                  <td className="font-Bricolage font-medium text-sm leading-[100%] tracking-[0%] text-[#475467] px-6 py-3">
+                    <StatusBadge status={app.status} />
+                  </td>
+                  <td className="font-Bricolage font-medium text-sm leading-[100%] tracking-[0%] text-[#475467] px-6 py-3">
+                    {app.date}
+                  </td>
+                  <td className="px-6 py-3">
+                    <Button
+                      variant="outline"
+                      className="rounded-lg border-[#DCDCDC] bg-[#F8F8F9] px-4 py-2"
+                      onClick={() => handleOpenModal(app, modalInitialStep)}
+                    >
+                      <span className="font-medium text-xs leading-[150%] tracking-[0%] text-[#3D3D3D]">
+                        Review
+                      </span>
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
           {/* Pagination */}
           <div className="flex justify-center items-center gap-0.5 mt-6">
             <button className="flex justify-center items-center size-10 rounded-[7px] hover:bg-[#F2F2F5]">
@@ -208,154 +250,10 @@ export function AdminHostelListings() {
         listing={selectedListing}
         initialStep={modalInitialStep}
       />
-    </div>
+    </>
   );
 }
 
-// --- Listing Card Component ---
-interface ListingCardProps {
-  listing: Listing;
-  onViewDetails: () => void;
-  onApprove: () => void;
-  onReject: () => void;
-}
-
-function ListingCard({ listing, onViewDetails, onApprove, onReject }: ListingCardProps) {
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'Pending':
-        return (
-          <span className="rounded-full border-[0.5px] border-[#EAD67B] bg-[#FFD00014] font-medium text-sm leading-5 tracking-[0%] text-[#C18700] px-3 py-1">
-            Pending
-          </span>
-        );
-      case 'Approved':
-        return (
-          <span className="rounded-full border-[0.5px] border-[#A8DD9A] bg-[#2BCB0014] font-medium text-sm leading-5 tracking-[0%] text-[#176F00] px-3 py-1">
-            Approved
-          </span>
-        );
-      case 'Rejected':
-        return (
-          <span className="rounded-full border-[0.5px] border-[#FF9E9E] bg-[#ED2A2A14] font-medium text-sm leading-5 tracking-[0%] text-[#B10000] px-3 py-1">
-            Rejected
-          </span>
-        );
-      default:
-        return null;
-    }
-  };
-
-  return (
-    <motion.div whileHover={{ y: -4 }} className="rounded-xl border border-[#F4F4F4] p-4">
-      <div className="size-fit ml-auto">{getStatusBadge(listing.status)}</div>
-      <div className="border-t border-t-[#F4F4F4] mt-4"></div>
-      <div className="flex gap-6 mt-4">
-        {/* Images */}
-        <div className="w-[140px] space-y-1 shrink-0">
-          <div className="h-[134px] rounded overflow-hidden bg-gray-50">
-            <img src={HostelImage} alt="Hostel" className="w-full h-full object-cover" />
-          </div>
-          <div className="h-8 grid grid-cols-4 gap-1">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="rounded overflow-hidden">
-                <img src={HostelImage} className="w-full h-full object-cover opacity-60" />
-              </div>
-            ))}
-            <div className="flex justify-center items-center rounded bg-black/80 font-Bricolage font-medium text-xs leading-[100%] tracking-[0%] text-white">
-              +8
-            </div>
-          </div>
-        </div>
-        {/* Info Section */}
-        <div className="flex-1 grid grid-cols-2 gap-8">
-          <div>
-            <p className="text-xs leading-[100%] tracking-[0%] align-middle text-[#09090B]">
-              Apartment
-            </p>
-            <h4 className="font-semibold text-sm leading-[100%] tracking-[0%] align-middle text-[#09090B] mt-1">
-              {listing.name}
-            </h4>
-          </div>
-          <div>
-            <p className="text-xs leading-[100%] tracking-[0%] align-middle text-[#09090B]">
-              Location
-            </p>
-            <div className="flex gap-1.5 items-center mt-1">
-              <SVGs.Location className="text-[#141B34]" />
-              <h4 className="font-semibold text-sm leading-[100%] tracking-[0%] align-middle text-[#09090B]">
-                {listing.location}
-              </h4>
-            </div>
-          </div>
-          <div>
-            <p className="text-xs leading-[100%] tracking-[0%] align-middle text-[#09090B]">
-              Price
-            </p>
-            <h4 className="font-semibold text-sm leading-[100%] tracking-[0%] align-middle text-[#09090B] mt-1">
-              ₦{listing.price.toLocaleString()}
-            </h4>
-          </div>
-          <div>
-            <p className="text-xs leading-[100%] tracking-[0%] align-middle text-[#09090B]">
-              Amenities
-            </p>
-            <h4 className="font-semibold text-sm leading-[100%] tracking-[0%] align-middle text-[#09090B] mt-1">
-              {listing.amenities} items
-            </h4>
-          </div>
-          <div className="col-span-2">
-            <p className="text-xs leading-[100%] tracking-[0%] align-middle text-[#09090B]">
-              Agent
-            </p>
-            <h4 className="font-semibold text-sm leading-[100%] tracking-[0%] align-middle text-[#09090B] mt-1">
-              {listing.agent}
-            </h4>
-          </div>
-        </div>
-      </div>
-      {/* Actions */}
-      <div className="flex items-center justify-between mt-6">
-        <button
-          onClick={onViewDetails}
-          className="text-[13px] leading-[100%] tracking-[0%] text-[#4976F4] hover:underline"
-        >
-          view details
-        </button>
-        <div className="flex gap-4">
-          {listing.status === 'Pending' && (
-            <>
-              <Button
-                variant="outline"
-                onClick={onReject}
-                className="rounded-[5px] border-[#EF3826EE] hover:bg-red-50 px-4 py-2"
-              >
-                <span className="font-medium text-sm leading-[150%] tracking-[0%] text-[#EF3826]">
-                  Reject
-                </span>
-              </Button>
-              <Button
-                onClick={onApprove}
-                className="rounded-[5px] border border-[#E4E4E4EE] bg-[#3E78FF] hover:bg-blue-600 px-4 py-2"
-              >
-                <span className="font-medium text-sm leading-[150%] tracking-[0%] text-white">
-                  Approve
-                </span>
-              </Button>
-            </>
-          )}
-          {listing.status === 'Rejected' && (
-            <button className="p-2 text-red-500 rounded-lg hover:bg-red-100 transition-colors">
-              <SVGs.Trash className="size-4" />
-            </button>
-          )}
-        </div>
-      </div>
-    </motion.div>
-  );
-}
-
-// --- Review Listing Modal (Multi-Step) ---
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -382,31 +280,23 @@ function ReviewListingModal({ isOpen, onClose, listing, initialStep }: ModalProp
     onClose();
   };
 
-  const amenitiesList = [
-    { label: 'WiFi', icon: SVGs.Wifi },
-    { label: 'Security', icon: SVGs.Security },
-    { label: 'Parking', icon: SVGs.Car },
-    { label: 'Water', icon: SVGs.Droplet },
-    { label: 'Power', icon: SVGs.Flash },
-  ];
-
   return (
-    <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+    <div className="fixed inset-0 z-100 flex justify-center items-center bg-black/50 backdrop-blur-sm p-4">
       <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}>
         {/* --- STEP: DETAILS --- */}
         {step === 'DETAILS' && (
           <div className="w-full max-w-[640px] rounded-xl bg-white p-6">
             <h2 className="font-semibold text-lg leading-[130%] tracking-[0%] text-[#101828]">
-              Review Listing
+              Review Application
             </h2>
             <p className="font-medium text-sm leading-[120%] tracking-[0%] text-[#475467] mt-1">
-              Review and take action on this listing
+              Applicant information
             </p>
             <div className="border border-[#E0E0E0] mt-4"></div>
             <div className="max-h-[70vh] overflow-y-auto mt-6">
               <div className="grid grid-cols-2 gap-6">
                 <div>
-                  <h4 className="text-sm leading-[100%] tracking-[0%] text-[#09090B]">Apartment</h4>
+                  <h4 className="text-sm leading-[100%] tracking-[0%] text-[#09090B]">Full name</h4>
                   <p className="text-sm leading-[120%] tracking-[0%] text-[#999999] mt-2">
                     {listing.name}
                   </p>
@@ -414,73 +304,59 @@ function ReviewListingModal({ isOpen, onClose, listing, initialStep }: ModalProp
                 <div>
                   <h4 className="text-sm leading-[100%] tracking-[0%] text-[#09090B]">Location</h4>
                   <p className="text-sm leading-[120%] tracking-[0%] text-[#999999] mt-2">
-                    {listing.location}
+                    {listing.email}
                   </p>
                 </div>
                 <div>
-                  <h4 className="text-sm leading-[100%] tracking-[0%] text-[#09090B]">Price</h4>
+                  <h4 className="text-sm leading-[100%] tracking-[0%] text-[#09090B]">
+                    Phone number
+                  </h4>
                   <p className="text-sm leading-[120%] tracking-[0%] text-[#999999] mt-2">
-                    ₦{listing.price.toLocaleString()}
+                    {listing.phone}
                   </p>
                 </div>
                 <div>
-                  <h4 className="text-sm leading-[100%] tracking-[0%] text-[#09090B]">Agent</h4>
+                  <h4 className="text-sm leading-[100%] tracking-[0%] text-[#09090B]">
+                    Application Date
+                  </h4>
                   <p className="text-sm leading-[120%] tracking-[0%] text-[#999999] mt-2">
-                    {listing.agent}
+                    {listing.date}
                   </p>
                 </div>
               </div>
-              <h4 className="text-sm leading-[100%] tracking-[0%] text-[#09090B] mt-6">
-                Amenities
-              </h4>
-              <div className="w-[70%] flex flex-wrap gap-2 mt-2">
-                {amenitiesList.map((item) => (
-                  <div
-                    key={item.label}
-                    className="flex gap-x-1 items-center rounded-full bg-[#F4F4F5] px-2 py-1"
-                  >
-                    <item.icon className="text-[#141B34]" />
-                    <span className="text-sm leading-[150%] tracking-[0%] text-[#3D3D3D]">
-                      {item.label}
-                    </span>
-                  </div>
-                ))}
-              </div>
-              <h4 className="text-sm leading-[100%] tracking-[0%] text-[#09090B] mt-6">
-                Listing Performance
-              </h4>
-              <div className="flex justify-between rounded bg-[#FAFAFA] p-3 mt-2">
-                <div>
-                  <p className="font-semibold text-[22px] leading-6 tracking-normal text-[#101828]">
-                    354
-                  </p>
-                  <p className="text-sm leading-6 tracking-normal text-[#101828] mt-1">
-                    Total views
-                  </p>
-                </div>
-                <div>
-                  <p className="font-semibold text-[22px] leading-6 tracking-normal text-[#101828]">
-                    295
-                  </p>
-                  <p className="text-sm leading-6 tracking-normal text-[#101828] mt-1">
-                    Total ratings
-                  </p>
-                </div>
-                <div>
-                  <p className="font-semibold text-[22px] leading-6 tracking-normal text-[#101828]">
-                    349
-                  </p>
-                  <p className="text-sm leading-6 tracking-normal text-[#101828] mt-1">
-                    Total bookings
-                  </p>
-                </div>
+              <h4 className="text-sm leading-[100%] tracking-[0%] text-[#09090B] mt-6">Document</h4>
+              <div className="flex justify-between items-center rounded bg-[#FAFAFA] p-3 mt-2">
+                {listing.document && (
+                  <>
+                    <div className="flex gap-x-3 items-center">
+                      <div className="flex items-center">
+                        <div className="size-10 flex justify-center items-center bg-[#F3F4F6]">
+                          <SVGs.PictureIcon className="text-[#101828]" />
+                        </div>
+                        <span className="text-sm leading-6 tracking-normal text-[#101828]">
+                          {listing.documentName}
+                        </span>
+                      </div>
+                      <SVGs.Dot className="text-[#101828]" />
+                      <span className="text-sm leading-6 tracking-normal text-[#101828]">
+                        {listing.documentSize}
+                      </span>
+                    </div>
+                    <div className="flex gap-x-2 items-center">
+                      <SVGs.TaskChecked className="text-[#589E67]" />
+                      <a className="text-[13px] leading-[100%] tracking-[0%] text-[#4976F4]">
+                        view document
+                      </a>
+                    </div>
+                  </>
+                )}
               </div>
               <h4 className="text-sm leading-[100%] tracking-[0%] text-[#09090B] mt-6 mb-2">
                 Review Notes (optional)
               </h4>
               <textarea
                 className="w-full h-[86px] rounded-xl border border-[#E4E4E7] bg-white font-Bricolage text-sm leading-[130%] tracking-[0%] text-[#999999] focus:text-black focus:ring-1 focus:ring-blue-500 outline-none resize-none p-3"
-                placeholder="Add notes or feedback about this listing"
+                placeholder="Add notes or feedback about this application"
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
               />
