@@ -68,7 +68,9 @@ import StartOutline from './star-outline.svg?react';
 import ImageUpload from './image-upload.svg?react';
 import National from './national-id.svg?react';
 import HalfTime from './halftime.svg?react';
-
+import Person from './person.svg?react';
+import ArrowRight from './arrow-right.svg?react';
+import Contact2 from './contact-02.svg?react';
 export const SVGs = {
   AddProperty,
   EyeOff,
@@ -139,5 +141,8 @@ export const SVGs = {
   StartOutline,
   ImageUpload,
   National,
-  HalfTime
+  HalfTime,
+  Person,
+  ArrowRight,
+  Contact2,
 };
