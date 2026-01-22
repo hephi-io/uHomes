@@ -53,7 +53,7 @@ const tokenSchema: Schema<IToken> = new Schema(
 
 // Indexes for performance
 tokenSchema.index({ userId: 1 });
-tokenSchema.index({ expiresAt: 1 });
+// tokenSchema.index({ expiresAt: 1 }); // Covered by TTL index below
 tokenSchema.index({ typeOf: 1 });
 // For emailVerification codes
 tokenSchema.index({ email: 1 });

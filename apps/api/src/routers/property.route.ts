@@ -426,7 +426,8 @@ router.get('/:id', authenticate, controller.getPropertyById.bind(controller));
  * @swagger
  * /api/property/{id}:
  *   delete:
- *     summary: Delete a property
+ *     summary: Delete a property (Owner or Admin)
+ *     description: Deletes a property. Agents can only delete their own properties. Admins can delete any property (e.g., to remove bad listings).
  *     tags: [Properties]
  *     security:
  *       - bearerAuth: []
@@ -442,6 +443,8 @@ router.get('/:id', authenticate, controller.getPropertyById.bind(controller));
  *         description: Property deleted successfully
  *       401:
  *         description: Unauthorized
+ *       403:
+ *         description: Forbidden (Not owner or admin)
  *       404:
  *         description: Property not found
  */

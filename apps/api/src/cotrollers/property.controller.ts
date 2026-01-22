@@ -123,10 +123,13 @@ export class PropertyController {
 
   async deleteProperty(req: Request, res: Response, next: NextFunction) {
     try {
+      if (!req.user) return ResponseHelper.unauthorized(res, 'Unauthorized');
+      const userId = req.user.id;
       const { id } = req.params;
-      await this.propertyService.deleteProperty(id);
 
-      return ResponseHelper.success(res, { messge: 'Property deleted successfully' });
+      await this.propertyService.deleteProperty(id, userId);
+
+      return ResponseHelper.success(res, { message: 'Property deleted successfully' });
     } catch (error) {
       return next(error);
     }

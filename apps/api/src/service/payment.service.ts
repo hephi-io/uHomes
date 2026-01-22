@@ -39,6 +39,15 @@ export class PaymentService {
         throw new BadRequestError('Missing required fields');
       }
 
+      // Validate booking if provided
+      if (bookingId) {
+        const booking = await Booking.findById(bookingId);
+        if (!booking) throw new NotFoundError('Booking not found');
+        if (booking.tenant.toString() !== userId) {
+          throw new ForbiddenError('Booking does not belong to user');
+        }
+      }
+
       // Build callback URL for Paystack redirect (points to backend API)
       const backendUrl = process.env.BASE_URL || process.env.API_URL || 'http://localhost:7000';
       const callbackUrl = `${backendUrl}/api/payment/callback`;
@@ -243,8 +252,9 @@ export class PaymentService {
       throw new ForbiddenError('You do not have permission to access this payment');
     }
 
-    const result = await this.paystack.verifyTransaction(payment.reference!);
+    const result: any = await this.paystack.verifyTransaction(payment.reference!);
     payment.status = result.data.status === 'success' ? 'completed' : 'failed';
+
     await payment.save();
 
     // Update booking payment status and booking status if bookingId exists in metadata

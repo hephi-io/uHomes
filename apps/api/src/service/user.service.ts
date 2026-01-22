@@ -364,21 +364,7 @@ export class UserService {
     };
   }
 
-  /**
-   * Delete user
-   */
-  async deleteUser(id: string) {
-    const user = await User.findByIdAndDelete(id);
-    if (!user) throw new NotFoundError('User not found');
-
-    // Delete associated UserType
-    await UserType.deleteOne({ userId: id });
-
-    // Delete all tokens associated with the user
-    await Token.deleteMany({ userId: id });
-
-    return { message: 'User deleted successfully' };
-  }
+  // Delete user
 
   /**
    * Forgot password - send OTP
@@ -881,5 +867,44 @@ export class UserService {
       ...userData,
       userType: userType ? { type: userType.type } : undefined,
     };
+  }
+
+  async deleteUser(id: string) {
+    const user = await User.findById(id);
+    if (!user) throw new NotFoundError('User not found');
+
+    // If user is an agent, delete their properties
+    const userType = await UserType.findOne({ userId: id });
+
+    if (userType?.type === 'agent') {
+      const properties = await Property.find({ agentId: id });
+
+      // Import cloudinary dynamically to avoid potential circular dependency issues at top level
+      const { default: cloudinary } = await import('../config/cloudinary');
+
+      for (const property of properties) {
+        // Delete images from Cloudinary
+        if (property.images && property.images.length > 0) {
+          for (const img of property.images) {
+            if (img.cloudinary_id) {
+              await cloudinary.uploader.destroy(img.cloudinary_id);
+            }
+          }
+        }
+        // Delete property document
+        await Property.findByIdAndDelete(property._id);
+      }
+    }
+
+    // Delete the user document
+    await User.findByIdAndDelete(id);
+
+    // Delete associated UserType
+    await UserType.deleteOne({ userId: id });
+
+    // Delete all tokens associated with the user
+    await Token.deleteMany({ userId: id });
+
+    return { message: 'User and associated data deleted successfully' };
   }
 }

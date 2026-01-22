@@ -248,9 +248,30 @@ export class PropertyService {
     return property;
   }
 
-  async deleteProperty(id: string): Promise<void> {
+  async deleteProperty(id: string, userId: string): Promise<void> {
     const property = await Property.findById(id);
     if (!property) throw new NotFoundError('Property not found');
+
+    // Check ownership if not admin
+    // We need to fetch the user to check if they are admin, or pass is Admin flag.
+    // Ideally, we pass userId and check against property.agentId.
+    // However, for Admin override, we need to know if the caller is admin.
+
+    // Better approach: Pass the caller's role/type.
+    // Since I can't easily change the signature without checking all calls, let's look at the controller.
+    // The controller calls this.
+
+    // Let's assume we pass userId and check userType here?
+    // Or pass userType as argument.
+
+    // Let's fetch the userType of the caller
+    const userTypeDoc = await UserType.findOne({ userId: new mongoose.Types.ObjectId(userId) });
+    const isOwner = property.agentId.toString() === userId;
+    const isAdmin = userTypeDoc?.type === 'admin';
+
+    if (!isOwner && !isAdmin) {
+      throw new UnauthorizedError('You are not authorized to delete this property');
+    }
 
     for (const img of property.images) {
       await cloudinary.uploader.destroy(img.cloudinary_id);
