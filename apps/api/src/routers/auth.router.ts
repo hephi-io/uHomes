@@ -71,6 +71,12 @@ const controller = new UserController();
  *                 example: "12345678901"
  *                 pattern: "^\\d{11}$"
  *                 description: National Identification Number (optional for agent type - can be verified later via /api/user/verify-nin endpoint)
+ *     parameters:
+ *       - in: header
+ *         name: admin-secret-key
+ *         schema:
+ *           type: string
+ *         description: Required ONLY if type is 'admin'.
  *     responses:
  *       201:
  *         description: User registered successfully. Verification email sent.

@@ -10,6 +10,20 @@ export class UserController {
       const { fullName, email, phoneNumber, password, type, university, yearOfStudy, nin } =
         req.body;
 
+      // Security Check: If trying to register as admin, verify the secret key
+      if (type === 'admin') {
+        const adminSecret = req.headers['admin-secret-key'];
+        const validSecret = process.env.ADMIN_SECRET_KEY || 'uhomes_admin_secret_2026'; // Fallback for dev
+
+        if (adminSecret !== validSecret) {
+          return ResponseHelper.fail(
+            res,
+            { message: 'Unauthorized: Invalid admin secret key' },
+            403
+          );
+        }
+      }
+
       const result = await this.userService.register({
         fullName,
         email,
@@ -332,6 +346,16 @@ export class UserController {
       }
 
       const result = await this.userService.resetNotificationPreferences(userId);
+      return ResponseHelper.success(res, result);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async deleteUser(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      const result = await this.userService.deleteUser(id);
       return ResponseHelper.success(res, result);
     } catch (err) {
       next(err);

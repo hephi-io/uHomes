@@ -1,6 +1,7 @@
 import express from 'express';
 import { UserController } from '../cotrollers/user.controller';
 import { authenticate } from '../middlewares/auth.middleware';
+import { isAdmin } from '../middlewares/admin.middleware';
 import { uploadNINDocument, upload } from '../config/multer';
 
 const router = express.Router();
@@ -369,5 +370,27 @@ router.post(
   authenticate,
   controller.resetNotificationPreferences.bind(controller)
 );
+
+/**
+ * @openapi
+ * /api/user/{id}:
+ *   delete:
+ *     summary: Delete a user (Admin only)
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: User deleted successfully
+ *       403:
+ *         description: Admin access required
+ */
+router.delete('/:id', authenticate, isAdmin, controller.deleteUser.bind(controller));
 
 export default router;

@@ -158,8 +158,9 @@ describe('PaymentService', () => {
       });
 
       mockPaystack.verifyTransaction.mockResolvedValue({
-        status: 'success',
-        data: { reference: 'test_ref_789' },
+        status: true,
+        message: 'Verification successful',
+        data: { status: 'success', reference: 'test_ref_789' },
       });
 
       const result = await paymentService.processPayment(payment._id.toString(), userId);
@@ -204,8 +205,9 @@ describe('PaymentService', () => {
       });
 
       mockPaystack.verifyTransaction.mockResolvedValue({
-        status: 'success',
-        data: { reference: 'test_ref_booking' },
+        status: true,
+        message: 'Verification successful',
+        data: { status: 'success', reference: 'test_ref_booking' },
       });
 
       await paymentService.processPayment(payment._id.toString(), userId);

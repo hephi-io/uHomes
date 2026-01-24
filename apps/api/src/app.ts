@@ -11,6 +11,7 @@ import bookingRouter from './routers/booking.router';
 import paymentRouter from './routers/payment.router';
 import transactionRouter from './routers/transaction.router';
 import notificationRouter from './routers/notification.router';
+import adminRouter from './routers/admin.router';
 
 declare module 'express-serve-static-core' {
   interface Request {
@@ -55,6 +56,7 @@ app.use('/api/booking', bookingRouter);
 app.use('/api/payment', paymentRouter);
 app.use('/api/transaction', transactionRouter);
 app.use('/api/notification', notificationRouter);
+app.use('/api/admin', adminRouter);
 // Review routes are nested under property routes, so they're handled by propertyRouter
 
 swaggerDocs(app);

@@ -19,12 +19,16 @@ describe('PropertyService', () => {
 
   beforeAll(async () => {
     propertyService = new PropertyService();
+  });
+
+  beforeEach(async () => {
     const agent = await User.create({
       fullName: 'Test Agent',
       email: 'agent@test.com',
       password: 'password',
       phoneNumber: '08123456789',
       nin: '12345678901', // NIN required for agents (KYC verification)
+      ninVerificationStatus: 'verified', // Ensure agent is verified for property creation
     });
     agentId = (agent._id as mongoose.Types.ObjectId).toString();
     await UserType.create({
@@ -36,6 +40,8 @@ describe('PropertyService', () => {
   afterEach(async () => {
     jest.clearAllMocks();
     await Property.deleteMany({});
+    await User.deleteMany({});
+    await UserType.deleteMany({});
   });
 
   it('should create a property', async () => {
@@ -128,9 +134,54 @@ describe('PropertyService', () => {
       images: [{ url: 'url', cloudinary_id: 'id' }],
     } as unknown as IProperty);
 
-    await propertyService.deleteProperty((property._id as mongoose.Types.ObjectId).toString());
+    await propertyService.deleteProperty(
+      (property._id as mongoose.Types.ObjectId).toString(),
+      agentId
+    );
     const found = await Property.findById(property._id);
     expect(found).toBeNull();
     expect(cloudinary.uploader.destroy).toHaveBeenCalledWith('id');
+  });
+
+  it('should allow admin to delete any property', async () => {
+    // Create admin user
+    const admin = await User.create({
+      fullName: 'Admin User',
+      email: 'admin@test.com',
+      password: 'password',
+      phoneNumber: '09999999999',
+    });
+    const adminId = (admin._id as mongoose.Types.ObjectId).toString();
+    await UserType.create({ userId: admin._id, type: 'admin' });
+
+    // Create property owned by agent
+    const property = await Property.create({
+      title: 'Bad Property',
+      location: 'City',
+      price: 1000,
+      roomType: 'single',
+      description: 'Desc',
+      amenities: {
+        wifi: false,
+        kitchen: false,
+        security: false,
+        parking: false,
+        power24_7: false,
+        gym: false,
+      },
+      isAvailable: true,
+      agentId: new mongoose.Types.ObjectId(agentId),
+      images: [{ url: 'url', cloudinary_id: 'bad_id' }],
+    } as unknown as IProperty);
+
+    // Delete as Admin
+    await propertyService.deleteProperty(
+      (property._id as mongoose.Types.ObjectId).toString(),
+      adminId
+    );
+
+    const found = await Property.findById(property._id);
+    expect(found).toBeNull();
+    expect(cloudinary.uploader.destroy).toHaveBeenCalledWith('bad_id');
   });
 });

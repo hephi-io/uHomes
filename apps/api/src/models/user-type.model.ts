@@ -28,8 +28,8 @@ const userTypeSchema: Schema<IUserType> = new Schema(
 userTypeSchema.index({ userId: 1, type: 1 });
 // Index on type for filtering
 userTypeSchema.index({ type: 1 });
-// Ensure one type per user (unique constraint)
-userTypeSchema.index({ userId: 1 }, { unique: true });
+// Ensure one type per user (unique constraint) - already handled by schema definition
+// userTypeSchema.index({ userId: 1 }, { unique: true });
 
 const UserType = mongoose.model<IUserType>('UserType', userTypeSchema);
 

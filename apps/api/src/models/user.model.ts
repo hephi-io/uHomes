@@ -177,9 +177,7 @@ const userSchema: Schema<IUser> = new Schema(
 );
 
 // Indexes for performance
-userSchema.index({ email: 1 });
-userSchema.index({ phoneNumber: 1 });
-userSchema.index({ nin: 1 });
+// Note: email, phoneNumber, and nin already have unique indexes from schema definition
 
 // Transform to exclude sensitive fields (password, NIN, and document URL) when converting to JSON
 userSchema.set('toJSON', {
