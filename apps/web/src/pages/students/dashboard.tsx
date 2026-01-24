@@ -1,8 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Button } from '@uhomes/ui-kit';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@uhomes/ui-kit';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@uhomes/ui-kit';
 import { HostelCard } from '@/shared/hostel-card';
 import { SVGs } from '@/assets/svgs/Index';
 import NoBookings from '@/assets/pngs/no-bookings.png';
@@ -66,6 +72,31 @@ const staggerItemVariants = {
   },
 };
 
+// Sort and filter options
+const BOOKING_SORT_OPTIONS = [
+  { value: 'newest', label: 'Newest First' },
+  { value: 'oldest', label: 'Oldest First' },
+  { value: 'price-high', label: 'Price: High to Low' },
+  { value: 'price-low', label: 'Price: Low to High' },
+  { value: 'move-in-date', label: 'Move-in Date' },
+];
+
+const BOOKING_FILTER_OPTIONS = [
+  { value: 'all', label: 'All Bookings' },
+  { value: 'pending', label: 'Pending' },
+  { value: 'confirmed', label: 'Confirmed' },
+  { value: 'completed', label: 'Completed' },
+  { value: 'cancelled', label: 'Cancelled' },
+];
+
+const SAVED_PROPERTY_SORT_OPTIONS = [
+  { value: 'newest', label: 'Recently Saved' },
+  { value: 'oldest', label: 'Oldest Saved' },
+  { value: 'price-high', label: 'Price: High to Low' },
+  { value: 'price-low', label: 'Price: Low to High' },
+  { value: 'rating', label: 'Highest Rated' },
+];
+
 export function StudentDashboard() {
   const { user } = useAuth();
   const { unreadCount } = useNotifications();
@@ -80,6 +111,12 @@ export function StudentDashboard() {
   const [savedPropertiesTotalPages, setSavedPropertiesTotalPages] = useState(1);
   const [savedPropertiesLoading, setSavedPropertiesLoading] = useState(false);
   const [summaryLoading, setSummaryLoading] = useState(false);
+
+  // Sort and filter states
+  const [bookingSortBy, setBookingSortBy] = useState('newest');
+  const [bookingFilterStatus, setBookingFilterStatus] = useState('all');
+  const [savedPropertySortBy, setSavedPropertySortBy] = useState('newest');
+  const [activeTab, setActiveTab] = useState('My Bookings');
 
   useEffect(() => {
     const fetchSummary = async () => {
@@ -137,6 +174,61 @@ export function StudentDashboard() {
 
     fetchSavedProperties();
   }, [savedPropertiesPage]);
+
+  // Client-side filtering and sorting
+  const filteredAndSortedBookings = useMemo(() => {
+    let filtered = [...bookings];
+
+    // Apply status filter
+    if (bookingFilterStatus !== 'all') {
+      filtered = filtered.filter((booking) => booking.status === bookingFilterStatus);
+    }
+
+    // Apply sorting
+    filtered.sort((a, b) => {
+      switch (bookingSortBy) {
+        case 'newest':
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        case 'oldest':
+          return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+        case 'price-high':
+          return b.amount - a.amount;
+        case 'price-low':
+          return a.amount - b.amount;
+        case 'move-in-date':
+          return new Date(a.moveInDate).getTime() - new Date(b.moveInDate).getTime();
+        default:
+          return 0;
+      }
+    });
+
+    return filtered;
+  }, [bookings, bookingSortBy, bookingFilterStatus]);
+
+  const filteredAndSortedSavedProperties = useMemo(() => {
+    const filtered = [...savedProperties];
+
+    // Apply sorting
+    filtered.sort((a, b) => {
+      switch (savedPropertySortBy) {
+        case 'newest':
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        case 'oldest':
+          return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+        case 'price-high':
+          return b.price - a.price;
+        case 'price-low':
+          return a.price - b.price;
+        case 'rating':
+          return (b.rating || 0) - (a.rating || 0);
+        default:
+          return 0;
+      }
+    });
+
+    return filtered;
+  }, [savedProperties, savedPropertySortBy]);
+
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-NG', {
       style: 'currency',
@@ -167,19 +259,6 @@ export function StudentDashboard() {
   const tabTriggers = [
     { id: 1, name: 'My Bookings' },
     { id: 2, name: 'Saved Properties' },
-  ];
-
-  const funnelIcons = [
-    {
-      id: 1,
-      Icon: SVGs.FunnelSimpleTwo,
-      label: 'Sort By',
-    },
-    {
-      id: 2,
-      Icon: SVGs.Funnel,
-      label: 'Filter',
-    },
   ];
 
   return (
@@ -268,19 +347,87 @@ export function StudentDashboard() {
             variants={itemVariants}
           >
             <div className="flex gap-x-2 items-center">
-              {funnelIcons.map((funnelIcon) => (
-                <Button
-                  key={funnelIcon.id}
-                  variant="outline"
-                  className="h-8 rounded border border-[#E4E4E4] bg-white px-3"
-                >
-                  <funnelIcon.Icon />
-                </Button>
-              ))}
+              {activeTab === 'My Bookings' ? (
+                <>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="group h-8 rounded border border-[#E4E4E4] bg-white px-3"
+                      >
+                        <SVGs.FunnelSimpleTwo />
+                        <span className="font-medium text-sm leading-[150%] tracking-[0%] text-black hidden group-hover:inline-block">
+                          Sort By
+                        </span>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start">
+                      {BOOKING_SORT_OPTIONS.map((option) => (
+                        <DropdownMenuItem
+                          key={option.value}
+                          onClick={() => setBookingSortBy(option.value)}
+                          className={bookingSortBy === option.value ? 'bg-accent' : ''}
+                        >
+                          {option.label}
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="group h-8 rounded border border-[#E4E4E4] bg-white px-3"
+                      >
+                        <SVGs.Funnel />
+                        <span className="font-medium text-sm leading-[150%] tracking-[0%] text-black hidden group-hover:inline-block">
+                          Filter
+                        </span>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start">
+                      {BOOKING_FILTER_OPTIONS.map((option) => (
+                        <DropdownMenuItem
+                          key={option.value}
+                          onClick={() => setBookingFilterStatus(option.value)}
+                          className={bookingFilterStatus === option.value ? 'bg-accent' : ''}
+                        >
+                          {option.label}
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </>
+              ) : (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="group h-[37px] gap-x-2 items-center rounded border border-[#E4E4E4] bg-white transition-all duration-300 ease-in-out px-3"
+                    >
+                      <SVGs.FunnelSimpleTwo />
+                      <span className="font-medium text-sm leading-[150%] tracking-[0%] text-black hidden group-hover:inline-block">
+                        Sort By
+                      </span>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start">
+                    {SAVED_PROPERTY_SORT_OPTIONS.map((option) => (
+                      <DropdownMenuItem
+                        key={option.value}
+                        onClick={() => setSavedPropertySortBy(option.value)}
+                        className={savedPropertySortBy === option.value ? 'bg-accent' : ''}
+                      >
+                        {option.label}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
             </div>
             <FindHostels />
           </motion.div>
-          <Tabs defaultValue="My Bookings" className="gap-0 mt-4 md:mt-0">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="gap-0 mt-4 md:mt-0">
             <div className="md:flex md:justify-between md:items-center px-4 md:pt-4">
               <TabsList className="w-full h-10 rounded-md bg-[#F4F4F5] md:w-[316px] p-1 m-0">
                 {tabTriggers.map((tabTrigger) => (
@@ -294,18 +441,83 @@ export function StudentDashboard() {
                 ))}
               </TabsList>
               <div className="hidden md:flex md:gap-x-4 md:items-center">
-                {funnelIcons.map((funnelIcon) => (
-                  <Button
-                    key={funnelIcon.id}
-                    variant="outline"
-                    className="h-[37px] gap-x-2 items-center rounded border border-[#E4E4E4] bg-white px-3"
-                  >
-                    <funnelIcon.Icon />
-                    <span className="font-medium text-sm leading-[150%] tracking-[0%] text-black">
-                      {funnelIcon.label}
-                    </span>
-                  </Button>
-                ))}
+                {activeTab === 'My Bookings' ? (
+                  <>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className="h-[37px] gap-x-2 items-center rounded border border-[#E4E4E4] bg-white px-3"
+                        >
+                          <SVGs.FunnelSimpleTwo />
+                          <span className="font-medium text-sm leading-[150%] tracking-[0%] text-black">
+                            Sort By
+                          </span>
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="start">
+                        {BOOKING_SORT_OPTIONS.map((option) => (
+                          <DropdownMenuItem
+                            key={option.value}
+                            onClick={() => setBookingSortBy(option.value)}
+                            className={bookingSortBy === option.value ? 'bg-accent' : ''}
+                          >
+                            {option.label}
+                          </DropdownMenuItem>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className="h-[37px] gap-x-2 items-center rounded border border-[#E4E4E4] bg-white px-3"
+                        >
+                          <SVGs.Funnel />
+                          <span className="font-medium text-sm leading-[150%] tracking-[0%] text-black">
+                            Filter
+                          </span>
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="start">
+                        {BOOKING_FILTER_OPTIONS.map((option) => (
+                          <DropdownMenuItem
+                            key={option.value}
+                            onClick={() => setBookingFilterStatus(option.value)}
+                            className={bookingFilterStatus === option.value ? 'bg-accent' : ''}
+                          >
+                            {option.label}
+                          </DropdownMenuItem>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </>
+                ) : (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="h-[37px] gap-x-2 items-center rounded border border-[#E4E4E4] bg-white px-3"
+                      >
+                        <SVGs.FunnelSimpleTwo />
+                        <span className="font-medium text-sm leading-[150%] tracking-[0%] text-black">
+                          Sort By
+                        </span>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start">
+                      {SAVED_PROPERTY_SORT_OPTIONS.map((option) => (
+                        <DropdownMenuItem
+                          key={option.value}
+                          onClick={() => setSavedPropertySortBy(option.value)}
+                          className={savedPropertySortBy === option.value ? 'bg-accent' : ''}
+                        >
+                          {option.label}
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
                 <FindHostels />
               </div>
             </div>
@@ -324,7 +536,7 @@ export function StudentDashboard() {
                     <p className="text-center text-[#878FA1]">Loading bookings...</p>
                   </div>
                 </motion.div>
-              ) : bookings.length === 0 ? (
+              ) : filteredAndSortedBookings.length === 0 ? (
                 <motion.div
                   className="px-4 pb-4 lg:pt-4"
                   variants={fadeVariants}
@@ -354,7 +566,7 @@ export function StudentDashboard() {
                       initial="hidden"
                       animate="visible"
                     >
-                      {bookings.map((booking) => (
+                      {filteredAndSortedBookings.map((booking) => (
                         <motion.div key={booking._id} variants={staggerItemVariants}>
                           <HostelDetail booking={booking} />
                         </motion.div>
@@ -403,7 +615,7 @@ export function StudentDashboard() {
                 >
                   <p className="text-center text-[#878FA1]">Loading saved properties...</p>
                 </motion.div>
-              ) : savedProperties.length === 0 ? (
+              ) : filteredAndSortedSavedProperties.length === 0 ? (
                 <motion.div
                   className="px-4 pb-4 lg:pt-4"
                   variants={fadeVariants}
@@ -432,7 +644,7 @@ export function StudentDashboard() {
                     initial="hidden"
                     animate="visible"
                   >
-                    {savedProperties.map((property) => (
+                    {filteredAndSortedSavedProperties.map((property) => (
                       <motion.div key={property._id} variants={staggerItemVariants}>
                         <HostelCard property={property} />
                       </motion.div>
