@@ -18,6 +18,8 @@ import { useNotifications } from '@/contexts/NotificationContext';
 import { getActiveBookingsSummary, getMyBookings, type Booking } from '@/services/booking';
 import { getSavedProperties, type SavedProperty } from '@/services/property';
 
+import IMAGE_EMPTY_AVATAR from '@/assets/pngs/empty-avatar.png';
+
 // Animation variants
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -277,7 +279,7 @@ export function StudentDashboard() {
           animate="visible"
         >
           <motion.div className="flex gap-x-4 items-center" variants={itemVariants}>
-            <SVGs.ProfilePic />
+            <img src={IMAGE_EMPTY_AVATAR} alt="empty avatar" className="w-10 h-10 rounded-full" />
 
             <div>
               <h1 className="font-semibold text-xl leading-[120%] tracking-[0%] text-[#000000] md:text-[22px]">

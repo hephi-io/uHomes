@@ -1,4 +1,3 @@
-import profile from '@/assets/pngs/profile.png';
 import { Button, Tabs, TabsContent, TabsList, TabsTrigger } from '@uhomes/ui-kit';
 import { SVGs } from '@/assets/svgs/Index';
 import { createColumns, type Property } from '@/shared/columns';
@@ -21,6 +20,35 @@ import { Dialog, DialogContent } from '@uhomes/ui-kit';
 import { DialogFooter } from '@/components/ui/dialog';
 import { useNavigate } from 'react-router-dom';
 
+import IMAGE_EMPTY_AVATAR from '@/assets/pngs/empty-avatar.png';
+
+interface DashboardCardProps {
+  title: string;
+  value: string | number;
+  description: string;
+  icon: React.ReactNode;
+  className: string;
+}
+
+const DashboardCard = (props: DashboardCardProps) => {
+  const { title, value, description, icon, className } = props;
+
+  return (
+    <div
+      className={`rounded-lg p-6 border border-[#CBDBFC] flex flex-col  gap-8 bg-linear-to-b from-[#E1EAFD] to-[#FFFFFF] ${className}`}
+    >
+      <div className="flex flex-col-reverse  gap-2 md:gap-0 md:flex-row md:items-center justify-between">
+        <h2 className="font-semibold text-sm leading-[150%] text-[#727272]">{title}</h2>
+        <div className="rounded-lg bg-[#FFFFFF] p-2 size-[35px] md:size-auto ">{icon}</div>
+      </div>
+      <div>
+        <h4 className="text-[#09090B] font-bold text-[32px] mb-4 leading-[100%]">{value}</h4>
+        <p className="font-normal text-[#71717A] text-[13px]">{description}</p>
+      </div>
+    </div>
+  );
+};
+
 const Dashboard = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -41,7 +69,6 @@ const Dashboard = () => {
   // Loading states
   const [propertiesLoading, setPropertiesLoading] = useState(false);
   const [bookingsLoading, setBookingsLoading] = useState(false);
-  const [statsLoading, setStatsLoading] = useState(false);
 
   // Edit/Delete states
   const [editingPropertyId, setEditingPropertyId] = useState<string | null>(null);
@@ -237,7 +264,6 @@ const Dashboard = () => {
   // Fetch dashboard stats
   useEffect(() => {
     const fetchStats = async () => {
-      setStatsLoading(true);
       try {
         const response = await getAgentDashboardStats();
         if (response.data.status === 'success') {
@@ -248,8 +274,6 @@ const Dashboard = () => {
         }
       } catch (error) {
         console.error('Error fetching dashboard stats:', error);
-      } finally {
-        setStatsLoading(false);
       }
     };
 
@@ -299,7 +323,11 @@ const Dashboard = () => {
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <img src={profile} alt="profile image" className="w-full h-full object-cover" />
+                  <img
+                    src={IMAGE_EMPTY_AVATAR}
+                    alt="profile image"
+                    className="w-full h-full object-cover"
+                  />
                 )}
               </div>
 
@@ -324,71 +352,37 @@ const Dashboard = () => {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 md:gap-4">
-          <div className="rounded-lg p-6 border border-[#CBDBFC] flex flex-col  gap-8 bg-linear-to-b from-[#E1EAFD] to-[#FFFFFF]">
-            <div className="flex flex-col-reverse  gap-2 md:gap-0 md:flex-row md:items-center justify-between">
-              <h2 className="font-semibold text-sm leading-[150%] text-[#727272]">
-                Total Properties
-              </h2>
-              <div className="rounded-lg bg-[#FFFFFF] p-2 size-[35px] md:size-auto ">
-                <SVGs.House />
-              </div>
-            </div>
-            <div>
-              <h4 className="text-[#09090B] font-bold text-[32px] mb-4 leading-[100%]">
-                {statsLoading ? '...' : totalProperties}
-              </h4>
-              <p className="font-normal text-[#71717A] text-[13px]">Listed properties</p>
-            </div>
-          </div>
+          <DashboardCard
+            title="Total Properties"
+            value={totalProperties}
+            description="Listed properties"
+            icon={<SVGs.House />}
+            className="border-[#CBDBFC] from-[#E1EAFD] to-[#FFFFFF]"
+          />
 
-          <div className="rounded-lg p-6 border border-[#FFE0D3] flex flex-col  gap-8 bg-linear-to-b from-[#FEECE0] to-[#FFFFFF]">
-            <div className="flex flex-col-reverse md:flex-row gap-2 md:gap-0 md:items-center justify-between">
-              <h2 className="font-semibold text-sm leading-[150%] text-[#727272]">
-                Available Rooms
-              </h2>
-              <div className="rounded-lg bg-[#FFFFFF] p-2  size-[35px] md:size-auto">
-                <SVGs.PropertyView />
-              </div>
-            </div>
-            <div>
-              <h4 className="text-[#09090B] font-bold text-[32px] mb-4 leading-[100%]">
-                {statsLoading ? '...' : availableRooms}
-              </h4>
-              <p className="font-normal text-[#71717A] text-[13px]">Total rooms</p>
-            </div>
-          </div>
+          <DashboardCard
+            title="Available Rooms"
+            value={availableRooms}
+            description="Total rooms"
+            icon={<SVGs.PropertyView />}
+            className="border-[#FFE0D3] from-[#FEECE0] to-[#FFFFFF]"
+          />
 
-          <div className="rounded-lg p-6 border border-[#BFF0FC] flex flex-col  gap-8 bg-linear-to-b from-[#D8F6FF] to-[#FFFFFF]">
-            <div className="flex gap-2 md:gap-0   flex-col md:flex-row md:items-center justify-between">
-              <h2 className="font-semibold text-sm leading-[150%] text-[#727272]">
-                Pending Bookings
-              </h2>
-              <div className="rounded-lg bg-[#FFFFFF] p-2 size-[35px] md:size-auto ">
-                <SVGs.Note />
-              </div>
-            </div>
-            <div>
-              <h4 className="text-[#09090B] font-bold text-[32px] mb-4 leading-[100%]">
-                {statsLoading ? '...' : pendingBookings}
-              </h4>
-              <p className="font-normal text-[#71717A] text-[13px]">Awaiting review</p>
-            </div>
-          </div>
+          <DashboardCard
+            title="Pending Bookings"
+            value={pendingBookings}
+            description="Awaiting review"
+            icon={<SVGs.Note />}
+            className="border-[#BFF0FC] from-[#D8F6FF] to-[#FFFFFF]"
+          />
 
-          <div className="rounded-lg p-6 border border-[#BCF5D5] flex flex-col  gap-8 bg-linear-to-b from-[#C8FFDC] to-[#FFFFFF]">
-            <div className="flex flex-col gap-2 md:flex-row md:gap-0 md:items-center justify-between">
-              <h2 className="font-semibold text-sm leading-[150%] text-[#727272]">Total Revenue</h2>
-              <div className="rounded-lg bg-[#FFFFFF] p-2 size-[35px] md:size-auto ">
-                <SVGs.MoneyBag />
-              </div>
-            </div>
-            <div>
-              <h4 className="text-[#09090B] font-bold text-[32px] mb-4 leading-[100%]">
-                {statsLoading ? '...' : formatCurrency(totalRevenue)}
-              </h4>
-              <p className="font-normal text-[#71717A] text-[13px]">Paid bookings</p>
-            </div>
-          </div>
+          <DashboardCard
+            title="Total Revenue"
+            value={formatCurrency(totalRevenue)}
+            description="Paid bookings"
+            icon={<SVGs.MoneyBag />}
+            className="border-[#BCF5D5] from-[#C8FFDC] to-[#FFFFFF]"
+          />
         </div>
 
         {/* listing */}
@@ -430,6 +424,7 @@ const Dashboard = () => {
             </div>
           </div>
 
+          {/* FOR MOBILE VIEW ONLY */}
           <div className="w-[90%] mx-auto md:hidden">
             <Button
               onClick={() => navigate('/SMNewProperty')}

@@ -14,6 +14,8 @@ import {
 import toast from 'react-hot-toast';
 import { AxiosError } from 'axios';
 
+import IMAGE_EMPTY_AVATAR from '@/assets/pngs/empty-avatar.png';
+
 interface SettingsForm {
   First_name: string;
   Last_name: string;
@@ -249,7 +251,11 @@ const ProfileSecurity = () => {
                 className="w-full h-full object-cover"
               />
             ) : (
-              <SVGs.ProfilePic />
+              <img
+                src={IMAGE_EMPTY_AVATAR}
+                alt="empty avatar"
+                className="w-full h-full object-cover"
+              />
             )}
           </div>
 

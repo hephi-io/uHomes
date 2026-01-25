@@ -12,6 +12,8 @@ import {
 import { SVGs } from '@/assets/svgs/Index';
 import { useAuth } from '@/contexts/auth-context';
 
+import IMAGE_EMPTY_AVATAR from '@/assets/pngs/empty-avatar.png';
+
 export const ProfileDropdown = () => {
   const { user, logout, isLoggingOut } = useAuth();
   const navigate = useNavigate();
@@ -44,7 +46,11 @@ export const ProfileDropdown = () => {
                 className="w-full h-full object-cover"
               />
             ) : (
-              <SVGs.ProfilePicSmall />
+              <img
+                src={IMAGE_EMPTY_AVATAR}
+                alt="empty avatar"
+                className="w-full h-full object-cover"
+              />
             )}
           </div>
           <span className="font-medium text-sm leading-[150%] tracking-[0%] text-center text-[#000000]">
