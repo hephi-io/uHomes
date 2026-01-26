@@ -1,6 +1,7 @@
 import { SVGs } from '@/assets/svgs/Index';
 import type { IBooking } from '@/shared/booking';
 import type { ITransaction } from '@/shared/transactions';
+import type { Booking } from '@/services/booking';
 
 export const hostelDetails = [
   {
@@ -335,3 +336,88 @@ export const transactionData: ITransaction[] = [
     statusBadge: 'Escrow Held',
   },
 ];
+interface ReceiptDetail {
+  id: number;
+  header: string;
+  textOne: string;
+  textTwo: string;
+}
+
+export const formatReceiptDetails = (booking: Booking | null): ReceiptDetail[] => {
+  if (!booking) return [];
+
+  const tenant = booking.tenant;
+  const agent = typeof booking.agent === 'object' ? booking.agent : null;
+  const property = typeof booking.property === 'object' ? booking.property : null;
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const options: Intl.DateTimeFormatOptions = {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    };
+    return date.toLocaleDateString('en-US', options);
+  };
+
+  return [
+    {
+      id: 1,
+      header: 'Sender details',
+      textOne: tenant?.fullName || 'N/A',
+      textTwo: `${tenant?.phoneNumber || 'N/A'} / Moniepoint MFB`,
+    },
+    {
+      id: 2,
+      header: 'Recipient Details',
+      textOne: property?.title || 'UHomes property',
+      textTwo: agent ? `${agent.phoneNumber} / Paystack Titans` : '0123456789 / Paystack Titans',
+    },
+    {
+      id: 3,
+      header: 'Payment Reference',
+      textOne: booking._id.slice(-12).toUpperCase(),
+      textTwo: '',
+    },
+    {
+      id: 4,
+      header: 'Payment Date',
+      textOne: formatDate(booking.createdAt),
+      textTwo: '',
+    },
+  ];
+};
+
+interface Breakdown {
+  id: number;
+  name: string;
+  value: string;
+}
+
+export const formatBreakdown = (booking: Booking | null): Breakdown[] => {
+  if (!booking) return [];
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-NG', {
+      style: 'currency',
+      currency: 'NGN',
+      minimumFractionDigits: 0,
+    }).format(amount);
+  };
+
+  // Calculate breakdown (simplified - adjust based on your business logic)
+  const rent = booking.amount * 0.9; // 90% rent
+  const serviceCharge = booking.amount * 0.05; // 5% service charge
+  const cautionFee = booking.amount * 0.03; // 3% caution fee
+  const agreementFee = booking.amount * 0.02; // 2% agreement fee
+
+  return [
+    { id: 1, name: 'Rent', value: formatCurrency(rent) },
+    { id: 2, name: 'Service charge', value: formatCurrency(serviceCharge) },
+    { id: 3, name: 'Caution fee', value: formatCurrency(cautionFee) },
+    { id: 4, name: 'Agreement fee (one-time)', value: formatCurrency(agreementFee) },
+  ];
+};
