@@ -17,6 +17,18 @@ import { useAuth } from '@/contexts/auth-context';
 import { useNotifications } from '@/contexts/NotificationContext';
 import { getActiveBookingsSummary, getMyBookings, type Booking } from '@/services/booking';
 import { getSavedProperties, type SavedProperty } from '@/services/property';
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from '@/components/ui/alert-dialog';
+import { formatReceiptDetails, formatBreakdown } from '@/pages/students/constants';
 
 // Animation variants
 const containerVariants = {
@@ -277,8 +289,17 @@ export function StudentDashboard() {
           animate="visible"
         >
           <motion.div className="flex gap-x-4 items-center" variants={itemVariants}>
-            <SVGs.ProfilePic />
-
+            <div className="size-12 rounded-full overflow-hidden bg-gray-100 shrink-0">
+              {user?.profilePicture ? (
+                <img
+                  src={user.profilePicture}
+                  alt={user.fullName || 'Profile'}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <SVGs.ProfilePicSmall />
+              )}
+            </div>
             <div>
               <h1 className="font-semibold text-xl leading-[120%] tracking-[0%] text-[#000000] md:text-[22px]">
                 Hi, {user?.fullName} 👋🏽
@@ -434,7 +455,7 @@ export function StudentDashboard() {
                   <TabsTrigger
                     key={tabTrigger.id}
                     value={tabTrigger.name}
-                    className="data-[state=active]:rounded data-[state=active]:bg-white data-[state=active]:shadow-[0px_1px_3px_0px_#0000001A,0px_1px_2px_-1px_#0000001A] data-[state=active]:text-[#09090B] font-medium text-sm leading-5 tracking-[0%] text-center align-middle text-[#71717A]"
+                    className="data-[state=active]:rounded data-[state=active]:bg-white data-[state=active]:shadow-[0px_1px_3px_0px_#0000001A,0px_1px_2px_-1px_#0000001A] data-[state=active]:text-[#09090B] font-Bricolage font-medium text-sm leading-5 tracking-[0%] text-center align-middle text-[#71717A]"
                   >
                     {tabTrigger.name}
                   </TabsTrigger>
@@ -711,11 +732,8 @@ function FindHostels() {
 }
 
 function HostelDetail({ booking }: { booking: Booking }) {
-  const hostelDetailButtons = [
-    { id: 1, Icon: SVGs.View, text: 'View Property' },
-    { id: 2, Icon: SVGs.Download, text: 'Download Receipt' },
-    { id: 3, Icon: SVGs.Contact, text: 'Contact Agent' },
-  ];
+  const [copied, setCopied] = useState(false);
+  const navigate = useNavigate();
 
   const property = typeof booking.property === 'object' ? booking.property : null;
   const agent = typeof booking.agent === 'object' ? booking.agent : null;
@@ -755,6 +773,9 @@ function HostelDetail({ booking }: { booking: Booking }) {
   const mainImage = images[0]?.url || HostelImageTwo;
   const thumbnailImages = images.slice(1, 5);
   const remainingImages = images.length - 5;
+
+  const receiptDetailsData = formatReceiptDetails(booking);
+  const breakdownsData = formatBreakdown(booking);
 
   return (
     <div className="border border-[#F4F4F4] bg-white p-4">
@@ -859,18 +880,173 @@ function HostelDetail({ booking }: { booking: Booking }) {
         </div>
       </div>
       <div className="flex gap-x-2 items-center mt-12">
-        {hostelDetailButtons.map((hostelDetailButton) => (
-          <Button
-            key={hostelDetailButton.id}
-            variant="outline"
-            className="gap-x-2 rounded-lg border border-[#DCDCDC] bg-[#F8F8F9] px-4 py-2"
-          >
-            <hostelDetailButton.Icon />
-            <span className="font-medium text-xs leading-[150%] tracking-[0%] text-[#3D3D3D]">
-              {hostelDetailButton.text}
-            </span>
-          </Button>
-        ))}
+        <Button
+          variant="outline"
+          className="gap-x-2 rounded-lg border border-[#DCDCDC] bg-[#F8F8F9] px-4 py-2"
+          onClick={() => navigate(`/students/hostels/${property?._id}`)}
+        >
+          <SVGs.View />
+          <span className="font-medium text-xs leading-[150%] tracking-[0%] text-[#3D3D3D]">
+            View Property
+          </span>
+        </Button>
+        {booking.paymentStatus === 'paid' && (
+          <AlertDialog>
+            <AlertDialogTrigger>
+              <Button
+                variant="outline"
+                className="gap-x-2 rounded-lg border border-[#DCDCDC] bg-[#F8F8F9] px-4 py-2"
+              >
+                <SVGs.Download />
+                <span className="font-medium text-xs leading-[150%] tracking-[0%] text-[#3D3D3D]">
+                  Download Receipt
+                </span>
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent className="w-[510px] max-h-screen rounded-[10px] bg-white gap-0 p-6 overflow-y-scroll">
+              <AlertDialogHeader className="gap-0">
+                <AlertDialogTitle className="flex gap-x-2 justify-center items-center">
+                  <SVGs.UHome />
+                  <span className="font-bold text-lg leading-6 tracking-normal align-middle text-[#1F1E1E]">
+                    HOMES
+                  </span>
+                </AlertDialogTitle>
+                <div className="border-t-[0.5px] border-t-[#DCDCDC] mt-2" />
+                <AlertDialogDescription className="mt-3">
+                  <h1 className="font-medium text-lg leading-7 tracking-[0%] text-black text-center">
+                    Booking Payment Receipt
+                  </h1>
+                  <div className="font-medium text-2xl leading-7 tracking-[0%] text-black text-center mt-4">
+                    {formatCurrency(booking.amount)}
+                  </div>
+                  <div className="w-fit flex gap-x-2.5 items-center rounded-md bg-[#1DB4691F] px-2 py-0.5 mx-auto mt-4">
+                    <div className="size-2 rounded-full bg-[#11A75C]" />
+                    <span className="text-sm leading-5.5 tracking-[0%] text-[#11A75C]">
+                      {booking.paymentStatus === 'paid' ? 'Successful' : booking.paymentStatus}
+                    </span>
+                  </div>
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <div className="bg-[#F9FBFF] p-4 mt-6">
+                {receiptDetailsData.map((receiptDetail) => (
+                  <div key={receiptDetail.id} className={receiptDetail.id === 1 ? '' : 'mt-6'}>
+                    <h4 className="font-light text-sm leading-[100%] tracking-[0%] text-[#727272]">
+                      {receiptDetail.header}
+                    </h4>
+                    <div className="flex gap-x-2.5 items-center font-Bricolage font-medium text-sm leading-[100%] tracking-[0%] text-[#09090B] mt-2">
+                      <span>{receiptDetail.textOne}</span>
+                      <span
+                        className={receiptDetail.id === 3 || receiptDetail.id === 4 ? 'hidden' : ''}
+                      >
+                        -
+                      </span>
+                      <span
+                        className={receiptDetail.id === 3 || receiptDetail.id === 4 ? 'hidden' : ''}
+                      >
+                        {receiptDetail.textTwo}
+                      </span>
+                      <Button
+                        variant="ghost"
+                        className={`size-4 ${receiptDetail.id === 3 ? '' : 'hidden'}`}
+                        onClick={() => {
+                          navigator.clipboard.writeText(receiptDetail.textOne);
+                        }}
+                      >
+                        <SVGs.Copy />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+                <div className="border-t border-t-[#DCDCDC] mt-6" />
+                <h3 className="font-medium text-sm leading-6 tracking-[0%] align-middle text-[#09090B] text-center mt-6">
+                  Cost breakdown
+                </h3>
+                {breakdownsData.map((breakdown) => (
+                  <div key={breakdown.id} className="flex justify-between items-center mt-4">
+                    <span className="font-medium text-sm leading-7 tracking-[0%] align-middle text-[#09090B]">
+                      {breakdown.name}
+                    </span>
+                    <span className="text-sm leading-7 tracking-[0%] text-right align-middle text-[#09090B]">
+                      {breakdown.value}
+                    </span>
+                  </div>
+                ))}
+                {booking.moveOutDate && (
+                  <div className="flex gap-x-2.5 rounded-lg bg-[#EFF3FD] px-3 py-2 mt-6">
+                    <SVGs.Exclamation />
+                    <div>
+                      <h3 className="font-semibold text-sm leading-[150%] tracking-[0%] align-middle text-[#3E78FF]">
+                        Rent is due in {booking.duration}
+                      </h3>
+                      <p className="text-sm leading-[120%] tracking-[0%] align-middle text-[#3E78FF] mt-2.5">
+                        Your current rent expires on {formatDate(booking.moveOutDate)}. Renew early
+                        to keep your room secured.
+                      </p>
+                    </div>
+                  </div>
+                )}
+                <Button
+                  variant="outline"
+                  className="w-full h-10 gap-x-2 rounded-[5px] border-[#E4E4E4] mt-4"
+                >
+                  <SVGs.CreditCard />
+                  <span className="font-medium text-sm leading-[150%] tracking-[0%] text-[#141B34]">
+                    Renew
+                  </span>
+                </Button>
+              </div>
+              <AlertDialogFooter className="mt-15">
+                <AlertDialogCancel className="h-[37px] rounded-md border border-[#E5E5E5] md:w-[131px]">
+                  <span className="font-medium text-sm leading-[100%] tracking-[0%] text-[#09090B]">
+                    Close
+                  </span>
+                </AlertDialogCancel>
+                <AlertDialogAction className="h-[37px] rounded-[5px] border border-[#E4E4E4EE] bg-[#3E78FF] px-4">
+                  <span className="font-medium text-sm leading-[150%] tracking-[0%] text-white">
+                    Download Receipt
+                  </span>
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        )}
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button
+              variant="outline"
+              className="gap-x-2 rounded-lg border border-[#DCDCDC] bg-[#F8F8F9] px-4 py-2"
+            >
+              <SVGs.Contact />
+              <span className="font-medium text-xs leading-[150%] tracking-[0%] text-[#3D3D3D]">
+                Contact Agent
+              </span>
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader className="flex flex-row justify-end">
+              <AlertDialogCancel className="size-fit">
+                <SVGs.XIcon className="size-3" />
+              </AlertDialogCancel>
+            </AlertDialogHeader>
+            <div className="flex justify-center gap-x-4 items-center">
+              <span className="text-5xl">{agent?.phoneNumber}</span>
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  setCopied(true);
+                  if (agent?.phoneNumber !== undefined) {
+                    navigator.clipboard
+                      .writeText(agent.phoneNumber)
+                      .then(() => console.log('Copied!'))
+                      .catch((err) => console.error('Error:', err));
+                  }
+                }}
+              >
+                {!copied ? <SVGs.Copy /> : <SVGs.CheckmarkCircle />}
+              </Button>
+            </div>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   );
