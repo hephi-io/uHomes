@@ -29,6 +29,7 @@ import {
   AlertDialogAction,
 } from '@/components/ui/alert-dialog';
 import { formatReceiptDetails, formatBreakdown } from '@/pages/students/constants';
+import { toast } from 'sonner';
 
 // Animation variants
 const containerVariants = {
@@ -735,8 +736,23 @@ function HostelDetail({ booking }: { booking: Booking }) {
   const [copied, setCopied] = useState(false);
   const navigate = useNavigate();
 
-  const property = typeof booking.property === 'object' ? booking.property : null;
+  const property = typeof booking.propertyid === 'object' ? booking.propertyid : null;
   const agent = typeof booking.agent === 'object' ? booking.agent : null;
+
+  const handleCopy = async () => {
+    try {
+      if (agent?.phoneNumber !== undefined) {
+        await navigator.clipboard.writeText(agent?.phoneNumber);
+      }
+      setCopied(true);
+      toast.success('Phone Number Copied', { position: 'bottom-center' });
+      setTimeout(() => {
+        setCopied(false);
+      }, 2000);
+    } catch (err) {
+      console.error('Error', err);
+    }
+  };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-NG', {
@@ -776,6 +792,7 @@ function HostelDetail({ booking }: { booking: Booking }) {
 
   const receiptDetailsData = formatReceiptDetails(booking);
   const breakdownsData = formatBreakdown(booking);
+  console.log(booking);
 
   return (
     <div className="border border-[#F4F4F4] bg-white p-4">
@@ -1030,18 +1047,7 @@ function HostelDetail({ booking }: { booking: Booking }) {
             </AlertDialogHeader>
             <div className="flex justify-center gap-x-4 items-center">
               <span className="text-5xl">{agent?.phoneNumber}</span>
-              <Button
-                variant="ghost"
-                onClick={() => {
-                  setCopied(true);
-                  if (agent?.phoneNumber !== undefined) {
-                    navigator.clipboard
-                      .writeText(agent.phoneNumber)
-                      .then(() => console.log('Copied!'))
-                      .catch((err) => console.error('Error:', err));
-                  }
-                }}
-              >
+              <Button variant="ghost" onClick={handleCopy}>
                 {!copied ? <SVGs.Copy /> : <SVGs.CheckmarkCircle />}
               </Button>
             </div>
