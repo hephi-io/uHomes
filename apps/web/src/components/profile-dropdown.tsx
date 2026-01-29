@@ -36,7 +36,7 @@ export const ProfileDropdown = () => {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <div className="hidden md:flex md:gap-x-3 md:items-center hover:cursor-pointer">
-          <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center flex-shrink-0">
+          <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center shrink-0">
             {user?.profilePicture ? (
               <img
                 src={user.profilePicture}

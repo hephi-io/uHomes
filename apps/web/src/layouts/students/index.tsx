@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router-dom';
 
 import { Navbar } from '../../components/navbar';
+import { Toaster } from '@/components/ui/sonner';
 
 const StudentLayout = () => {
   const navItems = [
@@ -16,6 +17,7 @@ const StudentLayout = () => {
       <div className="mt-7 md:mt-8 lg:mt-0">
         <Outlet />
       </div>
+      <Toaster />
     </div>
   );
 };
