@@ -22,7 +22,7 @@ export interface BookingAgent {
 
 export interface Booking {
   _id: string;
-  property: BookingProperty | string;
+  propertyid: BookingProperty | string;
   propertyType: string;
   agent: BookingAgent | string;
   tenant: {
@@ -92,7 +92,7 @@ export const getBookingByPropertyId = async (propertyId: string): Promise<Bookin
     const response = await getMyBookings(1, 100); // Get first 100 bookings
     if (response.data.status === 'success') {
       const booking = response.data.data.bookings.find((b) => {
-        const property = typeof b.property === 'object' ? b.property : null;
+        const property = typeof b.propertyid === 'object' ? b.propertyid : null;
         return property?._id === propertyId && b.paymentStatus === 'paid';
       });
       return booking || null;

@@ -25,6 +25,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { toast } from 'sonner';
 
 interface AvailableRoom {
   id: number;
@@ -101,7 +102,7 @@ const formatReceiptDetails = (booking: Booking | null): ReceiptDetail[] => {
 
   const tenant = booking.tenant;
   const agent = typeof booking.agent === 'object' ? booking.agent : null;
-  const property = typeof booking.property === 'object' ? booking.property : null;
+  const property = typeof booking.propertyid === 'object' ? booking.propertyid : null;
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -187,6 +188,7 @@ export function Hostel() {
   const [reviewsLoading, setReviewsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [copied, setCopied] = useState(false);
 
   // Fetch property details
   useEffect(() => {
@@ -311,6 +313,20 @@ export function Hostel() {
     }
   };
 
+  const handleCopy = async () => {
+    try {
+      const currentUrl = window.location.href;
+      await navigator.clipboard.writeText(currentUrl);
+      setCopied(true);
+      toast.success('Link Copied', { position: 'bottom-center' });
+      setTimeout(() => {
+        setCopied(false);
+      }, 2000);
+    } catch (err) {
+      console.error('Failed to copy: ', err);
+    }
+  };
+
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-NG', {
       style: 'currency',
@@ -419,8 +435,12 @@ export function Hostel() {
                   </span>
                 </div>
               </div>
-              <Button variant="outline" className="w-10 h-10 rounded-full border border-[#E5E5E5]">
-                <SVGs.Share />
+              <Button
+                variant="outline"
+                className="w-10 h-10 rounded-full border border-[#E5E5E5]"
+                onClick={handleCopy}
+              >
+                {copied ? <SVGs.CheckmarkCircle /> : <SVGs.Share />}
               </Button>
             </div>
             <div className="relative h-[505px] rounded overflow-hidden mt-4">
@@ -513,12 +533,14 @@ export function Hostel() {
               <p className="text-sm text-[#71717A] mt-3">No amenities listed</p>
             )}
             <Button
-              className="w-full h-[37px] gap-x-2 rounded-[5px] border border-[#E4E4E4EE] bg-[#3E78FF] px-4 py-2 mt-4 lg:mt-9"
+              className={`w-full h-[37px] gap-x-2 rounded-[5px] border border-[#E4E4E4EE] px-4 py-2 mt-4 lg:mt-9 ${booking?.status === 'completed' || booking?.status === 'confirmed' ? 'bg-[#3E78FF]' : 'bg-red-300'}`}
               onClick={() => navigate('/students/booking', { state: { propertyId: id } })}
             >
               <SVGs.PropertyAdd />
               <span className="font-medium text-sm leading-[150%] tracking-[0%] text-white">
-                Book Now
+                {booking?.status === 'completed' || booking?.status === 'confirmed'
+                  ? 'Book Now'
+                  : 'Complete Booking'}
               </span>
             </Button>
             {booking && (

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { AxiosError } from 'axios';
 import { Label, Button } from '@uhomes/ui-kit';
-import DatePicker from '@/shared/date-picker';
+// import DatePicker from '@/shared/date-picker';
 import { SVGs } from '@/assets/svgs/Index';
 import { Checkbox } from '@/components/ui/checkbox';
 import { createPayment } from '@/services/payment';
@@ -60,6 +60,7 @@ export default function Checkout() {
   const [error, setError] = useState<string | null>(null);
   const [agreedToEscrow, setAgreedToEscrow] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [agreedToAgentInspection, setAgreedToAgentInspection] = useState(false);
 
   const booking = (location.state as { booking?: Booking })?.booking;
   const property = (location.state as { property?: SavedProperty })?.property;
@@ -187,10 +188,22 @@ export default function Checkout() {
             <Text>{summary.value}</Text>
           </div>
         ))}
-        <Label className="text-sm leading-[120%] tracking-[0%] align-middle text-[#09090B] mt-9 mb-4">
-          Choose your inspection date/time
-        </Label>
-        <DatePicker />
+        <p className="text-sm leading-[120%] tracking-[0%] text-[#09090B] mt-9">
+          You have 24 hours after payment to inspect the property and ensured that it is to your
+          liking. If you are not able to inspect the property in this 24 hour window, your funds
+          will be reversed and your booking cancelled. You can request for an Inspection Officer who
+          will be provided by UHomes to do this in your stead if you are not able to.
+        </p>
+        <div className="flex gap-x-2.5 mt-9">
+          <Checkbox
+            checked={agreedToAgentInspection}
+            onCheckedChange={(checked) => setAgreedToAgentInspection(checked === true)}
+            className="size-4.5 border-[#09090B]"
+          />
+          <Label className="text-sm leading-[120%] tracking-[0%] text-[#09090B]">
+            Request for a UHomes Inspection Officer
+          </Label>
+        </div>
         <div className="flex gap-x-2.5 items-center rounded-lg bg-[#EFF3FD] p-3 mt-9">
           <SVGs.Exclamation />
           <span className="text-sm leading-[120%] tracking-[0%] align-middle text-[#3E78FF]">
