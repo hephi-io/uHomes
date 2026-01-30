@@ -39,7 +39,7 @@ const VerifyFailed = () => {
       await resendVerification(email);
       setResendSuccess(true);
       setTimeout(() => {
-        navigate('/auth/verify-account');
+        navigate('/auth/Verify-Account?origin=create-account');
       }, 2000);
     } catch (err: unknown) {
       const error = err as { response?: { data?: { message?: string } } };

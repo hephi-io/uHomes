@@ -72,7 +72,7 @@ const Signup = () => {
       await register(payload);
       // Store email for verification page
       localStorage.setItem('signupEmail', email);
-      navigate('/auth/verify-account');
+      navigate('/auth/Verify-Account?origin=create-account');
     } catch (error) {
       if (error instanceof AxiosError) {
         const errorMessage =

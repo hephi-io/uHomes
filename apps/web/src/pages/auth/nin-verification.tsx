@@ -1,49 +1,43 @@
 import UHome from '@/assets/svgs/u-home.svg?react';
 import { Button, TextField } from '@uhomes/ui-kit';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { Loader2 } from 'lucide-react';
 import { AxiosError } from 'axios';
 import { useState } from 'react';
 import { SVGs } from '@/assets/svgs/Index';
 import Blobs from '@/assets/pngs/Blobs-Wrapper.png';
+import { verifyNin } from '@/services/auth';
 
 interface NIN {
   nin: string;
-  nationalId: File | null;
+  document: string;
 }
 
 const NinVerification = () => {
   const [loading, setLoading] = useState(false);
   const [fileName, setFileName] = useState<string | null>(null);
   const [fileSize, setFileSize] = useState<number | null>(null);
-  //   const navigate = useNavigate();
-  const { control, handleSubmit, setValue } = useForm<NIN>({
-    defaultValues: { nin: '', nationalId: null },
+  const {
+    control,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+  } = useForm<NIN>({
+    defaultValues: { nin: '', document: '' },
   });
-
-  // Watch the nationalId for UI
-  // const nationalId = watch('nationalId');
-
-  // const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //     const file = e.target.files?.[0];
-  //     if (file) {
-  //         setFileName(file.name);
-  //         setFileSize(file.size / (1024 * 1024)); // size in MB
-  //         setValue('nationalId', file); // update react-hook-form
-  //     }
-  // };
 
   const removeFile = () => {
     setFileName(null);
     setFileSize(null);
-    setValue('nationalId', null);
+    setValue('document', '');
   };
 
   const onSubmit = async (data: NIN) => {
-    // const { nin } = data;
-    console.log(data);
+    const { nin, document } = data;
+
     try {
       setLoading(true);
+      verifyNin(nin, document);
     } catch (error) {
       if (error instanceof AxiosError) {
         console.error('Uh oh! Something went wrong:', error.response?.data?.error || error.message);
@@ -91,10 +85,10 @@ const NinVerification = () => {
                     label="NIN Number:"
                     placeholder="Enter your 11 digit NIN"
                     rules={{
-                      required: 'nin is required',
+                      required: 'NIN is required',
                       pattern: {
-                        value: /^\d+$/,
-                        message: 'Enter a valid nin number',
+                        value: /^\d{11}$/,
+                        message: 'NIN must be exactly 11 digits',
                       },
                     }}
                   />
@@ -105,7 +99,13 @@ const NinVerification = () => {
                       Upload National ID Card / Slip <span className="text-red-500">*</span>
                     </label>
                     {!fileName && (
-                      <div className=" relative mb-4 flex items-center justify-center border-[#E4E4E7] border bg-white rounded-md py-[34px] px-6">
+                      <div
+                        className={`relative  flex items-center justify-center border-[#E4E4E7] border bg-white rounded-md py-[34px] px-6 ${
+                          errors.document?.message
+                            ? 'border-red-500'
+                            : 'border-gray-300 focus:border-[#4F61E8]'
+                        }`}
+                      >
                         <div className="flex flex-col space-y-3 items-center justify-center">
                           <SVGs.uIcon />
                           <div className="text-center space-y-2">
@@ -127,54 +127,60 @@ const NinVerification = () => {
                             </div>
                           </div>
                         </div>
-                        <input
-                          type="file"
-                          multiple
-                          accept="image/*"
-                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+
+                        <Controller
+                          name="document"
+                          control={control}
+                          rules={{
+                            required: 'Document is required',
+                          }}
+                          render={({ field }) => (
+                            <>
+                              <input
+                                type="file"
+                                accept=".pdf,.jpg,.jpeg,.png"
+                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0];
+                                  if (file) {
+                                    setFileName(file.name);
+                                    setFileSize(file.size / (1024 * 1024));
+                                    field.onChange(file);
+                                  }
+                                }}
+                              />
+                            </>
+                          )}
                         />
                       </div>
                     )}
-
-                    {fileName && (
-                      <div className="mt-2 flex items-center justify-between bg-gray-100 p-2 rounded">
-                        <div>
-                          <span className="font-medium">{fileName}</span>
-                          <span className="ml-2 text-gray-500 text-sm">
-                            • {fileSize?.toFixed(2)} MB
-                          </span>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={removeFile}
-                          className="text-red-500 font-bold"
-                        >
-                          X
-                        </button>
-                      </div>
+                    {errors.document?.message && (
+                      <p className="text-red-500 text-xs mt-1">{errors.document?.message}</p>
                     )}
 
-                    <div className="bg-[#FAFAFA] rounded-lg  p-3 mb-4  flex">
-                      <div className="bg-[#F3F4F6] rounded-[10px] w-10 h-10 flex items-center justify-center">
-                        <SVGs.Image />
-                      </div>
-                      <div className="flex items-center justify-between w-full">
-                        <div className="flex items-center gap-3">
-                          <p className="text-sm text-[#101828]">National_ID.jpg</p>
-
-                          <div className="w-1.5 h-1.5 bg-[#101828] rounded-full"></div>
-
-                          <span className="text-xs text-gray-500">1.18 MB</span>
+                    {fileName && (
+                      <div className="bg-[#FAFAFA] rounded-lg  p-3 mb-4  flex">
+                        <div className="bg-[#F3F4F6] rounded-[10px] w-10 h-10 flex items-center justify-center">
+                          <SVGs.Image />
                         </div>
-                        <SVGs.XIcon className="cursor-pointer" />
+                        <div className="flex items-center justify-between w-full">
+                          <div className="flex items-center gap-3">
+                            <p className="text-sm text-[#101828]">{fileName}</p>
+
+                            <div className="w-1.5 h-1.5 bg-[#101828] rounded-full"></div>
+
+                            <span className="text-xs text-gray-500">{fileSize?.toFixed(2)}</span>
+                          </div>
+                          <SVGs.XIcon className="cursor-pointer" onClick={removeFile} />
+                        </div>
                       </div>
-                    </div>
+                    )}
                   </div>
 
                   <Button
                     type="submit"
                     variant="outline"
-                    className="bg-[#3E78FF] text-white border border-[#E4E4E4EE] px-4 py-2 w-full font-medium text-sm rounded-[5px] cursor-pointer"
+                    className="bg-[#3E78FF] mt-4 text-white border border-[#E4E4E4EE] px-4 py-2 w-full font-medium text-sm rounded-[5px] cursor-pointer"
                   >
                     {loading ? (
                       <Loader2 className="size-5 mr-2 animate-spin text-white" />

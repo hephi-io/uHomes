@@ -13,11 +13,11 @@ const VerifySuccess = () => {
     const userType = user?.userType?.type;
 
     if (userType === 'agent') {
-      navigate('/agent-dashboard');
+      navigate('/onboarding-nin-verification');
     } else if (userType === 'student') {
       navigate('/students/dashboard');
     } else {
-      navigate('/agent-dashboard'); // Default fallback
+      navigate('/onboarding-nin-verification'); // Default fallback
     }
   };
 

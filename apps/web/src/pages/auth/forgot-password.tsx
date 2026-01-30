@@ -25,7 +25,7 @@ const ForgotPassword = () => {
       console.log('Forgot password response:', response);
 
       // If the request is successful
-      navigate('/auth/Verify-Account');
+      navigate('/auth/Verify-Account?origin=forgot-password');
     } catch (error) {
       if (error instanceof AxiosError) {
         console.error('Uh oh! Something went wrong:', error.response?.data?.error || error.message);
