@@ -792,7 +792,6 @@ function HostelDetail({ booking }: { booking: Booking }) {
 
   const receiptDetailsData = formatReceiptDetails(booking);
   const breakdownsData = formatBreakdown(booking);
-  console.log(booking);
 
   return (
     <div className="border border-[#F4F4F4] bg-white p-4">
