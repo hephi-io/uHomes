@@ -141,8 +141,17 @@ export const forgotPassword = (email: string) => {
   return API.post<TResponse<{ message: string }>>(endpoints.forgotPassword, { email });
 };
 
-export const verifyNin = (nin: string, document: string) => {
-  return API.post<TResponse<{ message: string }>>(endpoints.verifyNin, { nin, document });
+export const verifyNin = (nin: string, document: File) => {
+  const formData = new FormData();
+
+  formData.append('nin', nin);
+  formData.append('document', document);
+
+  return API.post(endpoints.verifyNin, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
 };
 
 export const resetPassword = (otp: string, newPassword: string, confirmPassword: string) => {

@@ -26,6 +26,9 @@ const Dashboard = () => {
   const { user } = useAuth();
   const { unreadCount } = useNotifications();
   const [activeView, setActiveView] = useState<'list' | 'grid'>('grid');
+  const [selectedTab, setSelectedTab] = useState<'My Listings' | 'Bookings' | 'Transactions'>(
+    'My Listings'
+  );
 
   // Dashboard stats
   const [totalProperties, setTotalProperties] = useState(0);
@@ -50,7 +53,7 @@ const Dashboard = () => {
   const [propertyToDelete, setPropertyToDelete] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const tabTriggers = [
+  const tabTriggers: Array<{ id: number; name: 'My Listings' | 'Bookings' | 'Transactions' }> = [
     { id: 1, name: 'My Listings' },
     { id: 2, name: 'Bookings' },
     { id: 3, name: 'Transactions' },
@@ -411,23 +414,25 @@ const Dashboard = () => {
               </Button>
             </div>
 
-            <div className="flex items-center gap-1 md:hidden">
-              <div
-                onClick={() => setActiveView('list')}
-                className={` py-2 px-3 flex items-center gap-2 cursor-pointer  ${activeView === 'list' ? 'border-b-2 border-[#09090B]' : ''} ?`}
-              >
-                <SVGs.ListIcon />
-                <span className="text-[#09090B] font-medium text-sm">List</span>
-              </div>
+            {selectedTab === 'My Listings' && (
+              <div className="flex items-center gap-1 md:hidden">
+                <div
+                  onClick={() => setActiveView('list')}
+                  className={` py-2 px-3 flex items-center gap-2 cursor-pointer  ${activeView === 'list' ? 'border-b-2 border-[#09090B]' : ''} ?`}
+                >
+                  <SVGs.ListIcon />
+                  <span className="text-[#09090B] font-medium text-sm">List</span>
+                </div>
 
-              <div
-                onClick={() => setActiveView('grid')}
-                className={` py-2 px-3 flex items-center gap-2 cursor-pointer  ${activeView === 'grid' ? 'border-b-2 border-[#09090B]' : ''} ?`}
-              >
-                <SVGs.GridView />
-                <span className="text-[#09090B] font-medium text-sm">Grid</span>
+                <div
+                  onClick={() => setActiveView('grid')}
+                  className={` py-2 px-3 flex items-center gap-2 cursor-pointer  ${activeView === 'grid' ? 'border-b-2 border-[#09090B]' : ''} ?`}
+                >
+                  <SVGs.GridView />
+                  <span className="text-[#09090B] font-medium text-sm">Grid</span>
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
           <div className="w-[90%] mx-auto md:hidden">
@@ -448,6 +453,7 @@ const Dashboard = () => {
                   <TabsTrigger
                     key={tabTrigger.id}
                     value={tabTrigger.name}
+                    onClick={() => setSelectedTab(tabTrigger.name)}
                     className="data-[state=active]:rounded data-[state=active]:bg-white data-[state=active]:shadow-[0px_1px_3px_0px_#0000001A,0px_1px_2px_-1px_#0000001A] data-[state=active]:text-[#09090B] font-medium text-sm leading-5 tracking-[0%] text-center align-middle text-[#71717A]"
                   >
                     {tabTrigger.name}
@@ -478,23 +484,25 @@ const Dashboard = () => {
               </div>
 
               {/* ---------- List / Grid Toggle ---------- */}
-              <div className="hidden lg:flex items-center gap-3 ">
-                <div
-                  onClick={() => setActiveView('list')}
-                  className={` py-2 px-3 flex items-center gap-2 cursor-pointer  ${activeView === 'list' ? 'border-b-2 border-[#09090B]' : ''} ?`}
-                >
-                  <SVGs.ListIcon />
-                  <span className="text-[#09090B] font-medium text-sm">List</span>
-                </div>
+              {selectedTab === 'My Listings' && (
+                <div className="hidden lg:flex items-center gap-3 ">
+                  <div
+                    onClick={() => setActiveView('list')}
+                    className={` py-2 px-3 flex items-center gap-2 cursor-pointer  ${activeView === 'list' ? 'border-b-2 border-[#09090B]' : ''} ?`}
+                  >
+                    <SVGs.ListIcon />
+                    <span className="text-[#09090B] font-medium text-sm">List</span>
+                  </div>
 
-                <div
-                  onClick={() => setActiveView('grid')}
-                  className={`py-2 px-3 flex items-center gap-2 cursor-pointer ${activeView === 'grid' ? 'border-b-2 border-[#09090B]' : ''}`}
-                >
-                  <SVGs.GridView />
-                  <span className="text-[#09090B] font-medium text-sm">Grid</span>
+                  <div
+                    onClick={() => setActiveView('grid')}
+                    className={`py-2 px-3 flex items-center gap-2 cursor-pointer ${activeView === 'grid' ? 'border-b-2 border-[#09090B]' : ''}`}
+                  >
+                    <SVGs.GridView />
+                    <span className="text-[#09090B] font-medium text-sm">Grid</span>
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* ---------- Sort / Filter / Add Property ---------- */}
               <div className=" hidden lg:flex items-center gap-4 ">
@@ -521,23 +529,25 @@ const Dashboard = () => {
             </div>
 
             <div className=" hidden md:flex justify-between items-center mt-4 lg:hidden mb-4 px-4">
-              <div className="flex items-center gap-3 ">
-                <div
-                  onClick={() => setActiveView('list')}
-                  className={` py-2 px-3 flex items-center gap-2 cursor-pointer  ${activeView === 'list' ? 'border-b-2 border-[#09090B]' : ''} ?`}
-                >
-                  <SVGs.ListIcon />
-                  <span className="text-[#09090B] font-medium text-sm">List</span>
-                </div>
+              {selectedTab === 'My Listings' && (
+                <div className="flex items-center gap-3 ">
+                  <div
+                    onClick={() => setActiveView('list')}
+                    className={` py-2 px-3 flex items-center gap-2 cursor-pointer  ${activeView === 'list' ? 'border-b-2 border-[#09090B]' : ''} ?`}
+                  >
+                    <SVGs.ListIcon />
+                    <span className="text-[#09090B] font-medium text-sm">List</span>
+                  </div>
 
-                <div
-                  onClick={() => setActiveView('grid')}
-                  className={` py-2 px-3 flex items-center gap-2 cursor-pointer  ${activeView === 'grid' ? 'border-b-2 border-[#09090B]' : ''} ?`}
-                >
-                  <SVGs.GridView />
-                  <span className="text-[#09090B] font-medium text-sm">Grid</span>
+                  <div
+                    onClick={() => setActiveView('grid')}
+                    className={` py-2 px-3 flex items-center gap-2 cursor-pointer  ${activeView === 'grid' ? 'border-b-2 border-[#09090B]' : ''} ?`}
+                  >
+                    <SVGs.GridView />
+                    <span className="text-[#09090B] font-medium text-sm">Grid</span>
+                  </div>
                 </div>
-              </div>
+              )}
 
               <div className="flex items-center gap-4 lg:hidden">
                 <AddNewProperty />
