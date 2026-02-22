@@ -76,9 +76,7 @@ const Signup = () => {
     } catch (error) {
       if (error instanceof AxiosError) {
         const errorMessage =
-          error.response?.data?.error ||
-          error.response?.data?.message ||
-          'Registration failed. Please try again.';
+          error.response?.data?.data.error || 'Registration failed. Please try again.';
         toast.error(errorMessage);
       } else {
         toast.error('An unexpected error occurred. Please try again.');
