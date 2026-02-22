@@ -46,7 +46,7 @@ export function HostelCard({ property }: HostelCardProps) {
       <div className="relative h-[206px]">
         <img src={propertyImage} alt={propertyTitle} className="w-full h-full object-cover" />
 
-        <div className="absolute left-4 top-4 lg:right-4 lg:flex lg:justify-between lg:items-center lg:w-full lg:px-4">
+        <div className="absolute left-4 top-4 right-4 flex justify-between items-center">
           <div className="flex gap-x-1.5 items-center">
             {topBadges.map((topBadge) => (
               <Badge key={topBadge.id} Icon={topBadge.Icon} text={topBadge.text} />
@@ -57,7 +57,7 @@ export function HostelCard({ property }: HostelCardProps) {
             <LikeButton
               propertyId={property._id}
               isSaved={false}
-              className="hidden lg:flex lg:w-7 lg:h-7 rounded-md border border-[#CECECE] bg-white p-0"
+              className="flex w-7 h-7 rounded-md border border-[#CECECE] bg-white p-0"
             />
           )}
         </div>
