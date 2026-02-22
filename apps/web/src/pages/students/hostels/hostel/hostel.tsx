@@ -533,7 +533,7 @@ export function Hostel() {
               <p className="text-sm text-[#71717A] mt-3">No amenities listed</p>
             )}
             <Button
-              className={`w-full h-[37px] gap-x-2 rounded-[5px] border border-[#E4E4E4EE] px-4 py-2 mt-4 lg:mt-9 ${booking?.status === 'completed' || booking?.status === 'confirmed' ? 'bg-[#3E78FF]' : 'bg-red-300'}`}
+              className={`w-full h-[37px] gap-x-2 rounded-[5px] border border-[#E4E4E4EE] px-4 py-2 mt-4 lg:mt-9 ${booking?.status === 'completed' || booking?.status === 'confirmed' ? 'bg-[#3E78FF]' : 'bg-green-300'}`}
               onClick={() => navigate('/students/booking', { state: { propertyId: id } })}
             >
               <SVGs.PropertyAdd />
@@ -543,6 +543,14 @@ export function Hostel() {
                   : 'Complete Booking'}
               </span>
             </Button>
+            {booking?.status !== 'completed' && booking?.status !== 'confirmed' && (
+              <Button className="w-full h-[37px] gap-x-2 rounded-[5px] border border-[#E4E4E4EE] bg-red-300 px-4 py-2 mt-4">
+                <SVGs.Trash />
+                <span className="font-medium text-sm leading-[150%] tracking-[0%] text-white">
+                  Cancel Booking
+                </span>
+              </Button>
+            )}
             {booking && (
               <AlertDialog>
                 <AlertDialogTrigger className="w-full mt-4">
