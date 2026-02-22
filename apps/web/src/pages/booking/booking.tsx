@@ -7,13 +7,6 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { CalendarIcon, Check, ChevronsUpDown } from 'lucide-react';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
   Command,
   CommandEmpty,
   CommandGroup,
@@ -29,9 +22,7 @@ import { getPropertyById, type SavedProperty } from '@/services/property';
 
 interface BookingFormData {
   moveInDate: Date | null;
-  moveOutDate: Date | null;
   gender: 'male' | 'female' | '';
-  propertyType: string;
   specialRequest: string;
 }
 
@@ -155,43 +146,33 @@ function GenderCombobox({
   );
 }
 
-// Helper function to calculate duration in months
-function calculateDuration(startDate: Date, endDate: Date): string {
-  const months = Math.round(
-    (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24 * 30.44)
-  );
-  if (months < 1) {
-    const days = Math.round((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
-    return `${days} day${days !== 1 ? 's' : ''}`;
-  }
-  if (months < 12) {
-    return `${months} month${months !== 1 ? 's' : ''}`;
-  }
-  const years = Math.floor(months / 12);
-  const remainingMonths = months % 12;
-  if (remainingMonths === 0) {
-    return `${years} year${years !== 1 ? 's' : ''}`;
-  }
-  return `${years} year${years !== 1 ? 's' : ''} ${remainingMonths} month${remainingMonths !== 1 ? 's' : ''}`;
-}
-
-// Helper function to calculate number of semesters
-function calculateSemesters(startDate: Date, endDate: Date): number {
-  // Approximate semester length: ~4.5 months
-  const months = (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24 * 30.44);
-  return Math.ceil(months / 4.5);
-}
-
 export default function Booking() {
   const navigate = useNavigate();
   const location = useLocation();
   const [property, setProperty] = useState<SavedProperty | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [calculatedDuration, setCalculatedDuration] = useState('');
-  const [calculatedAmount, setCalculatedAmount] = useState<number>(0);
+  const [moveOutDate, setMoveOutDate] = useState<Date>(new Date());
 
   const propertyId = (location.state as { propertyId?: string })?.propertyId;
+  const calculatedDuration = '1 year';
+  const calculatedAmount = property?.price ? property.price : 0;
+  const propertyType = property?.roomType ? property.roomType : '';
+  const propertyLabel =
+    propertyType === 'single'
+      ? 'Single Room'
+      : propertyType === 'shared'
+        ? 'Shared Room (2 persons)'
+        : 'Self Contain';
+
+  function addOneYear(date: Date | null): Date {
+    let newDate = new Date();
+    if (date) {
+      newDate = new Date(date);
+    }
+    newDate.setFullYear(newDate.getFullYear() + 1);
+    return newDate;
+  }
 
   const {
     control,
@@ -201,15 +182,12 @@ export default function Booking() {
   } = useForm<BookingFormData>({
     defaultValues: {
       moveInDate: null,
-      moveOutDate: null,
       gender: '',
-      propertyType: '',
       specialRequest: '',
     },
   });
 
   const moveInDate = watch('moveInDate');
-  const moveOutDate = watch('moveOutDate');
 
   // Fetch property details
   useEffect(() => {
@@ -235,24 +213,9 @@ export default function Booking() {
 
   // Calculate duration and amount when dates change
   useEffect(() => {
-    if (moveInDate && moveOutDate && property) {
-      if (moveOutDate <= moveInDate) {
-        setCalculatedDuration('');
-        setCalculatedAmount(0);
-        return;
-      }
-
-      const duration = calculateDuration(moveInDate, moveOutDate);
-      setCalculatedDuration(duration);
-
-      const semesters = calculateSemesters(moveInDate, moveOutDate);
-      const amount = property.price * semesters;
-      setCalculatedAmount(amount);
-    } else {
-      setCalculatedDuration('');
-      setCalculatedAmount(0);
-    }
-  }, [moveInDate, moveOutDate, property]);
+    const newDate = addOneYear(moveInDate);
+    setMoveOutDate(newDate);
+  }, [moveInDate]);
 
   const onSubmit = async (data: BookingFormData) => {
     if (!propertyId || !property) {
@@ -260,23 +223,13 @@ export default function Booking() {
       return;
     }
 
-    if (!data.moveInDate || !data.moveOutDate) {
-      setError('Please select both move-in and move-out dates');
+    if (!data.moveInDate) {
+      setError('Please select move-in date');
       return;
     }
 
     if (!data.gender || (data.gender !== 'male' && data.gender !== 'female')) {
       setError('Please select your gender');
-      return;
-    }
-
-    if (!data.propertyType) {
-      setError('Please select a property type');
-      return;
-    }
-
-    if (data.moveOutDate <= data.moveInDate) {
-      setError('Move-out date must be after move-in date');
       return;
     }
 
@@ -286,9 +239,9 @@ export default function Booking() {
 
       const bookingData: CreateBookingInput = {
         propertyid: propertyId,
-        propertyType: data.propertyType,
+        propertyType,
         moveInDate: data.moveInDate.toISOString(),
-        moveOutDate: data.moveOutDate.toISOString(),
+        moveOutDate: moveOutDate ? moveOutDate.toISOString() : '',
         duration: calculatedDuration,
         gender: data.gender,
         specialRequest: data.specialRequest || undefined,
@@ -317,21 +270,6 @@ export default function Booking() {
       setLoading(false);
     }
   };
-
-  // Get available room type from property
-  const availableRoomTypes = property?.roomType
-    ? [
-        {
-          value: property.roomType,
-          label:
-            property.roomType === 'single'
-              ? 'Single Room'
-              : property.roomType === 'shared'
-                ? 'Shared Room (2-person)'
-                : 'Self Contain',
-        },
-      ]
-    : [];
 
   return (
     <div className="lg:w-[680px] lg:rounded-xl lg:border lg:border-[#EAEAEA] lg:bg-white lg:shadow-[0px_2px_3px_1px_#0000001A] lg:p-4.5 lg:mx-auto">
@@ -380,29 +318,13 @@ export default function Booking() {
             <Label className="text-sm leading-[100%] tracking-[0%] text-[#09090B] mt-6 mb-2 md:mt-0">
               Move-Out Date *
             </Label>
-            <Controller
-              name="moveOutDate"
-              control={control}
-              rules={{
-                required: 'Move-out date is required',
-                validate: (value) => {
-                  if (moveInDate && value && value <= moveInDate) {
-                    return 'Move-out date must be after move-in date';
-                  }
-                  return true;
-                },
-              }}
-              render={({ field }) => (
-                <ControlledDatePicker
-                  value={field.value}
-                  onChange={(date) => field.onChange(date)}
-                  placeholder="select move-out date"
-                />
-              )}
+            <Input
+              disabled
+              type="text"
+              value={moveOutDate.toDateString()}
+              placeholder="Pick a date"
+              className="rounded-md border border-[#E4E4E7] bg-[#F9F9F9] shadow-[0px_1px_2px_0px_#0000000D] px-3 py-1"
             />
-            {errors.moveOutDate && (
-              <p className="text-xs text-red-500 mt-1">{errors.moveOutDate.message}</p>
-            )}
           </div>
           <div>
             <Label className="text-sm leading-[100%] tracking-[0%] text-[#09090B] mt-9 mb-2 md:mt-0">
@@ -435,33 +357,14 @@ export default function Booking() {
           </div>
         </div>
         <Label className="text-sm leading-[100%] tracking-[0%] text-[#09090B] mt-9 mb-2">
-          Property Type*
+          Property Type
         </Label>
-        <Controller
-          name="propertyType"
-          control={control}
-          rules={{ required: 'Property type is required' }}
-          render={({ field }) => (
-            <Select value={field.value} onValueChange={field.onChange}>
-              <SelectTrigger className="w-full rounded-md border border-[#E4E4E7] bg-white shadow-[0px_1px_2px_0px_#0000000D] px-3 py-1">
-                <SelectValue
-                  placeholder="select property type"
-                  className="text-sm leading-[100%] tracking-[0%] text-[#71717A]"
-                />
-              </SelectTrigger>
-              <SelectContent>
-                {availableRoomTypes.map((roomType) => (
-                  <SelectItem key={roomType.value} value={roomType.value}>
-                    {roomType.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
+        <Input
+          disabled
+          type="text"
+          value={propertyLabel}
+          className="rounded-md border border-[#E4E4E7] bg-[#F9F9F9] shadow-[0px_1px_2px_0px_#0000000D] px-3 py-1"
         />
-        {errors.propertyType && (
-          <p className="text-xs text-red-500 mt-1">{errors.propertyType.message}</p>
-        )}
         <Label className="text-sm leading-[100%] tracking-[0%] text-[#09090B] mt-9 mb-2">
           Special Request
         </Label>
@@ -476,7 +379,7 @@ export default function Booking() {
             />
           )}
         />
-        {calculatedAmount > 0 && (
+        {calculatedAmount && (
           <div className="mt-4 p-3 rounded-md bg-blue-50 border border-blue-200">
             <p className="text-sm text-blue-600">
               Estimated Amount: ₦{calculatedAmount.toLocaleString()}
