@@ -3,7 +3,7 @@ import { Button, TextField } from '@uhomes/ui-kit';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import Warning from '@/assets/svgs/warning.svg?react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { resetPassword } from '@/services/auth';
 import { Loader2 } from 'lucide-react';
 
@@ -13,19 +13,29 @@ interface IResetPassword {
 }
 const ResetPassword = () => {
   const [loading, setLoading] = useState(false);
+  const [token, setToken] = useState<string>('');
   const navigate = useNavigate();
   const { control, handleSubmit, watch } = useForm<IResetPassword>({
     defaultValues: { password: '', confirmPassword: '' },
   });
   const password = watch('password');
-  const token = 'ttt';
+
+  useEffect(() => {
+    const ForgotToken = localStorage.getItem('forgotPasswordToken');
+    if (!ForgotToken) {
+      navigate('/auth/forgot-password');
+    } else {
+      setToken(ForgotToken);
+    }
+  }, [navigate]);
+
   const onSubmit = async (data: IResetPassword) => {
-    const { password } = data;
+    const { password, confirmPassword } = data;
 
     try {
       setLoading(true);
-      await resetPassword(token, password, password);
-
+      await resetPassword(token, password, confirmPassword);
+      localStorage.removeItem('forgotPasswordToken');
       navigate('/auth/reset-password-success');
     } catch (error) {
       console.log(error);

@@ -19,6 +19,7 @@ const VerifyAccount = () => {
   const [error, setError] = useState('');
   const [countdown, setCountdown] = useState(0);
   const [verifyingUrl, setVerifyingUrl] = useState(false);
+  const origin = searchParams.get('origin');
 
   const handleUrlVerification = useCallback(
     async (token: string) => {
@@ -70,12 +71,52 @@ const VerifyAccount = () => {
     }
   }, [countdown]);
 
+  useEffect(() => {
+    if (!origin) {
+      navigate('/auth');
+      //  redirect to home / login
+      return;
+    }
+    if (origin === 'create-account') {
+      // show "Thanks for signing up — please verify your email"
+    } else if (origin === 'forgot-password') {
+      // show "You can now set a new password"
+      console.log('Handling password reset verification');
+    }
+  }, [origin, navigate]);
+
   const handleOTPChange = (value: string) => {
     setCode(value);
     setError('');
     // Auto-submit when 6 digits are entered
-    if (value.length === 6) {
+    if (origin === 'create-account' && value.length === 6) {
       handleVerify(value);
+    }
+    if (origin === 'forgot-password' && value.length === 6) {
+      handleForgotPassword(value);
+    }
+  };
+
+  const handleForgotPassword = async (verificationCode?: string) => {
+    const codeToVerify = verificationCode || code;
+    try {
+      setResendLoading(true);
+      setError('');
+      setCountdown(60); // 60 second countdown
+      localStorage.setItem('forgotPasswordToken', codeToVerify);
+      setCode(''); // Clear current code
+      navigate('/auth/reset-password');
+    } catch (err: unknown) {
+      const error = err as {
+        response?: { data?: { data?: { message?: string }; message?: string } };
+      };
+      const errorMessage =
+        error.response?.data?.data?.message ||
+        error.response?.data?.message ||
+        'Failed to resend verification code';
+      setError(errorMessage);
+    } finally {
+      setResendLoading(false);
     }
   };
 
@@ -124,11 +165,9 @@ const VerifyAccount = () => {
       navigate('/auth');
       return;
     }
-
     if (countdown > 0) {
       return;
     }
-
     try {
       setResendLoading(true);
       setError('');
@@ -217,7 +256,9 @@ const VerifyAccount = () => {
           </div>
 
           <Button
-            onClick={() => handleVerify()}
+            onClick={
+              origin === 'forgot-password' ? () => handleForgotPassword() : () => handleVerify()
+            }
             type="button"
             variant="outline"
             disabled={loading || code.length !== 6}
@@ -236,7 +277,7 @@ const VerifyAccount = () => {
           <div className="flex justify-between items-center">
             <button
               className="flex items-center gap-1 bg-[#F4F4F4] h-6 px-1.5 rounded-full cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-              onClick={handleResendCode}
+              onClick={origin === 'forgot-password' ? () => navigate(-1) : handleResendCode}
               disabled={resendLoading || countdown > 0}
             >
               <SVGs.RefreshCircle />

@@ -70,6 +70,7 @@ const endpoints = {
   updateUser: (id: string) => `/api/auth/${id}`,
   deleteUser: (id: string) => `/api/auth/${id}`,
   forgotPassword: '/api/auth/forgot-password',
+  verifyNin: '/api/user/verify-nin',
   resetPassword: (otp: string) => `/api/auth/reset-password/${otp}`,
   resendResetToken: '/api/auth/resend-reset-token',
   logout: '/api/auth/logout',
@@ -138,6 +139,19 @@ export const deleteUser = (id: string) => {
 
 export const forgotPassword = (email: string) => {
   return API.post<TResponse<{ message: string }>>(endpoints.forgotPassword, { email });
+};
+
+export const verifyNin = (nin: string, document: File) => {
+  const formData = new FormData();
+
+  formData.append('nin', nin);
+  formData.append('document', document);
+
+  return API.post(endpoints.verifyNin, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
 };
 
 export const resetPassword = (otp: string, newPassword: string, confirmPassword: string) => {
