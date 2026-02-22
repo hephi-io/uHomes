@@ -75,7 +75,6 @@ const Signup = () => {
       navigate('/auth/verify-account');
     } catch (error) {
       if (error instanceof AxiosError) {
-        console.log(error.response?.data.data.error);
         const errorMessage =
           error.response?.data?.data.error || 'Registration failed. Please try again.';
         toast.error(errorMessage);
