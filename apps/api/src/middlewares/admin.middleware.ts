@@ -7,6 +7,8 @@ import { ResponseHelper } from '../utils/response';
 export const isAdmin = (req: Request, res: Response, next: NextFunction) => {
   const user = req.user;
 
+  console.log('--------->>>', user);
+
   if (!user) {
     return ResponseHelper.unauthorized(res, 'User not authenticated');
   }

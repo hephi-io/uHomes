@@ -1,16 +1,17 @@
 import { Checkbox, type ColumnDef } from '@uhomes/ui-kit';
 import { TStatusBadge } from './badge';
 
-export type IPayment = {
-  transactionRef: string;
-  studentName: string;
-  paymentType: string;
-  amount: string;
-  date: string;
-  statusBadge: 'Escrow Held' | 'Refunded' | 'Successful' | 'Failed';
+export type IUser = {
+  id: string;
+  fullName: string;
+  email: string;
+  phoneNumber: string;
+  userType: 'student' | 'agent' | 'admin' | null;
+  isVerified: boolean;
+  createdAt: string;
 };
 
-export const PaymentColumn: ColumnDef<IPayment>[] = [
+export const UserColumn: ColumnDef<IUser>[] = [
   {
     id: 'select',
     header: ({ table }) => (
@@ -33,39 +34,33 @@ export const PaymentColumn: ColumnDef<IPayment>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: 'transactionRef',
-    header: 'Transaction Ref',
+    accessorKey: 'fullName',
+    header: 'Name',
   },
-
   {
-    accessorKey: 'studentName',
-    header: 'Student Name',
+    accessorKey: 'email',
+    header: 'Email',
   },
-
   {
-    accessorKey: 'paymentType',
-    header: 'Payment Type',
+    accessorKey: 'phoneNumber',
+    header: 'Phone Number',
   },
-
   {
-    accessorKey: 'amount',
-    header: 'Amount',
-  },
-
-  {
-    accessorKey: 'date',
-    header: 'Date',
-  },
-
-  {
-    id: 'statusBadge',
-    header: 'Status Badge',
+    accessorKey: 'userType',
+    header: 'Type',
     cell: ({ row }) => {
-      const status = row.original.statusBadge;
-      return <TStatusBadge status={status} />;
+      const type = row.original.userType;
+      return <span className="capitalize">{type || 'N/A'}</span>;
     },
   },
-
+  {
+    id: 'status',
+    header: 'Status',
+    cell: ({ row }) => {
+      const isVerified = row.original.isVerified;
+      return <TStatusBadge status={isVerified ? 'Active' : 'Inactive'} />;
+    },
+  },
   {
     id: 'actions',
     header: 'Actions',

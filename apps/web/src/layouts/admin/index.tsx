@@ -15,7 +15,7 @@ export const AdminLayout = () => {
       badge: 6,
     },
     { id: 5, label: 'ACCOUNTS', path: '/admin/accounts', icon: SVGs.UserAccount },
-    { id: 6, label: 'ADVERTISEMENTS', path: '/admin/ads', icon: SVGs.Megaphone },
+    // { id: 6, label: 'ADVERTISEMENTS', path: '/admin/ads', icon: SVGs.Megaphone },
   ];
 
   return (
@@ -55,7 +55,7 @@ export const AdminLayout = () => {
           </nav>
           <div className="border-t border-t-[#E5E5E5] mt-6"></div>
           <NavLink
-            to="/admin/settings"
+            to="/settings"
             className={({ isActive }) => `
               flex gap-3 items-center rounded-xl text-[#757575] transition-colors p-3 mt-6
               ${isActive ? 'bg-[#F6F6F6]' : 'hover:bg-gray-50'}
@@ -67,7 +67,7 @@ export const AdminLayout = () => {
             </span>
           </NavLink>
         </div>
-        <div className="space-y-4">
+        {/* <div className="space-y-4">
           <NavLink
             to="/admin/help"
             className={({ isActive }) => `
@@ -92,7 +92,7 @@ export const AdminLayout = () => {
               LOGOUT
             </span>
           </NavLink>
-        </div>
+        </div> */}
       </aside>
       {/* Main Content */}
       <main className="h-full flex-1 overflow-auto">

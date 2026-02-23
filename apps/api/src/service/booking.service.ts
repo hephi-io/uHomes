@@ -135,7 +135,7 @@ export class BookingService {
     const totalPages = Math.ceil(total / limit);
 
     const bookings = await Booking.find(query)
-      .populate('propertyid', 'title location price images')
+      .populate('propertyId', 'title location price images')
       .populate('tenant', 'fullName email phoneNumber')
       .populate('agent', 'fullName email phoneNumber')
       .sort({ createdAt: -1 })
