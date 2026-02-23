@@ -676,6 +676,8 @@ export function Hostel() {
               </AlertDialog>
             )}
           </div>
+
+          {/* Reviews section */}
           <div className="rounded-[10px] border border-[#93A2C30D] shadow-[1px_1px_8px_0px_#00000014] lg:w-[30.07%] lg:max-w-[409px] lg:shrink-0 p-10 pt-3 md:px-4 lg:px-10 lg:pt-3 lg:pb-10 mt-[41px] lg:mt-0">
             <div className="flex justify-between items-center">
               <h1 className="font-semibold text-lg leading-[100%] tracking-[0%] text-black">

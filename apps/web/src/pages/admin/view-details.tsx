@@ -1,8 +1,83 @@
 import { SVGs } from '@/assets/svgs/Index';
 import { Button, Textarea } from '@uhomes/ui-kit';
 import SuccessAnimation from '@/assets/pngs/Success Animation.png';
+import { useState, useEffect, useCallback } from 'react';
+import { useParams } from 'react-router-dom';
+import toast from 'react-hot-toast';
+import { AxiosError } from 'axios';
+import { getPaymentDetails, type AdminPayment } from '@/services/admin';
 
 const Viewdetails = () => {
+  const { id } = useParams<{ id: string }>();
+  const [payment, setPayment] = useState<AdminPayment | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+
+  const fetchPaymentDetails = useCallback(async () => {
+    if (!id) return;
+    try {
+      setLoading(true);
+      const response = await getPaymentDetails(id);
+      if (response.data.status === 'success') {
+        setPayment(response.data.data);
+      }
+    } catch (error) {
+      console.error('Error fetching payment details:', error);
+      if (error instanceof AxiosError) {
+        const errorMessage =
+          error.response?.data?.error ||
+          error.response?.data?.message ||
+          'Failed to load payment details';
+        toast.error(errorMessage);
+      } else {
+        toast.error('An unexpected error occurred');
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, [id]);
+
+  useEffect(() => {
+    if (id) fetchPaymentDetails();
+  }, [id, fetchPaymentDetails]);
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-NG', {
+      style: 'currency',
+      currency: 'NGN',
+      minimumFractionDigits: 0,
+    }).format(amount);
+  };
+
+  const calculateBreakdown = (amount: number) => {
+    return {
+      rent: amount * 0.9,
+      serviceCharge: amount * 0.05,
+      cautionFee: amount * 0.03,
+      agreementFee: amount * 0.02,
+    };
+  };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="text-[#878FA1]">Loading payment details...</div>
+      </div>
+    );
+  }
+
+  if (!payment) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="text-[#878FA1]">Payment not found</div>
+      </div>
+    );
+  }
+
+  const userId = typeof payment.userId === 'object' ? payment.userId : null;
+  const bookingId = typeof payment.bookingId === 'object' ? payment.bookingId : null;
+  const breakdown = calculateBreakdown(payment.amount);
+
   return (
     <>
       <div className="bg-white min-h-[90vh] overflow-auto  rounded-[8px]  p-6 space-y-12">
@@ -12,7 +87,7 @@ const Viewdetails = () => {
               Transaction Reference
             </h2>
             <h4 className="text-[#475467] font-semibold text-lg leading-[130%]">
-              TXN-20251104-108
+              {payment.reference || payment._id}
             </h4>
           </div>
 
@@ -22,7 +97,9 @@ const Viewdetails = () => {
                 <SVGs.Person className="text-[#3E78FF] w-6 h-6" />
               </div>
               <h2 className="text-[#09090B] font-normal text-sm">Student Name</h2>
-              <h2 className="text-[#999999] font-normal text-sm leading-[120%]">Cynthia Chidera</h2>
+              <h2 className="text-[#999999] font-normal text-sm leading-[120%]">
+                {userId?.fullName || 'N/A'}
+              </h2>
             </div>
 
             <div className="flex items-center flex-col space-y-2">
@@ -30,7 +107,9 @@ const Viewdetails = () => {
                 <SVGs.ArrowRight />
               </div>
               <h2 className="text-[#09090B] font-normal text-sm">Payment Amount</h2>
-              <h2 className="text-[#09090B] font-semibold text-2xl leading-[120%]">₦280,000</h2>
+              <h2 className="text-[#09090B] font-semibold text-2xl leading-[120%]">
+                {formatCurrency(payment.amount)}
+              </h2>
             </div>
 
             <div className="flex items-center flex-col space-y-2">
@@ -39,29 +118,31 @@ const Viewdetails = () => {
               </div>
               <h2 className="text-[#09090B] font-normal text-sm">Agent</h2>
               <h2 className="text-[#999999] font-normal text-sm leading-[120%]">
-                cynthia@gmail.com
+                {userId?.email || payment.user_email || 'N/A'}
               </h2>
             </div>
           </div>
 
-          <div>
-            <h2 className="text-[#101828] font-medium text-base leading-[130%] mb-2">
-              Booking Details
-            </h2>
-            <div className="flex items-center gap-6">
-              <div className="w-[301px] space-y-2">
-                <h3 className="text-[#09090B] font-normal text-sm leading-[100%]">Apartment</h3>
-                <p className="text-[#999999] font-normal text-sm leading-[120%]">Emerates Lodge</p>
+          {bookingId && (
+            <>
+              <div>
+                <h2 className="text-[#101828] font-medium text-base leading-[130%] mb-2">
+                  Booking Details
+                </h2>
+                <div className="flex items-center gap-6">
+                  <div className="w-[301px] space-y-2">
+                    <h3 className="text-[#09090B] font-normal text-sm leading-[100%]">Apartment</h3>
+                    <p className="text-[#999999] font-normal text-sm leading-[120%]">N/A</p>
+                  </div>
+                  <div className="w-[301px] space-y-2">
+                    <h3 className="text-[#09090B] font-normal text-sm leading-[100%]">Location </h3>
+                    <p className="text-[#999999] font-normal text-sm leading-[120%]">N/A</p>
+                  </div>
+                </div>
               </div>
-              <div className="w-[301px] space-y-2">
-                <h3 className="text-[#09090B] font-normal text-sm leading-[100%]">Location </h3>
-                <p className="text-[#999999] font-normal text-sm leading-[120%]">
-                  4, Ifite Road, Awka
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="border border-[#E0E0E0]"></div>
+              <div className="border border-[#E0E0E0]"></div>
+            </>
+          )}
 
           <div>
             <h2 className="text-[#101828] font-medium text-base leading-[130%] mb-2">
@@ -70,26 +151,34 @@ const Viewdetails = () => {
             <div className="flex items-center gap-6">
               <div className="w-[301px] space-y-2">
                 <h3 className="text-[#09090B] font-normal text-sm leading-[100%]">Rent</h3>
-                <p className="text-[#999999] font-normal text-sm leading-[120%]">₦240,000</p>
+                <p className="text-[#999999] font-normal text-sm leading-[120%]">
+                  {formatCurrency(breakdown.rent)}
+                </p>
               </div>
               <div className="w-[301px] space-y-2">
                 <h3 className="text-[#09090B] font-normal text-sm leading-[100%]">
                   Service charge{' '}
                 </h3>
-                <p className="text-[#999999] font-normal text-sm leading-[120%]">₦10,000</p>
+                <p className="text-[#999999] font-normal text-sm leading-[120%]">
+                  {formatCurrency(breakdown.serviceCharge)}
+                </p>
               </div>
             </div>
 
             <div className="flex items-center gap-6 mt-4">
               <div className="w-[301px] space-y-2">
                 <h3 className="text-[#09090B] font-normal text-sm leading-[100%]">Caution fee</h3>
-                <p className="text-[#999999] font-normal text-sm leading-[120%]">₦20,000</p>
+                <p className="text-[#999999] font-normal text-sm leading-[120%]">
+                  {formatCurrency(breakdown.cautionFee)}
+                </p>
               </div>
               <div className="w-[301px] space-y-2">
                 <h3 className="text-[#09090B] font-normal text-sm leading-[100%]">
                   Agreement fee{' '}
                 </h3>
-                <p className="text-[#999999] font-normal text-sm leading-[120%]">₦10,000</p>
+                <p className="text-[#999999] font-normal text-sm leading-[120%]">
+                  {formatCurrency(breakdown.agreementFee)}
+                </p>
               </div>
             </div>
           </div>
@@ -119,57 +208,60 @@ const Viewdetails = () => {
           </div>
         </div>
       </div>
-      <EscrowPaymentReleased />
+      {showSuccess && <EscrowPaymentReleased onClose={() => setShowSuccess(false)} />}
     </>
   );
 };
 
 export default Viewdetails;
 
-const EscrowPaymentReleased = () => {
+const EscrowPaymentReleased = ({ onClose }: { onClose: () => void }) => {
   return (
-    <div className="w-[443px] rounded-[10px] border-2 border-[#3E78FF0D] bg-white p-6 space-y-9">
-      {/* Image */}
-      <div className="w-[256px] h-[229px] mx-auto">
-        <img
-          src={SuccessAnimation}
-          alt="Listing Added Successfully"
-          className="w-full h-full object-cover"
-        />
-      </div>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+      <div className="w-[443px] rounded-[10px] border-2 border-[#3E78FF0D] bg-white p-6 space-y-9">
+        {/* Image */}
+        <div className="w-[256px] h-[229px] mx-auto">
+          <img
+            src={SuccessAnimation}
+            alt="Listing Added Successfully"
+            className="w-full h-full object-cover"
+          />
+        </div>
 
-      {/* Text */}
-      <div className="w-[394px] space-y-2 mx-auto text-center">
-        <h2 className="text-[#09090B] font-semibold text-2xl leading-[42px]">
-          Escrow Payment Released
-        </h2>
-        <p className="text-[#61646B] font-normal text-sm leading-5">
-          This payment has been successfully released from escrow.
-        </p>
+        {/* Text */}
+        <div className="w-[394px] space-y-2 mx-auto text-center">
+          <h2 className="text-[#09090B] font-semibold text-2xl leading-[42px]">
+            Escrow Payment Released
+          </h2>
+          <p className="text-[#61646B] font-normal text-sm leading-5">
+            This payment has been successfully released from escrow.
+          </p>
 
-        <div className="flex gap-4 justify-center">
-          <div className="flex items-center gap-2">
-            <SVGs.Contact2 className="w-4 h-4" />
-            <h2 className="text-[#09090B] font-normal text-base leading-6">Call Agent</h2>
-          </div>
-          <div className="bg-[#A7A7A7] w-0.5 py-2 "></div>
-          <div className="flex items-center gap-2">
-            <SVGs.Download className="w-4 h-4" />
-            <h2 className="text-[#09090B] font-normal text-base leading-6">Download receipt</h2>
+          <div className="flex gap-4 justify-center">
+            <div className="flex items-center gap-2">
+              <SVGs.Contact2 className="w-4 h-4" />
+              <h2 className="text-[#09090B] font-normal text-base leading-6">Call Agent</h2>
+            </div>
+            <div className="bg-[#A7A7A7] w-0.5 py-2 "></div>
+            <div className="flex items-center gap-2">
+              <SVGs.Download className="w-4 h-4" />
+              <h2 className="text-[#09090B] font-normal text-base leading-6">Download receipt</h2>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Button */}
-      <div>
-        <Button
-          variant="outline"
-          className="w-full bg-[#3E78FF] hover:bg-[#3E78FF] border border-[#E4E4E4EE] py-2 px-4 rounded-[5px]"
-        >
-          <span className="text-white font-medium text-base leading-[26px]">
-            Return to Dashbaord
-          </span>
-        </Button>
+        {/* Button */}
+        <div>
+          <Button
+            onClick={onClose}
+            variant="outline"
+            className="w-full bg-[#3E78FF] hover:bg-[#3E78FF] border border-[#E4E4E4EE] py-2 px-4 rounded-[5px]"
+          >
+            <span className="text-white font-medium text-base leading-[26px]">
+              Return to Dashboard
+            </span>
+          </Button>
+        </div>
       </div>
     </div>
   );

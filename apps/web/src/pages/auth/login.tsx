@@ -43,6 +43,8 @@ const Login = () => {
         navigate('/agent-dashboard');
       } else if (userType === 'student') {
         navigate('/students/dashboard');
+      } else if (userType === 'admin') {
+        navigate('/admin');
       } else {
         navigate('/agent-dashboard'); // Default fallback
       }

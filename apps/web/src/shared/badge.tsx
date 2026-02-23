@@ -1,4 +1,6 @@
-export default function Badge({ Icon, text }: { Icon: any; text: string }) {
+import type { ElementType } from 'react';
+
+export default function Badge({ Icon, text }: { Icon: ElementType; text: string }) {
   return (
     <div className="flex gap-x-1 items-center rounded-full bg-[#F4F4F5] px-2 py-1">
       <Icon />
@@ -26,6 +28,7 @@ export const TStatusBadge = ({ status }: { status: string }) => {
     'Escrow Held': 'bg-[#FFD00014] text-[#C18700] border border-[#EAD67B]',
     Successful: 'bg-[#2BCB0014] text-[#176F00] border border-[#A8DD9A]',
     Refunded: 'bg-[#ED2A2A14] text-[#B10000] border border-[#FF9E9E]',
+    Failed: 'bg-[#ED2A2A14] text-[#B10000] border border-[#FF9E9E]',
   };
 
   return <span className={`${base} ${styles[status] ?? ''}`}>{status}</span>;
