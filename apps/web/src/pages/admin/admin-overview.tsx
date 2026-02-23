@@ -1,103 +1,179 @@
 import { motion } from 'framer-motion';
 import { Button, Tabs, TabsList, TabsTrigger, TabsContent } from '@uhomes/ui-kit';
 import { SVGs } from '../../../../../packages/ui-kit/src/assets/svgs/Index';
+import { useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
+import { AxiosError } from 'axios';
+import {
+  getDashboardStats,
+  getAllTransactions,
+  getAgentApplications,
+  type AdminTransaction,
+  type AgentApplication,
+  type DashboardStats,
+} from '@/services/admin';
 
 export function AdminDashboard() {
-  const stats = [
-    {
-      label: 'Total Revenue',
-      value: '₦2,000,000',
-      icon: SVGs.MoneyBag,
-      color: 'bg-gradient-to-b from-[#E1EAFD] to-[#FFFFFF]',
-      border: 'border-[#CBDBFC]',
-    },
-    {
-      label: 'Total Agent',
-      value: '830',
-      icon: SVGs.User,
-      color: 'bg-gradient-to-b from-[#FEECE0] to-[#FFFFFF]',
-      border: 'border-[#FFE0D3]',
-    },
-    {
-      label: 'Total Clients',
-      value: '1,280',
-      icon: SVGs.UserAccount,
-      color: 'bg-gradient-to-b from-[#D8F6FF] to-[#FFFFFF]',
-      border: 'border-[#BFF0FC]',
-    },
-    {
-      label: 'Active Listings',
-      value: '890',
-      icon: SVGs.ListBullet,
-      color: 'bg-gradient-to-b from-[#C8FFDC] to-[#FFFFFF]',
-      border: 'border-[#BCF5D5]',
-    },
-  ];
+  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [transactions, setTransactions] = useState<AdminTransaction[]>([]);
+  const [applications, setApplications] = useState<AgentApplication[]>([]);
+  const [reports, setReports] = useState<
+    Array<{
+      id: number;
+      issueId: string;
+      user: string;
+      reportCategory: string;
+      contactMethod: string;
+      date: string;
+      statusBadge: string;
+    }>
+  >([]);
+  const [loading, setLoading] = useState(true);
+  const [transactionsPage] = useState(1);
+  const [applicationsPage, setApplicationsPage] = useState(1);
+  const [, setTransactionsPagination] = useState({
+    total: 0,
+    pages: 1,
+    page: 1,
+    limit: 10,
+  });
+  const [applicationsPagination, setApplicationsPagination] = useState({
+    total: 0,
+    pages: 1,
+    page: 1,
+    limit: 10,
+  });
 
-  const transactions = [
-    {
-      ref: 'TXN-20251104-108',
-      agent: 'Cynthia Themoon',
-      type: 'Bank Transfer',
-      amount: '₦300,000',
-      date: '12/10/2025',
-      status: 'Escrow Held',
-    },
-    {
-      ref: 'TXN-20251104-108',
-      agent: 'Ebuka Ezeani',
-      type: 'Bank Transfer',
-      amount: '₦400,000',
-      date: '04/11/2025',
-      status: 'Refunded',
-    },
-    {
-      ref: 'TXN-20251104-108',
-      agent: 'Paul Olutusoye',
-      type: 'Card Payment',
-      amount: '₦350,000',
-      date: '11/11/2025',
-      status: 'Escrow Held',
-    },
-    {
-      ref: 'TXN-20251104-108',
-      agent: 'Grace Ekele',
-      type: 'Bank Transfer',
-      amount: '₦220,000',
-      date: '18/09/2025',
-      status: 'Successful',
-    },
-  ];
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const [statsRes, transactionsRes, applicationsRes] = await Promise.all([
+          getDashboardStats(),
+          getAllTransactions({ page: transactionsPage, limit: 10 }),
+          getAgentApplications({ page: applicationsPage, limit: 10, status: 'pending' }),
+        ]);
 
-  const applications = [
-    {
-      id: 1,
-      name: 'Cynthia Themoon',
-      email: 'cynthia.themoon@example.com',
-      phone: '+234 803 123 4567',
-      document: true,
-      statusBadge: 'Pending',
-      date: '12/10/2025',
-    },
-  ];
+        if (statsRes.data.status === 'success') {
+          setStats(statsRes.data.data);
+        }
 
-  const reports = [
-    {
-      id: 1,
-      issueId: 'Ref-20251104-108',
-      user: 'Student',
-      reportCategory: 'Payment Issue',
-      contactMethod: 'cynthia@gmail.com',
-      date: '12/10/2025',
-      statusBadge: 'Pending',
-    },
-  ];
+        if (transactionsRes.data.status === 'success') {
+          setTransactions(transactionsRes.data.data.transactions || []);
+          setTransactionsPagination(transactionsRes.data.data.pagination);
+        }
+
+        if (applicationsRes.data.status === 'success') {
+          setApplications(applicationsRes.data.data.applications || []);
+          setApplicationsPagination(applicationsRes.data.data.pagination);
+        }
+
+        // Reports - using failed transactions as reports for now
+        if (transactionsRes.data.status === 'success') {
+          const failedTransactions = (transactionsRes.data.data.transactions || []).filter(
+            (t: AdminTransaction) => t.status === 'failed'
+          );
+          setReports(
+            failedTransactions.slice(0, 10).map((t: AdminTransaction, idx: number) => ({
+              id: idx + 1,
+              issueId: t.reference,
+              user: typeof t.userId === 'object' ? 'Student' : 'Student',
+              reportCategory: 'Payment Issue',
+              contactMethod: typeof t.userId === 'object' ? t.userId.email : 'N/A',
+              date: new Date(t.createdAt).toLocaleDateString('en-GB'),
+              statusBadge: 'Pending',
+            }))
+          );
+        }
+      } catch (error) {
+        console.error('Error fetching admin dashboard data:', error);
+        if (error instanceof AxiosError) {
+          const errorMessage =
+            error.response?.data?.error ||
+            error.response?.data?.message ||
+            'Failed to load dashboard data';
+          toast.error(errorMessage);
+        } else {
+          toast.error('An unexpected error occurred');
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [transactionsPage, applicationsPage]);
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-NG', {
+      style: 'currency',
+      currency: 'NGN',
+      minimumFractionDigits: 0,
+    }).format(amount);
+  };
+
+  const formatDate = (date: string | Date) => {
+    return new Date(date).toLocaleDateString('en-GB');
+  };
+
+  const getStatusLabel = (status: string) => {
+    const statusMap: Record<string, string> = {
+      pending: 'Escrow Held',
+      completed: 'Successful',
+      failed: 'Failed',
+      refunded: 'Refunded',
+      verified: 'Approved',
+      rejected: 'Rejected',
+    };
+    return statusMap[status] || status;
+  };
+
+  const statsData = stats
+    ? [
+        {
+          label: 'Total Revenue',
+          value: formatCurrency(stats.totalRevenue),
+          icon: SVGs.MoneyBag,
+          color: 'bg-gradient-to-b from-[#E1EAFD] to-[#FFFFFF]',
+          border: 'border-[#CBDBFC]',
+        },
+        {
+          label: 'Total Agent',
+          value: stats.totalAgents.toLocaleString(),
+          icon: SVGs.User,
+          color: 'bg-gradient-to-b from-[#FEECE0] to-[#FFFFFF]',
+          border: 'border-[#FFE0D3]',
+        },
+        {
+          label: 'Total Clients',
+          value: stats.totalClients.toLocaleString(),
+          icon: SVGs.UserAccount,
+          color: 'bg-gradient-to-b from-[#D8F6FF] to-[#FFFFFF]',
+          border: 'border-[#BFF0FC]',
+        },
+        {
+          label: 'Active Listings',
+          value: stats.activeListings.toLocaleString(),
+          icon: SVGs.ListBullet,
+          color: 'bg-gradient-to-b from-[#C8FFDC] to-[#FFFFFF]',
+          border: 'border-[#BCF5D5]',
+        },
+      ]
+    : [];
+
+  if (loading && !stats) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="text-[#878FA1]">Loading dashboard...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
       {/* Stat Cards */}
       <div className="grid grid-cols-4 gap-4">
-        {stats.map((stat, i) => (
+        {statsData.map((stat, i) => (
           <motion.div
             key={i}
             initial={{ opacity: 0, y: 20 }}
@@ -184,44 +260,62 @@ export function AdminDashboard() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50">
-                  {transactions.map((txn, idx) => (
-                    <tr
-                      key={idx}
-                      className="hover:bg-gray-50 transition-colors border-b border-b-[#E4E7EC]"
-                    >
-                      <td className="px-6 py-5">
-                        <input type="checkbox" className="rounded" />
-                      </td>
-                      <td className="font-Bricolage font-medium text-sm leading-[100%] tracking-[0%] text-[#475467] px-6 py-3">
-                        {txn.ref}
-                      </td>
-                      <td className="font-Bricolage font-medium text-sm leading-[100%] tracking-[0%] text-[#475467] px-6 py-3">
-                        {txn.agent}
-                      </td>
-                      <td className="font-Bricolage font-medium text-sm leading-[100%] tracking-[0%] text-[#475467] px-6 py-3">
-                        {txn.type}
-                      </td>
-                      <td className="font-Bricolage font-medium text-sm leading-[100%] tracking-[0%] text-[#475467] px-6 py-3">
-                        {txn.amount}
-                      </td>
-                      <td className="font-Bricolage font-medium text-sm leading-[100%] tracking-[0%] text-[#475467] px-6 py-3">
-                        {txn.date}
-                      </td>
-                      <td className="font-Bricolage font-medium text-sm leading-[100%] tracking-[0%] text-[#475467] px-6 py-3">
-                        <StatusBadge status={txn.status} />
-                      </td>
-                      <td className="px-6 py-3">
-                        <Button
-                          variant="outline"
-                          className="rounded-lg border-[#DCDCDC] bg-[#F8F8F9] px-4 py-2"
-                        >
-                          <span className="font-medium text-xs leading-[150%] tracking-[0%] text-[#3D3D3D]">
-                            View details
-                          </span>
-                        </Button>
+                  {loading ? (
+                    <tr>
+                      <td colSpan={8} className="px-6 py-5 text-center text-[#878FA1]">
+                        Loading transactions...
                       </td>
                     </tr>
-                  ))}
+                  ) : transactions.length === 0 ? (
+                    <tr>
+                      <td colSpan={8} className="px-6 py-5 text-center text-[#878FA1]">
+                        No transactions found
+                      </td>
+                    </tr>
+                  ) : (
+                    transactions.map((txn) => {
+                      const userId = typeof txn.userId === 'object' ? txn.userId : null;
+                      const agentName = userId?.fullName || 'N/A';
+                      return (
+                        <tr
+                          key={txn._id}
+                          className="hover:bg-gray-50 transition-colors border-b border-b-[#E4E7EC]"
+                        >
+                          <td className="px-6 py-5">
+                            <input type="checkbox" className="rounded" />
+                          </td>
+                          <td className="font-Bricolage font-medium text-sm leading-[100%] tracking-[0%] text-[#475467] px-6 py-3">
+                            {txn.reference}
+                          </td>
+                          <td className="font-Bricolage font-medium text-sm leading-[100%] tracking-[0%] text-[#475467] px-6 py-3">
+                            {agentName}
+                          </td>
+                          <td className="font-Bricolage font-medium text-sm leading-[100%] tracking-[0%] text-[#475467] px-6 py-3">
+                            Bank Transfer
+                          </td>
+                          <td className="font-Bricolage font-medium text-sm leading-[100%] tracking-[0%] text-[#475467] px-6 py-3">
+                            {formatCurrency(txn.amount)}
+                          </td>
+                          <td className="font-Bricolage font-medium text-sm leading-[100%] tracking-[0%] text-[#475467] px-6 py-3">
+                            {formatDate(txn.createdAt)}
+                          </td>
+                          <td className="font-Bricolage font-medium text-sm leading-[100%] tracking-[0%] text-[#475467] px-6 py-3">
+                            <StatusBadge status={getStatusLabel(txn.status)} />
+                          </td>
+                          <td className="px-6 py-3">
+                            <Button
+                              variant="outline"
+                              className="rounded-lg border-[#DCDCDC] bg-[#F8F8F9] px-4 py-2"
+                            >
+                              <span className="font-medium text-xs leading-[150%] tracking-[0%] text-[#3D3D3D]">
+                                View details
+                              </span>
+                            </Button>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
                 </tbody>
               </table>
               {/* Pagination */}
@@ -287,81 +381,124 @@ export function AdminDashboard() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50">
-                  {applications.map((app) => (
-                    <tr
-                      key={app.id}
-                      className="hover:bg-gray-50 transition-colors border-b border-b-[#E4E7EC]"
-                    >
-                      <td className="px-6 py-5">
-                        <input type="checkbox" className="rounded" />
-                      </td>
-                      <td className="font-Bricolage font-medium text-sm leading-[100%] tracking-[0%] text-[#475467] px-6 py-3">
-                        {app.name}
-                      </td>
-                      <td className="font-Bricolage font-medium text-sm leading-[100%] tracking-[0%] text-[#475467] px-6 py-3">
-                        {app.email}
-                      </td>
-                      <td className="font-Bricolage font-medium text-sm leading-[100%] tracking-[0%] text-[#475467] px-6 py-3">
-                        {app.phone}
-                      </td>
-                      <td className="font-Bricolage font-medium text-sm leading-[100%] tracking-[0%] text-[#475467] px-6 py-3">
-                        <div className="flex gap-x-2 items-center">
-                          <span className="font-medium text-sm leading-5 tracking-[0%] text-[#475467]">
-                            {app.document ? '1/1' : '0/1'}
-                          </span>
-                          {app.document ? (
-                            <SVGs.TaskChecked className="text-[#589E67]" />
-                          ) : (
-                            <SVGs.WarningLine className="text-[#FF383C]" />
-                          )}
-                        </div>
-                      </td>
-                      <td className="font-Bricolage font-medium text-sm leading-[100%] tracking-[0%] text-[#475467] px-6 py-3">
-                        <StatusBadge status={app.statusBadge} />
-                      </td>
-                      <td className="font-Bricolage font-medium text-sm leading-[100%] tracking-[0%] text-[#475467] px-6 py-3">
-                        {app.date}
-                      </td>
-                      <td className="px-6 py-3">
-                        <Button
-                          variant="outline"
-                          className="rounded-lg border-[#DCDCDC] bg-[#F8F8F9] px-4 py-2"
-                        >
-                          <span className="font-medium text-xs leading-[150%] tracking-[0%] text-[#3D3D3D]">
-                            Review
-                          </span>
-                        </Button>
+                  {loading ? (
+                    <tr>
+                      <td colSpan={8} className="px-6 py-5 text-center text-[#878FA1]">
+                        Loading applications...
                       </td>
                     </tr>
-                  ))}
+                  ) : applications.length === 0 ? (
+                    <tr>
+                      <td colSpan={8} className="px-6 py-5 text-center text-[#878FA1]">
+                        No applications found
+                      </td>
+                    </tr>
+                  ) : (
+                    applications.map((app) => (
+                      <tr
+                        key={app.id}
+                        className="hover:bg-gray-50 transition-colors border-b border-b-[#E4E7EC]"
+                      >
+                        <td className="px-6 py-5">
+                          <input type="checkbox" className="rounded" />
+                        </td>
+                        <td className="font-Bricolage font-medium text-sm leading-[100%] tracking-[0%] text-[#475467] px-6 py-3">
+                          {app.name}
+                        </td>
+                        <td className="font-Bricolage font-medium text-sm leading-[100%] tracking-[0%] text-[#475467] px-6 py-3">
+                          {app.email}
+                        </td>
+                        <td className="font-Bricolage font-medium text-sm leading-[100%] tracking-[0%] text-[#475467] px-6 py-3">
+                          {app.phone}
+                        </td>
+                        <td className="font-Bricolage font-medium text-sm leading-[100%] tracking-[0%] text-[#475467] px-6 py-3">
+                          <div className="flex gap-x-2 items-center">
+                            <span className="font-medium text-sm leading-5 tracking-[0%] text-[#475467]">
+                              {app.document ? '1/1' : '0/1'}
+                            </span>
+                            {app.document ? (
+                              <SVGs.TaskChecked className="text-[#589E67]" />
+                            ) : (
+                              <SVGs.WarningLine className="text-[#FF383C]" />
+                            )}
+                          </div>
+                        </td>
+                        <td className="font-Bricolage font-medium text-sm leading-[100%] tracking-[0%] text-[#475467] px-6 py-3">
+                          <StatusBadge status={getStatusLabel(app.status)} />
+                        </td>
+                        <td className="font-Bricolage font-medium text-sm leading-[100%] tracking-[0%] text-[#475467] px-6 py-3">
+                          {formatDate(app.date)}
+                        </td>
+                        <td className="px-6 py-3">
+                          <Button
+                            variant="outline"
+                            className="rounded-lg border-[#DCDCDC] bg-[#F8F8F9] px-4 py-2"
+                          >
+                            <span className="font-medium text-xs leading-[150%] tracking-[0%] text-[#3D3D3D]">
+                              Review
+                            </span>
+                          </Button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
               {/* Pagination */}
               <div className="flex justify-center items-center gap-0.5 mt-6">
-                <button className="flex justify-center items-center size-10 rounded-[7px] hover:bg-[#F2F2F5]">
+                <button
+                  onClick={() => setApplicationsPage(Math.max(1, applicationsPage - 1))}
+                  disabled={applicationsPage === 1}
+                  className="flex justify-center items-center size-10 rounded-[7px] hover:bg-[#F2F2F5] disabled:opacity-50 disabled:cursor-not-allowed"
+                >
                   <SVGs.ChevronLeft />
                 </button>
-                <button className="size-10 rounded-[7px] bg-[#F2F2F5]">
-                  <span className="font-bold text-sm leading-[21px] tracking-normal text-[#121417]">
-                    1
-                  </span>
-                </button>
-                <button className="group size-10 rounded-[7px] hover:bg-[#F2F2F5]">
-                  <span className="text-sm leading-[21px] tracking-normal text-[#121417] group-hover:font-bold">
-                    2
-                  </span>
-                </button>
-                <button className="group flex justify-center items-center size-10 rounded-[7px] hover:bg-[#F2F2F5]">
-                  <span className="text-sm leading-[21px] tracking-normal text-[#121417] group-hover:font-bold">
-                    ...
-                  </span>
-                </button>
-                <button className="group size-10 rounded-[7px] hover:bg-[#F2F2F5]">
-                  <span className="text-sm leading-[21px] tracking-normal text-[#121417] group-hover:font-bold">
-                    10
-                  </span>
-                </button>
-                <button className="flex justify-center items-center size-10 rounded-[7px] hover:bg-[#F2F2F5]">
+                {Array.from({ length: Math.min(applicationsPagination.pages, 5) }, (_, i) => {
+                  const pageNum = i + 1;
+                  return (
+                    <button
+                      key={pageNum}
+                      onClick={() => setApplicationsPage(pageNum)}
+                      className={`size-10 rounded-[7px] ${
+                        applicationsPage === pageNum ? 'bg-[#F2F2F5]' : 'hover:bg-[#F2F2F5]'
+                      }`}
+                    >
+                      <span
+                        className={`text-sm leading-[21px] tracking-normal text-[#121417] ${
+                          applicationsPage === pageNum ? 'font-bold' : ''
+                        }`}
+                      >
+                        {pageNum}
+                      </span>
+                    </button>
+                  );
+                })}
+                {applicationsPagination.pages > 5 && (
+                  <>
+                    <button className="group flex justify-center items-center size-10 rounded-[7px] hover:bg-[#F2F2F5]">
+                      <span className="text-sm leading-[21px] tracking-normal text-[#121417] group-hover:font-bold">
+                        ...
+                      </span>
+                    </button>
+                    <button
+                      onClick={() => setApplicationsPage(applicationsPagination.pages)}
+                      className="size-10 rounded-[7px] hover:bg-[#F2F2F5]"
+                    >
+                      <span className="text-sm leading-[21px] tracking-normal text-[#121417]">
+                        {applicationsPagination.pages}
+                      </span>
+                    </button>
+                  </>
+                )}
+                <button
+                  onClick={() =>
+                    setApplicationsPage(
+                      Math.min(applicationsPagination.pages, applicationsPage + 1)
+                    )
+                  }
+                  disabled={applicationsPage >= applicationsPagination.pages}
+                  className="flex justify-center items-center size-10 rounded-[7px] hover:bg-[#F2F2F5] disabled:opacity-50 disabled:cursor-not-allowed"
+                >
                   <SVGs.ChevronLeft className="rotate-180" />
                 </button>
               </div>
