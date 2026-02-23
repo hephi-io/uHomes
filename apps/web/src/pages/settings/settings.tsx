@@ -29,6 +29,8 @@ const Settings = () => {
       navigate('/agent-dashboard');
     } else if (userType === 'student') {
       navigate('/students/dashboard');
+    } else if (userType === 'admin') {
+      navigate('/admin');
     } else {
       // Fallback to agent dashboard if user type is unknown
       navigate('/agent-dashboard');

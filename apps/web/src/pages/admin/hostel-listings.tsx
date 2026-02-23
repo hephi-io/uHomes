@@ -10,104 +10,159 @@ import {
 } from '@uhomes/ui-kit';
 import { SVGs } from '../../../../../packages/ui-kit/src/assets/svgs/Index';
 import HostelImage from '@/assets/pngs/hostel-image-2.png';
+import toast from 'react-hot-toast';
+import { AxiosError } from 'axios';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { getAllProperties, updatePropertyStatus, type AdminProperty } from '@/services/admin';
 
 // --- Types ---
 interface Listing {
-  id: number;
+  id: string;
   name: string;
   location: string;
   price: number;
   amenities: number;
   agent: string;
   status: 'Pending' | 'Approved' | 'Rejected';
+  images?: Array<{ url: string }>;
 }
 
 type ModalStep = 'DETAILS' | 'CONFIRM_REJECT' | 'SUCCESS_REJECT' | 'SUCCESS_APPROVE';
 
-// --- Mock Data ---
-const listingsData: Listing[] = [
-  {
-    id: 1,
-    name: 'Emerates Lodge',
-    location: 'Ifite Road, Awka',
-    price: 180000,
-    amenities: 4,
-    agent: 'Melodie Ezeani',
-    status: 'Pending',
-  },
-  {
-    id: 2,
-    name: 'Emerates Lodge',
-    location: 'Ifite Road, Awka',
-    price: 180000,
-    amenities: 4,
-    agent: 'Melodie Ezeani',
-    status: 'Approved',
-  },
-  {
-    id: 3,
-    name: 'Emerates Lodge',
-    location: 'Ifite Road, Awka',
-    price: 180000,
-    amenities: 4,
-    agent: 'Melodie Ezeani',
-    status: 'Rejected',
-  },
-  {
-    id: 4,
-    name: 'Emerates Lodge',
-    location: 'Ifite Road, Awka',
-    price: 180000,
-    amenities: 4,
-    agent: 'Melodie Ezeani',
-    status: 'Pending',
-  },
-];
+function mapProperty(prop: AdminProperty): Listing {
+  const agentId = typeof prop.agentId === 'object' ? prop.agentId : null;
+  const amenitiesCount = prop.amenities
+    ? Object.values(prop.amenities).filter((v) => v === true).length
+    : 0;
+  return {
+    id: prop._id,
+    name: prop.title,
+    location: prop.location,
+    price: prop.price ?? 0,
+    amenities: amenitiesCount,
+    agent: agentId?.fullName || 'N/A',
+    status: prop.isAvailable ? 'Approved' : 'Rejected',
+    images: prop.images,
+  };
+}
 
 // --- Main Page Component ---
 export function AdminHostelListings() {
+  const queryClient = useQueryClient();
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [page, setPage] = useState(1);
   const [selectedListing, setSelectedListing] = useState<Listing | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalInitialStep, setModalInitialStep] = useState<ModalStep>('DETAILS');
 
-  const stats = [
-    {
-      label: 'Total Listings',
-      value: '1,300',
-      color: 'bg-gradient-to-b from-[#E1EAFD] to-white',
-      border: 'border-[#CBDBFC]',
+  const filters = {
+    page,
+    limit: 10,
+    ...(statusFilter !== 'all' && { status: statusFilter }),
+  };
+
+  const { data: propertiesData, isLoading: loading } = useQuery({
+    queryKey: ['adminProperties', statusFilter, page],
+    queryFn: async () => {
+      const response = await getAllProperties(filters);
+      if (response.data.status !== 'success') throw new Error('Failed to load properties');
+      return response.data.data;
     },
-    {
-      label: 'Active Listings',
-      value: '10',
-      color: 'bg-gradient-to-b from-[#C8FFDC] to-white',
-      border: 'border-[#BFF0FC]',
+  });
+
+  const { data: stats = { total: 0, active: 0, pending: 0, rejected: 0 } } = useQuery({
+    queryKey: ['adminPropertiesStats'],
+    queryFn: async () => {
+      const [all, active, pending, rejected] = await Promise.all([
+        getAllProperties({ limit: 1 }),
+        getAllProperties({ status: 'approved', limit: 1 }),
+        getAllProperties({ status: 'pending', limit: 1 }),
+        getAllProperties({ status: 'rejected', limit: 1 }),
+      ]);
+      return {
+        total: all.data.status === 'success' ? all.data.data.pagination.total : 0,
+        active: active.data.status === 'success' ? active.data.data.pagination.total : 0,
+        pending: pending.data.status === 'success' ? pending.data.data.pagination.total : 0,
+        rejected: rejected.data.status === 'success' ? rejected.data.data.pagination.total : 0,
+      };
     },
-    {
-      label: 'Pending Approval',
-      value: '20',
-      color: 'bg-gradient-to-b from-[#FEECE0] to-white',
-      border: 'border-[#FFE0D3]',
+  });
+
+  const updateStatusMutation = useMutation({
+    mutationFn: ({ id, status }: { id: string; status: 'approved' | 'rejected' }) =>
+      updatePropertyStatus(id, status),
+    onSuccess: (_, variables) => {
+      toast.success(
+        variables.status === 'approved'
+          ? 'Property approved successfully'
+          : 'Property rejected successfully'
+      );
+      queryClient.invalidateQueries({ queryKey: ['adminProperties'] });
+      queryClient.invalidateQueries({ queryKey: ['adminPropertiesStats'] });
     },
-    {
-      label: 'Flagged',
-      value: '1,260',
-      color: 'bg-gradient-to-b from-[#D8F6FF] to-white',
-      border: 'border-[#BFF0FC]',
+    onError: (error) => {
+      if (error instanceof AxiosError) {
+        const errorMessage =
+          error.response?.data?.error || error.response?.data?.message || 'Something went wrong';
+        toast.error(errorMessage);
+      } else {
+        toast.error('An unexpected error occurred');
+      }
     },
-    {
-      label: 'Rejected',
-      value: '10',
-      color: 'bg-gradient-to-b from-[#FA350766] to-white',
-      border: 'border-[#FF383C66]',
-    },
-  ];
+  });
+
+  const listings: Listing[] = propertiesData?.properties?.map(mapProperty) ?? [];
 
   const handleOpenModal = (listing: Listing, step: ModalStep) => {
     setSelectedListing(listing);
     setModalInitialStep(step);
     setIsModalOpen(true);
   };
+
+  const handleApprove = () => {
+    if (!selectedListing) return;
+    updateStatusMutation.mutate({ id: selectedListing.id, status: 'approved' });
+    setIsModalOpen(false);
+  };
+
+  const handleReject = () => {
+    if (!selectedListing) return;
+    updateStatusMutation.mutate({ id: selectedListing.id, status: 'rejected' });
+    setIsModalOpen(false);
+  };
+
+  const statsData = [
+    {
+      label: 'Total Listings',
+      value: stats.total.toLocaleString(),
+      color: 'bg-gradient-to-b from-[#E1EAFD] to-white',
+      border: 'border-[#CBDBFC]',
+    },
+    {
+      label: 'Active Listings',
+      value: stats.active.toLocaleString(),
+      color: 'bg-gradient-to-b from-[#C8FFDC] to-white',
+      border: 'border-[#BFF0FC]',
+    },
+    {
+      label: 'Pending Approval',
+      value: stats.pending.toLocaleString(),
+      color: 'bg-gradient-to-b from-[#FEECE0] to-white',
+      border: 'border-[#FFE0D3]',
+    },
+    {
+      label: 'Flagged',
+      value: '0',
+      color: 'bg-gradient-to-b from-[#D8F6FF] to-white',
+      border: 'border-[#BFF0FC]',
+    },
+    {
+      label: 'Rejected',
+      value: stats.rejected.toLocaleString(),
+      color: 'bg-gradient-to-b from-[#FA350766] to-white',
+      border: 'border-[#FF383C66]',
+    },
+  ];
 
   return (
     <div className="min-h-screen">
@@ -120,7 +175,7 @@ export function AdminHostelListings() {
       </p>
       {/* Stats Grid */}
       <div className="grid grid-cols-5 gap-4 mt-4">
-        {stats.map((stat, i) => (
+        {statsData.map((stat, i) => (
           <div
             key={i}
             className={`rounded border ${stat.border} ${stat.color} shadow-sm transition-all hover:shadow-md p-6`}
@@ -137,7 +192,7 @@ export function AdminHostelListings() {
       <div className="rounded-[12px] border border-[#E4E7EC] shadow-[0px_1px_2px_0px_#1018280D] overflow-hidden mt-4">
         {/* Toolbar */}
         <div className="flex justify-end items-center gap-4 p-4">
-          <Select defaultValue="all">
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
             <SelectTrigger className="w-28 rounded border-[#E4E4E4] bg-white font-Bricolage font-medium text-sm leading-[150%] tracking-[0%] text-black px-3 py-2">
               <SelectValue placeholder="All Status" />
             </SelectTrigger>
@@ -158,47 +213,67 @@ export function AdminHostelListings() {
         </div>
         <div className="border-t border-t-[#E4E7EC]"></div>
         <div className="p-4">
-          {/* Listings Grid */}
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-2">
-            {listingsData.map((listing) => (
-              <ListingCard
-                key={listing.id}
-                listing={listing}
-                onViewDetails={() => handleOpenModal(listing, 'DETAILS')}
-                onApprove={() => handleOpenModal(listing, 'SUCCESS_APPROVE')}
-                onReject={() => handleOpenModal(listing, 'CONFIRM_REJECT')}
-              />
-            ))}
-          </div>
-          {/* Pagination */}
-          <div className="flex justify-center items-center gap-0.5 mt-6">
-            <button className="flex justify-center items-center size-10 rounded-[7px] hover:bg-[#F2F2F5]">
-              <SVGs.ChevronLeft />
-            </button>
-            <button className="size-10 rounded-[7px] bg-[#F2F2F5]">
-              <span className="font-bold text-sm leading-[21px] tracking-normal text-[#121417]">
-                1
-              </span>
-            </button>
-            <button className="group size-10 rounded-[7px] hover:bg-[#F2F2F5]">
-              <span className="text-sm leading-[21px] tracking-normal text-[#121417] group-hover:font-bold">
-                2
-              </span>
-            </button>
-            <button className="group flex justify-center items-center size-10 rounded-[7px] hover:bg-[#F2F2F5]">
-              <span className="text-sm leading-[21px] tracking-normal text-[#121417] group-hover:font-bold">
-                ...
-              </span>
-            </button>
-            <button className="group size-10 rounded-[7px] hover:bg-[#F2F2F5]">
-              <span className="text-sm leading-[21px] tracking-normal text-[#121417] group-hover:font-bold">
-                10
-              </span>
-            </button>
-            <button className="flex justify-center items-center size-10 rounded-[7px] hover:bg-[#F2F2F5]">
-              <SVGs.ChevronLeft className="rotate-180" />
-            </button>
-          </div>
+          {loading ? (
+            <div className="p-4 text-center text-[#878FA1]">Loading listings...</div>
+          ) : listings.length === 0 ? (
+            <div className="p-4 text-center text-[#878FA1]">No listings found</div>
+          ) : (
+            <>
+              {/* Listings Grid */}
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-2">
+                {listings.map((listing) => (
+                  <ListingCard
+                    key={listing.id}
+                    listing={listing}
+                    onViewDetails={() => handleOpenModal(listing, 'DETAILS')}
+                    onApprove={() => handleOpenModal(listing, 'SUCCESS_APPROVE')}
+                    onReject={() => handleOpenModal(listing, 'CONFIRM_REJECT')}
+                  />
+                ))}
+              </div>
+              {/* Pagination */}
+              {propertiesData?.pagination && propertiesData.pagination.pages > 1 && (
+                <div className="flex justify-center items-center gap-0.5 mt-6">
+                  <button
+                    type="button"
+                    className="flex justify-center items-center size-10 rounded-[7px] hover:bg-[#F2F2F5] disabled:opacity-50"
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    disabled={page <= 1}
+                  >
+                    <SVGs.ChevronLeft />
+                  </button>
+                  {Array.from({ length: propertiesData.pagination.pages }, (_, i) => i + 1).map(
+                    (p) => (
+                      <button
+                        key={p}
+                        type="button"
+                        className={`size-10 rounded-[7px] ${
+                          page === p ? 'bg-[#F2F2F5]' : 'hover:bg-[#F2F2F5]'
+                        }`}
+                        onClick={() => setPage(p)}
+                      >
+                        <span
+                          className={`text-sm leading-[21px] tracking-normal text-[#121417] ${
+                            page === p ? 'font-bold' : ''
+                          }`}
+                        >
+                          {p}
+                        </span>
+                      </button>
+                    )
+                  )}
+                  <button
+                    type="button"
+                    className="flex justify-center items-center size-10 rounded-[7px] hover:bg-[#F2F2F5] disabled:opacity-50"
+                    onClick={() => setPage((p) => Math.min(propertiesData.pagination.pages, p + 1))}
+                    disabled={page >= propertiesData.pagination.pages}
+                  >
+                    <SVGs.ChevronLeft className="rotate-180" />
+                  </button>
+                </div>
+              )}
+            </>
+          )}
         </div>
       </div>
       {/* The Modal */}
@@ -207,6 +282,8 @@ export function AdminHostelListings() {
         onClose={() => setIsModalOpen(false)}
         listing={selectedListing}
         initialStep={modalInitialStep}
+        onApprove={handleApprove}
+        onReject={handleReject}
       />
     </div>
   );
@@ -254,17 +331,33 @@ function ListingCard({ listing, onViewDetails, onApprove, onReject }: ListingCar
         {/* Images */}
         <div className="w-[140px] space-y-1 shrink-0">
           <div className="h-[134px] rounded overflow-hidden bg-gray-50">
-            <img src={HostelImage} alt="Hostel" className="w-full h-full object-cover" />
+            {listing.images && listing.images.length > 0 ? (
+              <img
+                src={listing.images[0].url}
+                alt={listing.name}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <img src={HostelImage} alt="Hostel" className="w-full h-full object-cover" />
+            )}
           </div>
           <div className="h-8 grid grid-cols-4 gap-1">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="rounded overflow-hidden">
-                <img src={HostelImage} className="w-full h-full object-cover opacity-60" />
+            {listing.images && listing.images.length > 0
+              ? listing.images.slice(1, 4).map((img, i) => (
+                  <div key={i} className="rounded overflow-hidden">
+                    <img src={img.url} className="w-full h-full object-cover opacity-60" />
+                  </div>
+                ))
+              : [1, 2, 3].map((i) => (
+                  <div key={i} className="rounded overflow-hidden">
+                    <img src={HostelImage} className="w-full h-full object-cover opacity-60" />
+                  </div>
+                ))}
+            {listing.images && listing.images.length > 4 && (
+              <div className="flex justify-center items-center rounded bg-black/80 font-Bricolage font-medium text-xs leading-[100%] tracking-[0%] text-white">
+                +{listing.images.length - 4}
               </div>
-            ))}
-            <div className="flex justify-center items-center rounded bg-black/80 font-Bricolage font-medium text-xs leading-[100%] tracking-[0%] text-white">
-              +8
-            </div>
+            )}
           </div>
         </div>
         {/* Info Section */}
@@ -293,7 +386,7 @@ function ListingCard({ listing, onViewDetails, onApprove, onReject }: ListingCar
               Price
             </p>
             <h4 className="font-semibold text-sm leading-[100%] tracking-[0%] align-middle text-[#09090B] mt-1">
-              ₦{listing.price.toLocaleString()}
+              ₦{(listing.price ?? 0).toLocaleString()}
             </h4>
           </div>
           <div>
@@ -361,9 +454,18 @@ interface ModalProps {
   onClose: () => void;
   listing: Listing | null;
   initialStep: ModalStep;
+  onApprove: () => void;
+  onReject: () => void;
 }
 
-function ReviewListingModal({ isOpen, onClose, listing, initialStep }: ModalProps) {
+function ReviewListingModal({
+  isOpen,
+  onClose,
+  listing,
+  initialStep,
+  onApprove,
+  onReject,
+}: ModalProps) {
   const [step, setStep] = useState<ModalStep>(initialStep);
   const [notes, setNotes] = useState('');
 
@@ -420,7 +522,7 @@ function ReviewListingModal({ isOpen, onClose, listing, initialStep }: ModalProp
                 <div>
                   <h4 className="text-sm leading-[100%] tracking-[0%] text-[#09090B]">Price</h4>
                   <p className="text-sm leading-[120%] tracking-[0%] text-[#999999] mt-2">
-                    ₦{listing.price.toLocaleString()}
+                    ₦{(listing.price ?? 0).toLocaleString()}
                   </p>
                 </div>
                 <div>
@@ -506,7 +608,7 @@ function ReviewListingModal({ isOpen, onClose, listing, initialStep }: ModalProp
                   </span>
                 </Button>
                 <Button
-                  onClick={() => setStep('SUCCESS_APPROVE')}
+                  onClick={onApprove}
                   className="rounded-[5px] border-[#E4E4E4EE] bg-[#3E78FF] px-4 py-2"
                 >
                   <span className="font-medium text-sm leading-[150%] tracking-[0%] text-white">
@@ -539,7 +641,7 @@ function ReviewListingModal({ isOpen, onClose, listing, initialStep }: ModalProp
                 </span>
               </Button>
               <Button
-                onClick={() => setStep('SUCCESS_REJECT')}
+                onClick={onReject}
                 className="w-[46.02%] rounded-[5px] border-[#E4E4E4EE] bg-[#EF3826] px-4 py-2"
               >
                 <span className="font-medium text-sm leading-[120%] tracking-[0%] text-white">
